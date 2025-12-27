@@ -2,8 +2,8 @@
 
 ## 项目简介
 
-天枢AutoOps运维管理系统是一个基于 Go + vue3 框架开发的企业级运维自动化平台，提供以下核心能力主机管理、配置中心、任务调度、K8s集群管理、监控告警等功能模块。统一平台，全栈治：打破 CI/CD、监控、CMDB、K8s、工单等系统孤岛，数据互通、策略统
-
+天枢AutoOps运维管理系统(枢=枢纽+中心)是一个基于 Go + vue3 框架开发的企业级运维自动化平台，提供以下核心能力主机管理、配置中心、任务调度、K8s集群管理、监控告警等功能模块。统一平台，全栈治：打破 CI/CD、监控、CMDB、K8s、工单等系统孤岛，数据互通、策略统. 最终实现把常用的运维工具全部集成在一起，比如夜莺，jenkins，jumpserver，kuboard，cmdb，Archery，等等，实现运维自动化。
+![alt text](assets/jg.png)
 
 ## 功能清单
 
@@ -11,7 +11,7 @@
 | 功能模块 | 功能项 | 状态 |
 |---------|--------|------|
 | **CMDB资产管理** | 主机管理 | ✅ |
-| | 云主机管理-阿里-腾讯-百度-华为 | ✅ |
+| | 主机管理-阿里-腾讯-百度-华为-跳板机 | ✅ |
 | | 云密钥管理 | ✅ |
 | | 主机终端管理 | ✅ |
 | | 五类数据库管理(MySQL/PgSQL/Redis/ES/MongoDB) | ✅ |
@@ -144,7 +144,7 @@ DevOps运维管理系统优势：
 </details>
 
 ### 测试环境
-http://139.9.205.38/login
+https://deviops.cn/login
 账号：test
 密码：123456
 ### 视频安装使用介绍
@@ -195,6 +195,11 @@ docker-compose logs -f
 Web 前端: http://localhost:8088
 默认账号: admin / 123456
 ```
+### 升级说明
+1. 目前更新会替换原来的镜像。
+2. 删除本地的镜像。docker stop  deviops-api  deviops-web  && docker rm  deviops-api  deviops-web
+3. docker-compose up -d  #会重新拉取最新镜像
+
 
 ## 感谢以下同学对本项目提供的打赏
 
