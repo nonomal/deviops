@@ -1,253 +1,1525 @@
 /*
  Navicat Premium Dump SQL
 
- Source Server         : 8.130.14.34
+ Source Server         : 127.0.01
  Source Server Type    : MySQL
- Source Server Version : 80044 (8.0.44-0ubuntu0.24.04.1)
- Source Host           : 8.130.14.34:3306
- Source Schema         : github
+ Source Server Version : 80035 (8.0.35)
+ Source Host           : 127.0.01:3306
+ Source Schema         : test
 
  Target Server Type    : MySQL
- Target Server Version : 80044 (8.0.44-0ubuntu0.24.04.1)
+ Target Server Version : 80035 (8.0.35)
  File Encoding         : 65001
 
- Date: 14/12/2025 14:58:23
+ Date: 03/08/2026 01:21:48
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- ----------------------------
--- Table structure for app_application
+-- Table structure for aiops_agent_feedback
 -- ----------------------------
-DROP TABLE IF EXISTS `app_application`;
-CREATE TABLE `app_application` (
+DROP TABLE IF EXISTS `aiops_agent_feedback`;
+CREATE TABLE `aiops_agent_feedback` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `code` varchar(255) NOT NULL,
-  `business_group_id` bigint unsigned NOT NULL,
-  `business_dept_id` bigint unsigned NOT NULL,
-  `description` text,
-  `repo_url` varchar(500) DEFAULT NULL,
-  `dev_owners` json DEFAULT NULL,
-  `test_owners` json DEFAULT NULL,
-  `ops_owners` json DEFAULT NULL,
-  `programming_lang` varchar(100) DEFAULT NULL,
-  `start_command` text,
-  `stop_command` text,
-  `health_api` varchar(500) DEFAULT NULL,
-  `domains` json DEFAULT NULL,
-  `hosts` json DEFAULT NULL,
-  `databases` json DEFAULT NULL,
-  `other_res` json DEFAULT NULL,
-  `status` tinyint DEFAULT '1',
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
+  `run_id` bigint unsigned NOT NULL,
+  `session_id` varchar(128) DEFAULT NULL,
+  `rating` varchar(64) NOT NULL,
+  `reason` varchar(255) DEFAULT NULL,
+  `comment` text,
+  `intent` varchar(64) DEFAULT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `username` varchar(128) DEFAULT NULL,
+  `raw_json` longtext,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_app_application_code` (`code`),
-  KEY `idx_app_application_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `idx_aiops_agent_feedback_run_id` (`run_id`),
+  KEY `idx_aiops_agent_feedback_session_id` (`session_id`),
+  KEY `idx_aiops_agent_feedback_rating` (`rating`),
+  KEY `idx_aiops_agent_feedback_intent` (`intent`),
+  KEY `idx_aiops_agent_feedback_user_id` (`user_id`),
+  KEY `idx_aiops_agent_feedback_username` (`username`),
+  KEY `idx_aiops_agent_feedback_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of app_application
+-- Records of aiops_agent_feedback
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for app_jenkins_env
+-- Table structure for aiops_agent_message
 -- ----------------------------
-DROP TABLE IF EXISTS `app_jenkins_env`;
-CREATE TABLE `app_jenkins_env` (
+DROP TABLE IF EXISTS `aiops_agent_message`;
+CREATE TABLE `aiops_agent_message` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `app_id` bigint unsigned NOT NULL,
-  `env_name` varchar(50) NOT NULL,
-  `jenkins_server_id` bigint unsigned DEFAULT NULL,
-  `job_name` varchar(255) DEFAULT '',
-  `job_url` varchar(500) DEFAULT NULL,
-  `build_params` json DEFAULT NULL,
-  `deploy_config` json DEFAULT NULL,
-  `notification` json DEFAULT NULL,
-  `is_active` tinyint DEFAULT '1',
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
+  `session_id` varchar(128) NOT NULL,
+  `run_id` bigint unsigned DEFAULT NULL,
+  `role` varchar(32) NOT NULL,
+  `content` longtext,
+  `intent` varchar(64) DEFAULT NULL,
+  `entities_json` longtext,
+  `tool_plan_json` longtext,
+  `timeline_json` longtext,
+  `diagnosis_json` longtext,
+  `raw_json` longtext,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_app_jenkins_env_app_id` (`app_id`),
-  KEY `idx_app_jenkins_env_deleted_at` (`deleted_at`),
-  CONSTRAINT `fk_app_application_jenkins_envs` FOREIGN KEY (`app_id`) REFERENCES `app_application` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `idx_aiops_agent_message_session_id` (`session_id`),
+  KEY `idx_aiops_agent_message_run_id` (`run_id`),
+  KEY `idx_aiops_agent_message_role` (`role`),
+  KEY `idx_aiops_agent_message_intent` (`intent`),
+  KEY `idx_aiops_agent_message_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of app_jenkins_env
+-- Records of aiops_agent_message
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for app_service_release
+-- Table structure for aiops_agent_run
 -- ----------------------------
-DROP TABLE IF EXISTS `app_service_release`;
-CREATE TABLE `app_service_release` (
+DROP TABLE IF EXISTS `aiops_agent_run`;
+CREATE TABLE `aiops_agent_run` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL COMMENT '发布标题',
-  `business_group_id` bigint unsigned NOT NULL COMMENT '业务组ID',
-  `impact_feature` text COMMENT '影响功能描述',
-  `applicant_id` bigint unsigned NOT NULL COMMENT '申请人ID',
-  `applicant_name` varchar(100) NOT NULL COMMENT '申请人姓名',
-  `owner_approver_id` bigint unsigned DEFAULT NULL COMMENT '负责人审批人ID',
-  `owner_approver_name` varchar(100) DEFAULT NULL COMMENT '负责人审批人姓名',
-  `security_approver_id` bigint unsigned DEFAULT NULL COMMENT '安全审批人ID',
-  `security_approver_name` varchar(100) DEFAULT NULL COMMENT '安全审批人姓名',
-  `test_approver_id` bigint unsigned DEFAULT NULL COMMENT '测试审批人ID',
-  `test_approver_name` varchar(100) DEFAULT NULL COMMENT '测试审批人姓名',
-  `owner_approval_status` bigint DEFAULT '1' COMMENT '负责人审批状态',
-  `security_approval_status` bigint DEFAULT '1' COMMENT '安全审批状态',
-  `test_approval_status` bigint DEFAULT '1' COMMENT '测试审批状态',
-  `owner_approval_time` datetime(3) DEFAULT NULL COMMENT '负责人审批时间',
-  `security_approval_time` datetime(3) DEFAULT NULL COMMENT '安全审批时间',
-  `test_approval_time` datetime(3) DEFAULT NULL COMMENT '测试审批时间',
-  `owner_approval_remark` text COMMENT '负责人审批意见',
-  `security_approval_remark` text COMMENT '安全审批意见',
-  `test_approval_remark` text COMMENT '测试审批意见',
-  `deploy_status` bigint DEFAULT '1' COMMENT '运维发布状态',
-  `regression_test_status` bigint DEFAULT '1' COMMENT '回归测试状态',
-  `status` bigint DEFAULT '1' COMMENT '流程状态',
-  `start_time` datetime(3) DEFAULT NULL COMMENT '发布开始时间',
-  `end_time` datetime(3) DEFAULT NULL COMMENT '发布结束时间',
-  `duration` bigint DEFAULT '0' COMMENT '发布耗时(秒)',
-  `service_count` bigint DEFAULT '0' COMMENT '关联服务数量',
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
+  `run_type` varchar(64) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `provider_id` bigint unsigned DEFAULT NULL,
+  `provider_name` varchar(128) DEFAULT NULL,
+  `provider_type` varchar(64) DEFAULT NULL,
+  `model_code` varchar(128) DEFAULT NULL,
+  `summary` text,
+  `severity` varchar(32) DEFAULT NULL,
+  `steps_json` longtext,
+  `result_json` longtext,
+  `used_llm` tinyint(1) DEFAULT NULL,
+  `error` text,
+  `started_at` datetime NOT NULL,
+  `finished_at` datetime DEFAULT NULL,
+  `duration_ms` bigint DEFAULT NULL,
+  `generated_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  `alert_id` bigint unsigned DEFAULT NULL,
+  `fingerprint` varchar(64) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_app_service_release_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `idx_aiops_agent_run_run_type` (`run_type`),
+  KEY `idx_aiops_agent_run_status` (`status`),
+  KEY `idx_aiops_agent_run_provider_id` (`provider_id`),
+  KEY `idx_aiops_agent_run_started_at` (`started_at`),
+  KEY `idx_aiops_agent_run_generated_at` (`generated_at`),
+  KEY `idx_aiops_agent_run_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of app_service_release
+-- Records of aiops_agent_run
 -- ----------------------------
 BEGIN;
-INSERT INTO `app_service_release` (`id`, `title`, `business_group_id`, `impact_feature`, `applicant_id`, `applicant_name`, `owner_approver_id`, `owner_approver_name`, `security_approver_id`, `security_approver_name`, `test_approver_id`, `test_approver_name`, `owner_approval_status`, `security_approval_status`, `test_approval_status`, `owner_approval_time`, `security_approval_time`, `test_approval_time`, `owner_approval_remark`, `security_approval_remark`, `test_approval_remark`, `deploy_status`, `regression_test_status`, `status`, `start_time`, `end_time`, `duration`, `service_count`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, '测试---发布工单上线', 12, '影响用户登录', 1, '管理员', 102, '用户_102', 98, '用户_98', 89, '用户_89', 2, 2, 2, '2025-11-22 18:16:13.748', '2025-11-22 18:16:27.156', '2025-11-22 18:16:36.689', '同意', '同意', '同意', 3, 3, 2, '2025-11-22 18:18:03.250', '2025-11-22 18:21:45.450', 220, 1, '2025-11-22 18:13:37.037', '2025-11-22 23:01:55.144', NULL);
-INSERT INTO `app_service_release` (`id`, `title`, `business_group_id`, `impact_feature`, `applicant_id`, `applicant_name`, `owner_approver_id`, `owner_approver_name`, `security_approver_id`, `security_approver_name`, `test_approver_id`, `test_approver_name`, `owner_approval_status`, `security_approval_status`, `test_approval_status`, `owner_approval_time`, `security_approval_time`, `test_approval_time`, `owner_approval_remark`, `security_approval_remark`, `test_approval_remark`, `deploy_status`, `regression_test_status`, `status`, `start_time`, `end_time`, `duration`, `service_count`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, '测试多任务工单发布', 12, '测试多任务工单发布', 1, '管理员', 103, '用户_103', 98, '用户_98', 104, '用户_104', 2, 2, 2, '2025-11-22 19:33:08.128', '2025-11-22 19:34:25.711', '2025-11-22 19:34:41.139', '', '', '', 4, 1, 3, '2025-11-22 19:36:09.589', '2025-11-22 19:41:18.736', 591, 4, '2025-11-22 19:31:57.732', '2025-11-22 19:41:18.789', NULL);
-INSERT INTO `app_service_release` (`id`, `title`, `business_group_id`, `impact_feature`, `applicant_id`, `applicant_name`, `owner_approver_id`, `owner_approver_name`, `security_approver_id`, `security_approver_name`, `test_approver_id`, `test_approver_name`, `owner_approval_status`, `security_approval_status`, `test_approval_status`, `owner_approval_time`, `security_approval_time`, `test_approval_time`, `owner_approval_remark`, `security_approval_remark`, `test_approval_remark`, `deploy_status`, `regression_test_status`, `status`, `start_time`, `end_time`, `duration`, `service_count`, `created_at`, `updated_at`, `deleted_at`) VALUES (4, '测试审批流程', 12, '测试审批流程', 1, '管理员', 103, '用户_103', 98, '用户_98', 104, '用户_104', 2, 2, 2, '2025-11-22 20:28:35.898', '2025-11-22 20:28:48.373', '2025-11-22 20:28:55.066', '', '', '', 4, 1, 3, '2025-11-22 20:29:16.698', '2025-11-22 20:34:22.328', 303, 2, '2025-11-22 20:00:18.967', '2025-11-22 20:34:22.386', NULL);
-INSERT INTO `app_service_release` (`id`, `title`, `business_group_id`, `impact_feature`, `applicant_id`, `applicant_name`, `owner_approver_id`, `owner_approver_name`, `security_approver_id`, `security_approver_name`, `test_approver_id`, `test_approver_name`, `owner_approval_status`, `security_approval_status`, `test_approval_status`, `owner_approval_time`, `security_approval_time`, `test_approval_time`, `owner_approval_remark`, `security_approval_remark`, `test_approval_remark`, `deploy_status`, `regression_test_status`, `status`, `start_time`, `end_time`, `duration`, `service_count`, `created_at`, `updated_at`, `deleted_at`) VALUES (5, '测试---发布工单上线', 12, '测试---发布工单上线', 1, '管理员', 104, '用户_104', 103, '用户_103', 98, '用户_98', 2, 2, 2, '2025-11-22 23:13:56.636', '2025-11-22 23:16:26.840', '2025-11-22 23:16:34.126', '', '通过', '', 3, 3, 2, '2025-11-22 23:52:17.626', '2025-11-22 23:55:51.883', 212, 1, '2025-11-22 23:13:39.884', '2025-11-23 00:50:11.059', NULL);
-INSERT INTO `app_service_release` (`id`, `title`, `business_group_id`, `impact_feature`, `applicant_id`, `applicant_name`, `owner_approver_id`, `owner_approver_name`, `security_approver_id`, `security_approver_name`, `test_approver_id`, `test_approver_name`, `owner_approval_status`, `security_approval_status`, `test_approval_status`, `owner_approval_time`, `security_approval_time`, `test_approval_time`, `owner_approval_remark`, `security_approval_remark`, `test_approval_remark`, `deploy_status`, `regression_test_status`, `status`, `start_time`, `end_time`, `duration`, `service_count`, `created_at`, `updated_at`, `deleted_at`) VALUES (6, '双任务上线', 14, '123', 1, '管理员', 104, '用户_104', 103, '用户_103', 98, '用户_98', 2, 2, 2, '2025-11-23 11:33:16.353', '2025-11-23 11:33:22.967', '2025-11-23 12:57:50.091', '', '', '111', 1, 1, 1, NULL, NULL, 0, 2, '2025-11-23 11:32:19.689', '2025-11-23 12:57:50.147', NULL);
-INSERT INTO `app_service_release` (`id`, `title`, `business_group_id`, `impact_feature`, `applicant_id`, `applicant_name`, `owner_approver_id`, `owner_approver_name`, `security_approver_id`, `security_approver_name`, `test_approver_id`, `test_approver_name`, `owner_approval_status`, `security_approval_status`, `test_approval_status`, `owner_approval_time`, `security_approval_time`, `test_approval_time`, `owner_approval_remark`, `security_approval_remark`, `test_approval_remark`, `deploy_status`, `regression_test_status`, `status`, `start_time`, `end_time`, `duration`, `service_count`, `created_at`, `updated_at`, `deleted_at`) VALUES (7, '测试生产环境服务上线', 18, '影响用户登录', 1, '管理员', 104, '王五', 98, '李四', 98, '李四', 2, 2, 2, '2025-11-24 00:44:47.250', '2025-11-24 00:45:40.169', '2025-11-24 00:45:45.926', '同意', '', '', 3, 3, 2, '2025-11-24 00:46:52.721', '2025-11-24 00:52:38.168', 344, 1, '2025-11-24 00:42:24.608', '2025-11-24 00:53:04.351', NULL);
-INSERT INTO `app_service_release` (`id`, `title`, `business_group_id`, `impact_feature`, `applicant_id`, `applicant_name`, `owner_approver_id`, `owner_approver_name`, `security_approver_id`, `security_approver_name`, `test_approver_id`, `test_approver_name`, `owner_approval_status`, `security_approval_status`, `test_approval_status`, `owner_approval_time`, `security_approval_time`, `test_approval_time`, `owner_approval_remark`, `security_approval_remark`, `test_approval_remark`, `deploy_status`, `regression_test_status`, `status`, `start_time`, `end_time`, `duration`, `service_count`, `created_at`, `updated_at`, `deleted_at`) VALUES (8, 'tesst123', 12, '影响用户登录', 1, '管理员', 89, 'admin', 89, 'admin', 89, 'admin', 2, 2, 2, '2025-12-05 20:47:13.905', '2025-12-05 20:47:18.461', '2025-12-05 20:47:27.382', 'ok', '', '', 3, 2, 1, '2025-12-05 20:47:39.670', '2025-12-05 20:47:53.645', 12, 1, '2025-12-05 20:46:53.205', '2025-12-05 20:47:53.696', NULL);
 COMMIT;
 
 -- ----------------------------
--- Table structure for app_service_release_item
+-- Table structure for aiops_agent_session
 -- ----------------------------
-DROP TABLE IF EXISTS `app_service_release_item`;
-CREATE TABLE `app_service_release_item` (
+DROP TABLE IF EXISTS `aiops_agent_session`;
+CREATE TABLE `aiops_agent_session` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `release_id` bigint unsigned NOT NULL COMMENT '上线工单ID',
-  `app_id` bigint unsigned NOT NULL COMMENT '应用ID',
-  `app_name` varchar(255) NOT NULL COMMENT '应用名称',
-  `app_code` varchar(100) NOT NULL COMMENT '应用编码',
-  `project_name` varchar(255) NOT NULL COMMENT '项目服务名称',
-  `repo_url` varchar(500) NOT NULL COMMENT '项目地址',
-  `branch` varchar(100) DEFAULT 'master' COMMENT '发布分支',
-  `commit_id` varchar(100) NOT NULL COMMENT 'Commit ID',
-  `impact_feature` text COMMENT '影响功能',
-  `function_module` text COMMENT '功能模块',
-  `db_change` text COMMENT '数据库变更',
-  `config_change` text COMMENT '配置变更',
-  `remark` text COMMENT '备注信息',
-  `jenkins_env_id` bigint unsigned DEFAULT NULL COMMENT 'Jenkins环境配置ID',
-  `jenkins_job_url` varchar(500) DEFAULT NULL COMMENT 'Jenkins任务URL',
-  `parameters` text COMMENT 'Jenkins构建参数(JSON格式)',
-  `build_number` bigint DEFAULT '0' COMMENT '构建编号',
-  `log_url` varchar(500) DEFAULT NULL COMMENT '构建日志URL',
-  `status` bigint DEFAULT '1' COMMENT '发布状态',
-  `start_time` datetime(3) DEFAULT NULL COMMENT '发布开始时间',
-  `end_time` datetime(3) DEFAULT NULL COMMENT '发布结束时间',
-  `duration` bigint DEFAULT '0' COMMENT '发布耗时(秒)',
-  `error_message` text COMMENT '错误信息',
-  `execute_order` bigint DEFAULT '0' COMMENT '执行顺序',
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
+  `session_id` varchar(128) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `channel` varchar(64) DEFAULT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `username` varchar(128) DEFAULT NULL,
+  `status` varchar(32) NOT NULL,
+  `last_run_id` bigint unsigned DEFAULT NULL,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_app_service_release_item_release_id` (`release_id`),
-  KEY `idx_app_service_release_item_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  UNIQUE KEY `idx_aiops_agent_session_session_id` (`session_id`),
+  KEY `idx_aiops_agent_session_channel` (`channel`),
+  KEY `idx_aiops_agent_session_user_id` (`user_id`),
+  KEY `idx_aiops_agent_session_username` (`username`),
+  KEY `idx_aiops_agent_session_status` (`status`),
+  KEY `idx_aiops_agent_session_last_run_id` (`last_run_id`),
+  KEY `idx_aiops_agent_session_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of app_service_release_item
+-- Records of aiops_agent_session
 -- ----------------------------
 BEGIN;
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (1, 2, 14, 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'git@code.dding.net/lockin/saas-toc-server.git', 'master', '083a2d6669effe63670b0d5ee899d29eeb187abf', '影响用户登录', '', '没有', '没有', '没有', 35, '', '{\"commit_id\":\"083a2d6669effe63670b0d5ee899d29eeb187abf\",\"compile\":\"true\"}', 408, 'http://test-ops-jenkins-tc2.dding.net:8080/job/dev-lku-sass-pack/408/console', 3, '2025-11-22 18:18:03.823', '2025-11-22 18:21:44.766', 220, '', 1, '2025-11-22 18:13:37.484', '2025-11-22 18:21:44.821', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (2, 3, 15, 'dev-lku-sass-deploy', 'dev-lku-sass-deploy', 'dev-lku-sass-deploy', 'git@code.dding.net/lockin/saas-toc-server.git', 'master', 'c7417cbe54a11d89c819b4541316980dc1634687', '测试多任务工单发布', '', '无', '无', '无', 39, '', '', 19, 'http://test-ops-jenkins-tc2.dding.net:8080/job/test1-saas-deploy/19/console', 4, '2025-11-22 19:36:10.184', '2025-11-22 19:36:37.458', 27, 'Jenkins构建失败', 1, '2025-11-22 19:31:58.231', '2025-11-22 19:36:37.524', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (3, 3, 14, 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'git@code.dding.net/lockin/saas-toc-server.git', 'master', 'c7417cbe54a11d89c819b4541316980dc1634687', '测试多任务工单发布', '', '无', '无', '无', 35, '', '', 409, 'http://test-ops-jenkins-tc2.dding.net:8080/job/dev-lku-sass-pack/409/console', 3, '2025-11-22 19:36:10.184', '2025-11-22 19:39:59.417', 229, '', 2, '2025-11-22 19:31:58.710', '2025-11-22 19:39:59.476', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (4, 3, 18, 'test1-paas-deploy', 'test1-paas-deploy', 'test1-paas-deploy', 'git@code.dding.net/lockin/cloud-platform.git', 'master', 'c7417cbe54a11d89c819b4541316980dc1634687', '测试多任务工单发布', '', '无', '无', '无', 48, '', '', 13, 'http://test-ops-jenkins-tc2.dding.net:8080/job/test1-paas-deploy/13/console', 4, '2025-11-22 19:36:10.184', '2025-11-22 19:36:38.200', 28, 'Jenkins构建失败', 3, '2025-11-22 19:31:59.196', '2025-11-22 19:36:38.282', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (5, 3, 17, 'test1-paas-pack', 'test1-paas-pack', 'test1-paas-pack', 'git@code.dding.net/lockin/cloud-platform.git', 'master', 'c7417cbe54a11d89c819b4541316980dc1634687', '测试多任务工单发布', '', '无', '无', '无', 45, '', '', 14, 'http://test-ops-jenkins-tc2.dding.net:8080/job/test1-paas-pack/14/console', 3, '2025-11-22 19:36:10.184', '2025-11-22 19:41:18.055', 307, '', 4, '2025-11-22 19:31:59.673', '2025-11-22 19:41:18.106', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (6, 4, 17, 'test1-paas-pack', 'test1-paas-pack', 'test1-paas-pack', 'git@code.dding.net/lockin/cloud-platform.git', 'master', 'c7417cbe54a11d89c819b4541316980dc1634687', '测试审批流程', '', '测试审批流程', '测试审批流程', '测试审批流程', 45, '', '', 15, 'http://test-ops-jenkins-tc2.dding.net:8080/job/test1-paas-pack/15/console', 3, '2025-11-22 20:29:17.308', '2025-11-22 20:34:08.653', 291, '', 1, '2025-11-22 20:00:19.453', '2025-11-22 20:34:08.746', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (7, 4, 18, 'test1-paas-deploy', 'test1-paas-deploy', 'test1-paas-deploy', 'git@code.dding.net/lockin/cloud-platform.git', 'master', 'c7417cbe54a11d89c819b4541316980dc1634687', '测试审批流程', '', '测试审批流程', '测试审批流程', '测试审批流程', 48, '', '', 14, 'http://test-ops-jenkins-tc2.dding.net:8080/job/test1-paas-deploy/14/console', 4, '2025-11-22 20:34:09.058', '2025-11-22 20:34:21.625', 12, 'Jenkins构建失败', 2, '2025-11-22 20:00:19.908', '2025-11-22 20:34:21.687', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (8, 5, 14, 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'git@code.dding.net/lockin/saas-toc-server.git', 'master', '083a2d6669effe63670b0d5ee899d29eeb187abf', '无', '', '无', '无', '无', 35, '', '', 410, 'http://test-ops-jenkins-tc2.dding.net:8080/job/dev-lku-sass-pack/410/console', 3, '2025-11-22 23:52:18.208', '2025-11-22 23:55:51.178', 212, '', 1, '2025-11-22 23:13:40.348', '2025-11-22 23:55:51.229', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (9, 6, 17, 'test1-paas-pack', 'test1-paas-pack', 'test1-paas-pack', 'git@code.dding.net/lockin/cloud-platform.git', 'master', 'c7417cbe54a11d89c819b4541316980dc1634687', '123', '', '123', '123', '123', 45, '', '{\"commit_id\":\"c7417cbe54a11d89c819b4541316980dc1634687\",\"compile\":\"true\"}', 0, '', 1, NULL, NULL, 0, '', 1, '2025-11-23 11:32:20.185', '2025-11-23 11:32:20.185', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (10, 6, 14, 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'git@code.dding.net/lockin/saas-toc-server.git', 'master', '083a2d6669effe63670b0d5ee899d29eeb187abf', '123', '', '123', '123', '123', 35, '', '{\"commit_id\":\"083a2d6669effe63670b0d5ee899d29eeb187abf\",\"compile\":\"true\"}', 0, '', 1, NULL, NULL, 0, '', 2, '2025-11-23 11:32:20.664', '2025-11-23 11:32:20.664', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (11, 7, 14, 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'dev-lku-sass-pack', 'git@code.dding.net/lockin/saas-toc-server.git', 'master', '083a2d6669effe63670b0d5ee899d29eeb187abf', '影响用户登录', '', '无', '无', '123', 35, '', '{\"commit_id\":\"083a2d6669effe63670b0d5ee899d29eeb187abf\",\"compile\":\"true\"}', 411, 'http://test-ops-jenkins-tc2.dding.net:8080/job/dev-lku-sass-pack/411/console', 3, '2025-11-24 00:46:53.314', '2025-11-24 00:52:37.448', 344, '', 1, '2025-11-24 00:42:25.108', '2025-11-24 00:52:37.512', NULL);
-INSERT INTO `app_service_release_item` (`id`, `release_id`, `app_id`, `app_name`, `app_code`, `project_name`, `repo_url`, `branch`, `commit_id`, `impact_feature`, `function_module`, `db_change`, `config_change`, `remark`, `jenkins_env_id`, `jenkins_job_url`, `parameters`, `build_number`, `log_url`, `status`, `start_time`, `end_time`, `duration`, `error_message`, `execute_order`, `created_at`, `updated_at`, `deleted_at`) VALUES (12, 8, 19, 'prod_saas3.0_data-export', 'prod-saas30-data-export', 'prod_saas3.0_data-export', 'git@gitee.com:zhang_fan1024/zf-k8s.git', 'master', '', '影响用户登录', '', '无', '无', '无', 51, '', '{\"commit_id\":\"123456789\"}', 10, 'http://test-ops-jenkins-tc2.dding.net:8080/job/prod_saas3.0_data-export/10/console', 3, '2025-12-05 20:47:40.229', '2025-12-05 20:47:52.992', 12, '', 1, '2025-12-05 20:46:53.654', '2025-12-05 20:47:53.043', NULL);
 COMMIT;
 
 -- ----------------------------
--- Table structure for app_sh_release
+-- Table structure for aiops_evidence
 -- ----------------------------
-DROP TABLE IF EXISTS `app_sh_release`;
-CREATE TABLE `app_sh_release` (
+DROP TABLE IF EXISTS `aiops_evidence`;
+CREATE TABLE `aiops_evidence` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL COMMENT '上线标题',
-  `reason` text NOT NULL COMMENT '上线原因',
-  `business_group_id` bigint unsigned NOT NULL COMMENT '业务线ID',
-  `app_id` bigint unsigned NOT NULL COMMENT '服务ID',
-  `app_name` varchar(255) NOT NULL COMMENT '服务名称',
-  `app_code` varchar(100) NOT NULL COMMENT '服务编码',
-  `applicant_id` bigint unsigned NOT NULL COMMENT '申请人ID',
-  `applicant_name` varchar(100) NOT NULL COMMENT '申请人姓名',
-  `approver_id` bigint unsigned DEFAULT NULL COMMENT '审核人ID',
-  `approver_name` varchar(100) DEFAULT NULL COMMENT '审核人姓名',
-  `executor_id` bigint unsigned DEFAULT NULL COMMENT '执行人ID',
-  `executor_name` varchar(100) DEFAULT NULL COMMENT '执行人姓名',
-  `execute_dir` varchar(500) NOT NULL COMMENT '执行目录',
-  `script_content` text NOT NULL COMMENT '脚本内容',
-  `approval_status` bigint DEFAULT '1' COMMENT '审核状态',
-  `approval_time` datetime(3) DEFAULT NULL COMMENT '审核时间',
-  `approval_remark` text COMMENT '审核意见',
-  `execute_status` bigint DEFAULT '1' COMMENT '执行状态',
-  `status` bigint DEFAULT '1' COMMENT '流程状态',
-  `start_time` datetime(3) DEFAULT NULL COMMENT '脚本执行开始时间',
-  `end_time` datetime(3) DEFAULT NULL COMMENT '脚本执行结束时间',
-  `duration` bigint DEFAULT '0' COMMENT '执行耗时(秒)',
-  `jenkins_env_id` bigint unsigned DEFAULT NULL COMMENT 'Jenkins环境配置ID',
-  `build_number` bigint DEFAULT '0' COMMENT '构建编号',
-  `log_url` varchar(500) DEFAULT NULL COMMENT '构建日志URL',
-  `error_message` text COMMENT '错误信息',
+  `run_id` bigint unsigned NOT NULL,
+  `type` varchar(32) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `reference` varchar(255) DEFAULT NULL,
+  `content` text,
+  `raw_json` longtext,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_aiops_evidence_run_id` (`run_id`),
+  KEY `idx_aiops_evidence_type` (`type`),
+  KEY `idx_aiops_evidence_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of aiops_evidence
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for aiops_knowledge_chunk
+-- ----------------------------
+DROP TABLE IF EXISTS `aiops_knowledge_chunk`;
+CREATE TABLE `aiops_knowledge_chunk` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `document_id` bigint unsigned NOT NULL,
+  `chunk_index` bigint NOT NULL,
+  `heading` varchar(255) DEFAULT NULL,
+  `content` longtext,
+  `content_hash` varchar(64) DEFAULT NULL,
+  `keywords_json` text,
+  `embedding_status` varchar(32) NOT NULL DEFAULT 'pending',
+  `embedding_id` varchar(255) DEFAULT NULL,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `deleted_at` datetime(3) DEFAULT NULL,
-  `parameters` text COMMENT 'Jenkins构建参数(JSON格式)',
-  `server_host_id` bigint unsigned NOT NULL COMMENT '执行服务器主机ID(关联cmdb_host)',
-  `pull_code_start_time` datetime(3) DEFAULT NULL COMMENT '拉取代码开始时间',
-  `pull_code_end_time` datetime(3) DEFAULT NULL COMMENT '拉取代码结束时间',
-  `script_output` longtext COMMENT '脚本执行输出',
+  `section_path` varchar(1000) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `idx_app_sh_release_deleted_at` (`deleted_at`)
+  KEY `idx_aiops_knowledge_chunk_document_id` (`document_id`),
+  KEY `idx_aiops_knowledge_chunk_heading` (`heading`),
+  KEY `idx_aiops_knowledge_chunk_content_hash` (`content_hash`),
+  KEY `idx_aiops_knowledge_chunk_embedding_status` (`embedding_status`),
+  KEY `idx_aiops_knowledge_chunk_embedding_id` (`embedding_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=171 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of aiops_knowledge_chunk
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for aiops_knowledge_document
+-- ----------------------------
+DROP TABLE IF EXISTS `aiops_knowledge_document`;
+CREATE TABLE `aiops_knowledge_document` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `doc_type` varchar(32) NOT NULL DEFAULT 'incident',
+  `status` varchar(32) NOT NULL DEFAULT 'draft',
+  `group_name` varchar(128) DEFAULT NULL,
+  `category` varchar(128) DEFAULT NULL,
+  `severity` varchar(32) DEFAULT NULL,
+  `service_name` varchar(255) DEFAULT NULL,
+  `env` varchar(64) DEFAULT NULL,
+  `tags_json` text,
+  `keywords_json` text,
+  `alert_names_json` text,
+  `log_keywords_json` text,
+  `owners_json` text,
+  `content_markdown` longtext,
+  `summary` text,
+  `symptoms_json` text,
+  `root_causes_json` text,
+  `resolution_steps_json` text,
+  `verification_json` text,
+  `rollback_plan` text,
+  `source_filename` varchar(255) DEFAULT NULL,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `updated_by` bigint unsigned DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `group_id` bigint unsigned NOT NULL DEFAULT '0',
+  `summary_status` varchar(32) NOT NULL DEFAULT 'pending',
+  `summary_error` text,
+  `search_status` varchar(32) NOT NULL DEFAULT 'ready',
+  `search_error` text,
+  `search_version` bigint NOT NULL DEFAULT '1',
+  `chunk_count` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_aiops_knowledge_document_title` (`title`),
+  KEY `idx_aiops_knowledge_document_doc_type` (`doc_type`),
+  KEY `idx_aiops_knowledge_document_status` (`status`),
+  KEY `idx_aiops_knowledge_document_group_name` (`group_name`),
+  KEY `idx_aiops_knowledge_document_category` (`category`),
+  KEY `idx_aiops_knowledge_document_severity` (`severity`),
+  KEY `idx_aiops_knowledge_document_service_name` (`service_name`),
+  KEY `idx_aiops_knowledge_document_env` (`env`),
+  KEY `idx_aiops_knowledge_document_created_by` (`created_by`),
+  KEY `idx_aiops_knowledge_document_updated_by` (`updated_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of aiops_knowledge_document
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for aiops_knowledge_group
+-- ----------------------------
+DROP TABLE IF EXISTS `aiops_knowledge_group`;
+CREATE TABLE `aiops_knowledge_group` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint unsigned NOT NULL DEFAULT '0',
+  `name` varchar(128) NOT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `sort_order` bigint NOT NULL DEFAULT '0',
+  `created_by` bigint unsigned DEFAULT NULL,
+  `updated_by` bigint unsigned DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_aiops_knowledge_group_parent_name` (`parent_id`,`name`),
+  KEY `idx_aiops_knowledge_group_parent_id` (`parent_id`),
+  KEY `idx_aiops_knowledge_group_sort_order` (`sort_order`),
+  KEY `idx_aiops_knowledge_group_created_by` (`created_by`),
+  KEY `idx_aiops_knowledge_group_updated_by` (`updated_by`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of aiops_knowledge_group
+-- ----------------------------
+BEGIN;
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (12, 0, '运维知识库', '运维制度、维护记录、故障经验和技术文档的统一知识库', 10, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (13, 12, '01-运维管理制度', '运维管理制度、规范和流程', 10, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (14, 12, '02-部署维护记录', '系统部署、变更和日常维护记录', 20, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (15, 12, '03-运维故障记录', '故障现象、排查过程、根因和复盘记录', 30, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (16, 12, '04-中间件维护记录', '中间件配置、部署、升级和故障处理记录', 40, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (17, 12, '05-数据库管理', '数据库部署、配置、备份、恢复和优化记录', 50, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (18, 12, '06-运维开发', '运维工具、脚本、平台和自动化开发记录', 60, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (19, 12, '07-运维监控', '监控指标、告警规则和可观测性建设记录', 70, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (20, 12, '08-运维体系建设', '运维流程、标准化和体系建设记录', 80, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (21, 12, '09-运维安全管理', '账号权限、审计、漏洞和安全管理记录', 90, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+INSERT INTO `aiops_knowledge_group` (`id`, `parent_id`, `name`, `description`, `sort_order`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (22, 12, '10-总结记录', '阶段总结、经验沉淀和改进记录', 100, 0, 0, '2026-08-03 01:20:03.394', '2026-08-03 01:20:03.394');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for aiops_llm_provider
+-- ----------------------------
+DROP TABLE IF EXISTS `aiops_llm_provider`;
+CREATE TABLE `aiops_llm_provider` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `provider_type` varchar(64) NOT NULL,
+  `protocol` varchar(64) NOT NULL,
+  `base_url` varchar(512) DEFAULT NULL,
+  `chat_path` varchar(256) DEFAULT NULL,
+  `api_key` text,
+  `api_secret` text,
+  `auth_type` varchar(32) NOT NULL DEFAULT 'bearer',
+  `organization` varchar(128) DEFAULT NULL,
+  `project` varchar(128) DEFAULT NULL,
+  `default_model` varchar(128) DEFAULT NULL,
+  `models` text,
+  `headers` text,
+  `extra` text,
+  `timeout_seconds` bigint NOT NULL DEFAULT '60',
+  `max_retries` bigint NOT NULL DEFAULT '2',
+  `max_context_messages` bigint NOT NULL DEFAULT '20',
+  `temperature` decimal(5,3) NOT NULL DEFAULT '0.700',
+  `max_tokens` bigint NOT NULL DEFAULT '0',
+  `status` bigint NOT NULL DEFAULT '1',
+  `is_default` tinyint(1) NOT NULL DEFAULT '0',
+  `remark` text,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_aiops_llm_provider_name` (`name`),
+  KEY `idx_aiops_llm_provider_provider_type` (`provider_type`),
+  KEY `idx_aiops_llm_provider_status` (`status`),
+  KEY `idx_aiops_llm_provider_is_default` (`is_default`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of aiops_llm_provider
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_active_events
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_active_events`;
+CREATE TABLE `alert_active_events` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `fingerprint` varchar(128) NOT NULL,
+  `rule_id` bigint unsigned DEFAULT NULL,
+  `rule_name` varchar(150) DEFAULT NULL,
+  `datasource_id` bigint unsigned DEFAULT NULL,
+  `datasource_type` varchar(64) DEFAULT NULL,
+  `severity` varchar(32) DEFAULT NULL,
+  `status` varchar(32) DEFAULT NULL,
+  `labels` json DEFAULT NULL,
+  `annotations` json DEFAULT NULL,
+  `value` varchar(128) DEFAULT NULL,
+  `trigger_query` text,
+  `trigger_condition` text,
+  `event_detail` text,
+  `asset_id` bigint unsigned DEFAULT NULL,
+  `business_id` varchar(128) DEFAULT NULL,
+  `first_triggered_at` datetime(3) DEFAULT NULL,
+  `last_evaluated_at` datetime(3) DEFAULT NULL,
+  `last_notified_at` datetime(3) DEFAULT NULL,
+  `recovered_at` datetime(3) DEFAULT NULL,
+  `notify_count` int DEFAULT '0',
+  `suppressed` tinyint DEFAULT '0',
+  `silenced` tinyint DEFAULT '0',
+  `claim_user` varchar(64) DEFAULT NULL,
+  `claimed_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_alert_active_events_fingerprint` (`fingerprint`),
+  KEY `idx_alert_active_events_rule_id` (`rule_id`),
+  KEY `idx_alert_active_events_rule_name` (`rule_name`),
+  KEY `idx_alert_active_events_datasource_id` (`datasource_id`),
+  KEY `idx_alert_active_events_datasource_type` (`datasource_type`),
+  KEY `idx_alert_active_events_severity` (`severity`),
+  KEY `idx_alert_active_events_status` (`status`),
+  KEY `idx_alert_active_events_asset_id` (`asset_id`),
+  KEY `idx_alert_active_events_business_id` (`business_id`),
+  KEY `idx_alert_active_events_suppressed` (`suppressed`),
+  KEY `idx_alert_active_events_silenced` (`silenced`),
+  KEY `idx_alert_active_events_claim_user` (`claim_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_active_events
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_builtin_rule_template_groups
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_builtin_rule_template_groups`;
+CREATE TABLE `alert_builtin_rule_template_groups` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint unsigned DEFAULT '0',
+  `level` varchar(32) NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `value` varchar(100) NOT NULL,
+  `resource_type` varchar(64) DEFAULT '',
+  `description` varchar(500) DEFAULT NULL,
+  `sort` int DEFAULT '0',
+  `builtin` tinyint NOT NULL DEFAULT '0',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_builtin_rule_template_groups_parent_id` (`parent_id`),
+  KEY `idx_alert_builtin_rule_template_groups_level` (`level`),
+  KEY `idx_alert_builtin_rule_template_groups_name` (`name`),
+  KEY `idx_alert_builtin_rule_template_groups_value` (`value`),
+  KEY `idx_alert_builtin_rule_template_groups_resource_type` (`resource_type`),
+  KEY `idx_alert_builtin_rule_template_groups_builtin` (`builtin`),
+  KEY `idx_alert_builtin_rule_template_groups_enabled` (`enabled`)
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_builtin_rule_template_groups
+-- ----------------------------
+BEGIN;
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (1, 0, 'component', 'Linux', 'Linux', 'host', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (2, 1, 'collector', 'node_exporter', 'node_exporter', 'host', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (3, 2, 'category', 'cpu', 'cpu', 'host', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (4, 2, 'category', 'memory', 'memory', 'host', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (5, 2, 'category', 'disk', 'disk', 'host', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (6, 2, 'category', 'availability', 'availability', 'host', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (7, 0, 'component', 'Kubernetes', 'Kubernetes', 'k8s', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (8, 7, 'collector', 'kube-state-metrics', 'kube-state-metrics', 'k8s', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (9, 8, 'category', 'node', 'node', 'k8s', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (10, 8, 'category', 'deployment', 'deployment', 'k8s', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (11, 8, 'category', 'pod', 'pod', 'k8s', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (12, 0, 'component', 'MySQL', 'MySQL', 'mysql', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (13, 12, 'collector', 'mysqld_exporter', 'mysqld_exporter', 'mysql', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (14, 13, 'category', 'connection', 'connection', 'mysql', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (15, 13, 'category', 'file', 'file', 'mysql', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (16, 13, 'category', 'replication', 'replication', 'mysql', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (17, 0, 'component', 'Prometheus', 'Prometheus', 'prometheus', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (18, 17, 'collector', 'prometheus', 'prometheus', 'prometheus', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (19, 18, 'category', 'target', 'target', 'prometheus', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (20, 0, 'component', 'VictoriaMetrics', 'VictoriaMetrics', 'victoriametrics', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (21, 20, 'collector', 'victoriametrics', 'victoriametrics', 'victoriametrics', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (22, 21, 'category', 'availability', 'availability', 'victoriametrics', '', 0, 1, 1, 'system', 'system', '2026-07-10 23:50:48.978', '2026-07-10 23:50:48.978');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (23, 1, 'collector', 'Agent 监控模板', 'agent', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (24, 23, 'category', 'CPU', 'cpu', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (25, 23, 'category', '内存', 'memory', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (26, 23, 'category', '负载', 'load', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (27, 23, 'category', '磁盘', 'disk', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (28, 23, 'category', '磁盘 IO', 'disk_io', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (29, 23, 'category', '网络', 'network', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (30, 23, 'category', '连接数', 'connection', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+INSERT INTO `alert_builtin_rule_template_groups` (`id`, `parent_id`, `level`, `name`, `value`, `resource_type`, `description`, `sort`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (31, 23, 'category', '服务', 'service', 'host', '', 0, 1, 1, 'system', 'system', '2026-08-02 15:22:31.372', '2026-08-02 15:22:31.372');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_builtin_rule_templates
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_builtin_rule_templates`;
+CREATE TABLE `alert_builtin_rule_templates` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `resource_type` varchar(64) NOT NULL DEFAULT 'host',
+  `component` varchar(100) NOT NULL DEFAULT '',
+  `collector` varchar(100) NOT NULL DEFAULT '',
+  `category` varchar(64) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `datasource_type` varchar(64) NOT NULL,
+  `source` varchar(64) NOT NULL DEFAULT 'manual',
+  `source_uuid` varchar(128) NOT NULL DEFAULT '',
+  `query_template` text NOT NULL,
+  `default_condition_operator` varchar(16) DEFAULT NULL,
+  `default_condition_value` double DEFAULT NULL,
+  `default_eval_interval_seconds` bigint NOT NULL DEFAULT '60',
+  `default_for_duration_seconds` bigint NOT NULL DEFAULT '0',
+  `default_severity` varchar(32) NOT NULL DEFAULT 'warning',
+  `default_enabled` tinyint NOT NULL DEFAULT '0',
+  `labels` json DEFAULT NULL,
+  `annotations` json DEFAULT NULL,
+  `variables` json DEFAULT NULL,
+  `tags` json DEFAULT NULL,
+  `rule_config` json DEFAULT NULL,
+  `sort` int DEFAULT '0',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_builtin_rule_templates_resource_type` (`resource_type`),
+  KEY `idx_alert_builtin_rule_templates_component` (`component`),
+  KEY `idx_alert_builtin_rule_templates_collector` (`collector`),
+  KEY `idx_alert_builtin_rule_templates_category` (`category`),
+  KEY `idx_alert_builtin_rule_templates_name` (`name`),
+  KEY `idx_alert_builtin_rule_templates_datasource_type` (`datasource_type`),
+  KEY `idx_alert_builtin_rule_templates_source` (`source`),
+  KEY `idx_alert_builtin_rule_templates_source_uuid` (`source_uuid`),
+  KEY `idx_alert_builtin_rule_templates_enabled` (`enabled`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_builtin_rule_templates
+-- ----------------------------
+BEGIN;
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (1, 'host', 'Linux', 'node_exporter', 'cpu', '主机 CPU 使用率过高', '参考 n9e Linux 内置规则，检测 CPU 使用率持续过高', 'prometheus', 'platform', 'platform.host.cpu.high', '100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100) > {{threshold}}', '>', 85, 60, 300, 'warning', 0, '{\"category\": \"cpu\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"主机 CPU 使用率过高\", \"description\": \"实例 {{ $labels.instance }} CPU 使用率持续超过 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 85}}', NULL, '{\"inhibit\": false, \"queries\": [{\"prom_ql\": \"100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\\\"idle\\\"}[5m])) * 100) > 75\", \"severity\": \"info\"}, {\"prom_ql\": \"100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\\\"idle\\\"}[5m])) * 100) > 85\", \"severity\": \"warning\"}, {\"prom_ql\": \"100 - (avg by(instance) (irate(node_cpu_seconds_total{mode=\\\"idle\\\"}[5m])) * 100) > 95\", \"severity\": \"critical\"}]}', 100, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (2, 'host', 'Linux', 'node_exporter', 'memory', '主机内存可用率过低', '检测 Linux 主机可用内存比例过低', 'prometheus', 'platform', 'platform.host.memory.available.low', 'node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes * 100 < {{threshold}}', '<', 10, 60, 300, 'warning', 0, '{\"category\": \"memory\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"主机内存可用率过低\", \"description\": \"实例 {{ $labels.instance }} 可用内存低于 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 10}}', NULL, NULL, 95, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (3, 'host', 'Linux', 'node_exporter', 'disk', '主机磁盘使用率过高', '参考 n9e Linux 内置规则，检测文件系统使用率过高', 'prometheus', 'platform', 'platform.host.disk.usage.high', '(100 - ((node_filesystem_avail_bytes{fstype!~\"tmpfs|overlay\"} * 100) / node_filesystem_size_bytes{fstype!~\"tmpfs|overlay\"})) > {{threshold}}', '>', 92, 60, 300, 'critical', 0, '{\"category\": \"disk\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"主机磁盘使用率过高\", \"description\": \"实例 {{ $labels.instance }} 挂载点 {{ $labels.mountpoint }} 使用率超过 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 92}}', NULL, NULL, 90, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (4, 'host', 'Linux', 'node_exporter', 'availability', '主机 Exporter 离线', '检测 Prometheus 抓取目标不可用', 'prometheus', 'platform', 'platform.host.exporter.down', 'up{job=~\"node.*|node_exporter\"} == 0', '==', 0, 60, 180, 'critical', 0, '{\"category\": \"availability\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"主机 Exporter 离线\", \"description\": \"实例 {{ $labels.instance }} Exporter 无法抓取。\"}', NULL, NULL, NULL, 85, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (5, 'k8s', 'Kubernetes', 'kube-state-metrics', 'node', 'K8S Node NotReady', '参考 n9e Kubernetes 内置规则，检测节点 Ready 状态异常', 'prometheus', 'platform', 'platform.k8s.node.notready', 'kube_node_status_condition{job=\"kube-state-metrics\",condition=\"Ready\",status=\"true\"} == 0', '==', 0, 60, 300, 'critical', 0, '{\"category\": \"node\", \"component\": \"Kubernetes\", \"resourceType\": \"k8s\"}', '{\"summary\": \"K8S Node NotReady\", \"description\": \"节点 {{ $labels.node }} 处于 NotReady 状态。\"}', NULL, NULL, NULL, 100, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (6, 'k8s', 'Kubernetes', 'kube-state-metrics', 'deployment', 'Deployment 副本异常', '参考 n9e Kubernetes k8s-workloads 规则，检测 Deployment 可用副本不足', 'prometheus', 'platform', 'platform.k8s.deployment.replicas.mismatch', 'kube_deployment_spec_replicas{job=\"kube-state-metrics\"} != kube_deployment_status_replicas_available{job=\"kube-state-metrics\"}', '!=', 0, 60, 600, 'warning', 0, '{\"category\": \"deployment\", \"component\": \"Kubernetes\", \"resourceType\": \"k8s\"}', '{\"summary\": \"Deployment 副本异常\", \"description\": \"命名空间 {{ $labels.namespace }} 的 Deployment {{ $labels.deployment }} 可用副本与期望副本不一致。\"}', NULL, NULL, NULL, 95, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (7, 'k8s', 'Kubernetes', 'kube-state-metrics', 'pod', 'Pod 失败', '检测 Pod phase 为 Failed', 'prometheus', 'platform', 'platform.k8s.pod.failed', 'kube_pod_status_phase{job=\"kube-state-metrics\",phase=\"Failed\"} > 0', '>', 0, 60, 300, 'warning', 0, '{\"category\": \"pod\", \"component\": \"Kubernetes\", \"resourceType\": \"k8s\"}', '{\"summary\": \"Pod 失败\", \"description\": \"命名空间 {{ $labels.namespace }} 的 Pod {{ $labels.pod }} 处于 Failed 状态。\"}', NULL, NULL, NULL, 90, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (8, 'mysql', 'MySQL', 'mysqld_exporter', 'connection', 'MySQL 运行连接占比过高', '参考 n9e MySQL exporter 规则，检测 Threads_running 占最大连接数比例', 'prometheus', 'platform', 'platform.mysql.threads.running.high', 'avg by (instance) (mysql_global_status_threads_running) / avg by (instance) (mysql_global_variables_max_connections) * 100 > {{threshold}}', '>', 60, 60, 120, 'warning', 0, '{\"category\": \"connection\", \"component\": \"MySQL\", \"resourceType\": \"mysql\"}', '{\"summary\": \"MySQL 运行连接占比过高\", \"description\": \"实例 {{ $labels.instance }} 运行中连接占比超过 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 60}}', NULL, NULL, 100, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (9, 'mysql', 'MySQL', 'mysqld_exporter', 'file', 'MySQL 打开文件数占比过高', '参考 n9e MySQL exporter 规则，检测打开文件数接近限制', 'prometheus', 'platform', 'platform.mysql.open.files.high', 'avg by (instance) (mysql_global_status_innodb_num_open_files) / avg by (instance)(mysql_global_variables_open_files_limit) * 100 > {{threshold}}', '>', 80, 60, 120, 'warning', 0, '{\"category\": \"file\", \"component\": \"MySQL\", \"resourceType\": \"mysql\"}', '{\"summary\": \"MySQL 打开文件数占比过高\", \"description\": \"实例 {{ $labels.instance }} 打开文件数占比超过 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 80}}', NULL, NULL, 95, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (10, 'mysql', 'MySQL', 'mysqld_exporter', 'replication', 'MySQL 主从复制中断', '检测 MySQL Slave IO 或 SQL 线程异常', 'prometheus', 'platform', 'platform.mysql.replication.down', 'mysql_slave_status_slave_io_running == 0 or mysql_slave_status_slave_sql_running == 0', '==', 0, 60, 120, 'critical', 0, '{\"category\": \"replication\", \"component\": \"MySQL\", \"resourceType\": \"mysql\"}', '{\"summary\": \"MySQL 主从复制中断\", \"description\": \"实例 {{ $labels.instance }} 主从复制线程异常。\"}', NULL, NULL, NULL, 90, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (11, 'prometheus', 'Prometheus', 'prometheus', 'target', 'Prometheus Target Down', '检测 Prometheus 抓取目标不可用', 'prometheus', 'platform', 'platform.prometheus.target.down', 'up == 0', '==', 0, 60, 180, 'critical', 0, '{\"category\": \"target\", \"component\": \"Prometheus\", \"resourceType\": \"prometheus\"}', '{\"summary\": \"Prometheus Target Down\", \"description\": \"抓取目标 {{ $labels.job }}/{{ $labels.instance }} 不可用。\"}', NULL, NULL, NULL, 100, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (12, 'victoriametrics', 'VictoriaMetrics', 'victoriametrics', 'availability', 'VictoriaMetrics 实例不可用', '检测 VictoriaMetrics 自身采集目标不可用', 'victoriametrics', 'platform', 'platform.victoriametrics.down', 'up{job=~\"victoriametrics|vm.*\"} == 0', '==', 0, 60, 180, 'critical', 0, '{\"category\": \"availability\", \"component\": \"VictoriaMetrics\", \"resourceType\": \"victoriametrics\"}', '{\"summary\": \"VictoriaMetrics 实例不可用\", \"description\": \"VictoriaMetrics 目标 {{ $labels.instance }} 不可用。\"}', NULL, NULL, NULL, 100, 1, '2026-07-10 23:50:48.938', '2026-07-10 23:50:48.938');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (13, 'host', 'Linux', 'agent', 'cpu', 'Agent CPU 使用率过高', 'CPU 使用率（system_cpu_usage_percent）', 'prometheus', 'platform', 'platform.agent.system_cpu_usage_percent', 'avg by(instance) (system_cpu_usage_percent) > {{threshold}}', '>', 85, 60, 300, 'warning', 0, '{\"category\": \"cpu\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent CPU 使用率过高\", \"description\": \"实例 {{ $labels.instance }} CPU 使用率，触发阈值 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 85}}', '{\"metric\": \"system_cpu_usage_percent\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (14, 'host', 'Linux', 'agent', 'cpu', 'Agent 用户态 CPU 使用率过高', '用户空间 CPU 占用比率（system_cpu_user_percent）', 'prometheus', 'platform', 'platform.agent.system_cpu_user_percent', 'system_cpu_user_percent > {{threshold}}', '>', 80, 60, 300, 'warning', 0, '{\"category\": \"cpu\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 用户态 CPU 使用率过高\", \"description\": \"实例 {{ $labels.instance }} 用户空间 CPU 占用比率，触发阈值 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 80}}', '{\"metric\": \"system_cpu_user_percent\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (15, 'host', 'Linux', 'agent', 'cpu', 'Agent 内核态 CPU 使用率过高', '内核空间 CPU 占用比率（system_cpu_system_percent）', 'prometheus', 'platform', 'platform.agent.system_cpu_system_percent', 'system_cpu_system_percent > {{threshold}}', '>', 40, 60, 300, 'warning', 0, '{\"category\": \"cpu\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 内核态 CPU 使用率过高\", \"description\": \"实例 {{ $labels.instance }} 内核空间 CPU 占用比率，触发阈值 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 40}}', '{\"metric\": \"system_cpu_system_percent\", \"collector\": \"agent\"}', NULL, 90, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (16, 'host', 'Linux', 'agent', 'memory', 'Agent 内存使用率过高', '内存使用率（system_memory_usage_percent）', 'prometheus', 'platform', 'platform.agent.system_memory_usage_percent', 'system_memory_usage_percent > {{threshold}}', '>', 85, 60, 300, 'warning', 0, '{\"category\": \"memory\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 内存使用率过高\", \"description\": \"实例 {{ $labels.instance }} 内存使用率，触发阈值 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 85}}', '{\"metric\": \"system_memory_usage_percent\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (17, 'host', 'Linux', 'agent', 'memory', 'Agent 已用内存过高', '已用内存实际大小（system_memory_used_gb）', 'prometheus', 'platform', 'platform.agent.system_memory_used_gb', 'system_memory_used_gb > {{threshold}}', '>', 8, 60, 300, 'warning', 0, '{\"category\": \"memory\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 已用内存过高\", \"description\": \"实例 {{ $labels.instance }} 已用内存实际大小，触发阈值 {{threshold}}GB。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"GB\", \"default\": 8}}', '{\"metric\": \"system_memory_used_gb\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (18, 'host', 'Linux', 'agent', 'memory', 'Agent 可用内存过低', '可用内存实际大小（system_memory_free_gb）', 'prometheus', 'platform', 'platform.agent.system_memory_free_gb', 'system_memory_free_gb < {{threshold}}', '<', 1, 60, 300, 'warning', 0, '{\"category\": \"memory\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 可用内存过低\", \"description\": \"实例 {{ $labels.instance }} 可用内存实际大小，触发阈值 {{threshold}}GB。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"GB\", \"default\": 1}}', '{\"metric\": \"system_memory_free_gb\", \"collector\": \"agent\"}', NULL, 90, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (19, 'host', 'Linux', 'agent', 'memory', 'Agent Swap 使用量过高', '已使用交换分区大小（system_swap_used_gb）', 'prometheus', 'platform', 'platform.agent.system_swap_used_gb', 'system_swap_used_gb > {{threshold}}', '>', 1, 60, 300, 'warning', 0, '{\"category\": \"memory\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent Swap 使用量过高\", \"description\": \"实例 {{ $labels.instance }} 已使用交换分区大小，触发阈值 {{threshold}}GB。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"GB\", \"default\": 1}}', '{\"metric\": \"system_swap_used_gb\", \"collector\": \"agent\"}', NULL, 85, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (20, 'host', 'Linux', 'agent', 'load', 'Agent 1 分钟平均负载过高', '系统 1 分钟平均负载（system_load_average_1min）', 'prometheus', 'platform', 'platform.agent.system_load_average_1min', 'system_load_average_1min > {{threshold}}', '>', 4, 60, 300, 'warning', 0, '{\"category\": \"load\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 1 分钟平均负载过高\", \"description\": \"实例 {{ $labels.instance }} 系统 1 分钟平均负载，触发阈值 {{threshold}}。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"\", \"default\": 4}}', '{\"metric\": \"system_load_average_1min\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (21, 'host', 'Linux', 'agent', 'load', 'Agent 5 分钟平均负载过高', '系统 5 分钟平均负载（system_load_average_5min）', 'prometheus', 'platform', 'platform.agent.system_load_average_5min', 'system_load_average_5min > {{threshold}}', '>', 4, 60, 300, 'warning', 0, '{\"category\": \"load\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 5 分钟平均负载过高\", \"description\": \"实例 {{ $labels.instance }} 系统 5 分钟平均负载，触发阈值 {{threshold}}。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"\", \"default\": 4}}', '{\"metric\": \"system_load_average_5min\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (22, 'host', 'Linux', 'agent', 'load', 'Agent 15 分钟平均负载过高', '系统 15 分钟平均负载（system_load_average_15min）', 'prometheus', 'platform', 'platform.agent.system_load_average_15min', 'system_load_average_15min > {{threshold}}', '>', 4, 60, 300, 'warning', 0, '{\"category\": \"load\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 15 分钟平均负载过高\", \"description\": \"实例 {{ $labels.instance }} 系统 15 分钟平均负载，触发阈值 {{threshold}}。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"\", \"default\": 4}}', '{\"metric\": \"system_load_average_15min\", \"collector\": \"agent\"}', NULL, 90, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (23, 'host', 'Linux', 'agent', 'load', 'Agent 1 分钟负载比过高', '系统 1 分钟负载比（system_load_ratio_1min）', 'prometheus', 'platform', 'platform.agent.system_load_ratio_1min', 'system_load_ratio_1min > {{threshold}}', '>', 1, 60, 300, 'warning', 0, '{\"category\": \"load\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 1 分钟负载比过高\", \"description\": \"实例 {{ $labels.instance }} 系统 1 分钟负载比，触发阈值 {{threshold}}。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"\", \"default\": 1}}', '{\"metric\": \"system_load_ratio_1min\", \"collector\": \"agent\"}', NULL, 85, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (24, 'host', 'Linux', 'agent', 'load', 'Agent 5 分钟负载比过高', '系统 5 分钟负载比（system_load_ratio_5min）', 'prometheus', 'platform', 'platform.agent.system_load_ratio_5min', 'system_load_ratio_5min > {{threshold}}', '>', 1, 60, 300, 'warning', 0, '{\"category\": \"load\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 5 分钟负载比过高\", \"description\": \"实例 {{ $labels.instance }} 系统 5 分钟负载比，触发阈值 {{threshold}}。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"\", \"default\": 1}}', '{\"metric\": \"system_load_ratio_5min\", \"collector\": \"agent\"}', NULL, 80, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (25, 'host', 'Linux', 'agent', 'load', 'Agent 15 分钟负载比过高', '系统 15 分钟负载比（system_load_ratio_15min）', 'prometheus', 'platform', 'platform.agent.system_load_ratio_15min', 'system_load_ratio_15min > {{threshold}}', '>', 1, 60, 300, 'warning', 0, '{\"category\": \"load\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 15 分钟负载比过高\", \"description\": \"实例 {{ $labels.instance }} 系统 15 分钟负载比，触发阈值 {{threshold}}。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"\", \"default\": 1}}', '{\"metric\": \"system_load_ratio_15min\", \"collector\": \"agent\"}', NULL, 75, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (26, 'host', 'Linux', 'agent', 'disk', 'Agent 根分区磁盘使用率过高', '根分区磁盘使用率（system_disk_usage_percent）', 'prometheus', 'platform', 'platform.agent.system_disk_usage_percent', 'system_disk_usage_percent{mountpoint=\"/\"} > {{threshold}}', '>', 85, 60, 300, 'warning', 0, '{\"category\": \"disk\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 根分区磁盘使用率过高\", \"description\": \"实例 {{ $labels.instance }} 根分区磁盘使用率，触发阈值 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 85}}', '{\"metric\": \"system_disk_usage_percent\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (27, 'host', 'Linux', 'agent', 'disk', 'Agent 根分区已用空间过高', '根分区已用磁盘空间（system_disk_used_bytes）', 'prometheus', 'platform', 'platform.agent.system_disk_used_bytes', 'system_disk_used_bytes{mountpoint=\"/\"} > {{threshold}}', '>', 100, 60, 300, 'warning', 0, '{\"category\": \"disk\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 根分区已用空间过高\", \"description\": \"实例 {{ $labels.instance }} 根分区已用磁盘空间，触发阈值 {{threshold}}GB。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"GB\", \"default\": 100}}', '{\"metric\": \"system_disk_used_bytes\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (28, 'host', 'Linux', 'agent', 'disk', 'Agent 根分区 inode 使用率过高', '根分区磁盘 inode 使用率（system_disk_inode_usage_percent）', 'prometheus', 'platform', 'platform.agent.system_disk_inode_usage_percent', 'system_disk_inode_usage_percent{mountpoint=\"/\"} > {{threshold}}', '>', 85, 60, 300, 'warning', 0, '{\"category\": \"disk\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 根分区 inode 使用率过高\", \"description\": \"实例 {{ $labels.instance }} 根分区磁盘 inode 使用率，触发阈值 {{threshold}}%。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"%\", \"default\": 85}}', '{\"metric\": \"system_disk_inode_usage_percent\", \"collector\": \"agent\"}', NULL, 90, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (29, 'host', 'Linux', 'agent', 'disk_io', 'Agent 磁盘读取速率过高', '磁盘 IO 读取速率（system_disk_read_kb_per_second）', 'prometheus', 'platform', 'platform.agent.system_disk_read_kb_per_second', 'sum by(instance) (system_disk_read_kb_per_second) > {{threshold}}', '>', 102400, 60, 300, 'warning', 0, '{\"category\": \"disk_io\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 磁盘读取速率过高\", \"description\": \"实例 {{ $labels.instance }} 磁盘 IO 读取速率，触发阈值 {{threshold}}KB/s。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"KB/s\", \"default\": 102400}}', '{\"metric\": \"system_disk_read_kb_per_second\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (30, 'host', 'Linux', 'agent', 'disk_io', 'Agent 磁盘写入速率过高', '磁盘 IO 写入速率（system_disk_write_kb_per_second）', 'prometheus', 'platform', 'platform.agent.system_disk_write_kb_per_second', 'sum by(instance) (system_disk_write_kb_per_second) > {{threshold}}', '>', 102400, 60, 300, 'warning', 0, '{\"category\": \"disk_io\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 磁盘写入速率过高\", \"description\": \"实例 {{ $labels.instance }} 磁盘 IO 写入速率，触发阈值 {{threshold}}KB/s。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"KB/s\", \"default\": 102400}}', '{\"metric\": \"system_disk_write_kb_per_second\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (31, 'host', 'Linux', 'agent', 'disk_io', 'Agent 磁盘读 IOPS 过高', '磁盘 IO 每秒读操作数（system_disk_read_iops）', 'prometheus', 'platform', 'platform.agent.system_disk_read_iops', 'sum by(instance) (system_disk_read_iops) > {{threshold}}', '>', 1000, 60, 300, 'warning', 0, '{\"category\": \"disk_io\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 磁盘读 IOPS 过高\", \"description\": \"实例 {{ $labels.instance }} 磁盘 IO 每秒读操作数，触发阈值 {{threshold}}IOPS。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"IOPS\", \"default\": 1000}}', '{\"metric\": \"system_disk_read_iops\", \"collector\": \"agent\"}', NULL, 90, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (32, 'host', 'Linux', 'agent', 'disk_io', 'Agent 磁盘写 IOPS 过高', '磁盘 IO 每秒写操作数（system_disk_write_iops）', 'prometheus', 'platform', 'platform.agent.system_disk_write_iops', 'sum by(instance) (system_disk_write_iops) > {{threshold}}', '>', 1000, 60, 300, 'warning', 0, '{\"category\": \"disk_io\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 磁盘写 IOPS 过高\", \"description\": \"实例 {{ $labels.instance }} 磁盘 IO 每秒写操作数，触发阈值 {{threshold}}IOPS。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"IOPS\", \"default\": 1000}}', '{\"metric\": \"system_disk_write_iops\", \"collector\": \"agent\"}', NULL, 85, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (33, 'host', 'Linux', 'agent', 'network', 'Agent 网络接收速率过高', '网络接收速率（system_network_receive_kb_per_second）', 'prometheus', 'platform', 'platform.agent.system_network_receive_kb_per_second', 'system_network_receive_kb_per_second > {{threshold}}', '>', 102400, 60, 300, 'warning', 0, '{\"category\": \"network\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 网络接收速率过高\", \"description\": \"实例 {{ $labels.instance }} 网络接收速率，触发阈值 {{threshold}}KB/s。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"KB/s\", \"default\": 102400}}', '{\"metric\": \"system_network_receive_kb_per_second\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (34, 'host', 'Linux', 'agent', 'network', 'Agent 网络发送速率过高', '网络发送速率（system_network_send_kb_per_second）', 'prometheus', 'platform', 'platform.agent.system_network_send_kb_per_second', 'system_network_send_kb_per_second > {{threshold}}', '>', 102400, 60, 300, 'warning', 0, '{\"category\": \"network\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 网络发送速率过高\", \"description\": \"实例 {{ $labels.instance }} 网络发送速率，触发阈值 {{threshold}}KB/s。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"KB/s\", \"default\": 102400}}', '{\"metric\": \"system_network_send_kb_per_second\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (35, 'host', 'Linux', 'agent', 'connection', 'Agent TCP 连接数过高', 'TCP 连接总数（system_tcp_connections）', 'prometheus', 'platform', 'platform.agent.system_tcp_connections', 'system_tcp_connections > {{threshold}}', '>', 2000, 60, 300, 'warning', 0, '{\"category\": \"connection\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent TCP 连接数过高\", \"description\": \"实例 {{ $labels.instance }} TCP 连接总数，触发阈值 {{threshold}}个。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"个\", \"default\": 2000}}', '{\"metric\": \"system_tcp_connections\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (36, 'host', 'Linux', 'agent', 'connection', 'Agent UDP 连接数过高', 'UDP 连接总数（system_udp_connections）', 'prometheus', 'platform', 'platform.agent.system_udp_connections', 'system_udp_connections > {{threshold}}', '>', 1000, 60, 300, 'warning', 0, '{\"category\": \"connection\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent UDP 连接数过高\", \"description\": \"实例 {{ $labels.instance }} UDP 连接总数，触发阈值 {{threshold}}个。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"个\", \"default\": 1000}}', '{\"metric\": \"system_udp_connections\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (37, 'host', 'Linux', 'agent', 'service', 'Agent 服务端口未监听', '服务端口监听状态（tcp_port_listening）', 'prometheus', 'platform', 'platform.agent.tcp_port_listening', 'tcp_port_listening == {{threshold}}', '==', 0, 60, 180, 'critical', 0, '{\"category\": \"service\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 服务端口未监听\", \"description\": \"实例 {{ $labels.instance }} 服务端口监听状态，触发阈值 {{threshold}}。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"\", \"default\": 0}}', '{\"metric\": \"tcp_port_listening\", \"collector\": \"agent\"}', NULL, 100, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (38, 'host', 'Linux', 'agent', 'service', 'Agent 系统进程数过高', '系统进程总数（system_total_processes）', 'prometheus', 'platform', 'platform.agent.system_total_processes', 'system_total_processes > {{threshold}}', '>', 500, 60, 300, 'warning', 0, '{\"category\": \"service\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 系统进程数过高\", \"description\": \"实例 {{ $labels.instance }} 系统进程总数，触发阈值 {{threshold}}个。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"个\", \"default\": 500}}', '{\"metric\": \"system_total_processes\", \"collector\": \"agent\"}', NULL, 95, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (39, 'host', 'Linux', 'agent', 'service', 'Agent 系统最近重启', '系统持续运行天数（system_uptime_days）', 'prometheus', 'platform', 'platform.agent.system_uptime_days', 'system_uptime_days < {{threshold}}', '<', 1, 60, 60, 'info', 0, '{\"category\": \"service\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 系统最近重启\", \"description\": \"实例 {{ $labels.instance }} 系统持续运行天数，触发阈值 {{threshold}}天。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"天\", \"default\": 1}}', '{\"metric\": \"system_uptime_days\", \"collector\": \"agent\"}', NULL, 90, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+INSERT INTO `alert_builtin_rule_templates` (`id`, `resource_type`, `component`, `collector`, `category`, `name`, `description`, `datasource_type`, `source`, `source_uuid`, `query_template`, `default_condition_operator`, `default_condition_value`, `default_eval_interval_seconds`, `default_for_duration_seconds`, `default_severity`, `default_enabled`, `labels`, `annotations`, `variables`, `tags`, `rule_config`, `sort`, `enabled`, `created_at`, `updated_at`) VALUES (40, 'host', 'Linux', 'agent', 'service', 'Agent 打开文件句柄数过高', '系统当前打开的文件句柄数（system_open_file_descriptors）', 'prometheus', 'platform', 'platform.agent.system_open_file_descriptors', 'system_open_file_descriptors > {{threshold}}', '>', 10000, 60, 300, 'warning', 0, '{\"category\": \"service\", \"component\": \"Linux\", \"resourceType\": \"host\"}', '{\"summary\": \"Agent 打开文件句柄数过高\", \"description\": \"实例 {{ $labels.instance }} 系统当前打开的文件句柄数，触发阈值 {{threshold}}个。\"}', '{\"threshold\": {\"type\": \"number\", \"unit\": \"个\", \"default\": 10000}}', '{\"metric\": \"system_open_file_descriptors\", \"collector\": \"agent\"}', NULL, 85, 1, '2026-08-02 15:22:31.292', '2026-08-02 15:22:31.292');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_datasources
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_datasources`;
+CREATE TABLE `alert_datasources` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `datasource_type` varchar(64) NOT NULL,
+  `url` varchar(500) DEFAULT NULL,
+  `auth_type` varchar(32) NOT NULL DEFAULT 'none',
+  `username` varchar(128) DEFAULT NULL,
+  `password` varchar(512) DEFAULT NULL,
+  `token` text,
+  `config` json DEFAULT NULL,
+  `labels` json DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `builtin` tinyint NOT NULL DEFAULT '0',
+  `is_default` tinyint NOT NULL DEFAULT '0',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_datasources_name` (`name`),
+  KEY `idx_alert_datasources_datasource_type` (`datasource_type`),
+  KEY `idx_alert_datasources_builtin` (`builtin`),
+  KEY `idx_alert_datasources_default` (`is_default`),
+  KEY `idx_alert_datasources_enabled` (`enabled`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_datasources
+-- ----------------------------
+BEGIN;
+INSERT INTO `alert_datasources` (`id`, `name`, `datasource_type`, `url`, `auth_type`, `username`, `password`, `token`, `config`, `labels`, `description`, `builtin`, `is_default`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (1, '平台内置告警源', 'builtin', 'http://112.74.57.93:8428', 'none', '', '', '', '{\"backend\": \"victoriametrics\", \"queryType\": \"promql\"}', '{\"source\": \"platform\", \"backend\": \"victoriametrics\"}', '平台内置 VictoriaMetrics 告警查询数据源', 1, 1, 1, 'system', 'system', '2026-07-10 23:50:48.926', '2026-07-10 23:50:48.926');
+INSERT INTO `alert_datasources` (`id`, `name`, `datasource_type`, `url`, `auth_type`, `username`, `password`, `token`, `config`, `labels`, `description`, `builtin`, `is_default`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (2, '平台内置日志源', 'victorialogs', 'http://172.16.7.137:9428', 'none', '', '', '', '{\"backend\": \"victorialogs\", \"queryType\": \"logsql\"}', '{\"source\": \"platform\", \"backend\": \"victorialogs\"}', '平台内置 VictoriaLogs 日志告警查询数据源', 1, 0, 1, 'system', 'system', '2026-07-10 23:50:48.926', '2026-07-31 22:17:45.559');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_domains
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_domains`;
+CREATE TABLE `alert_domains` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `domain` varchar(253) NOT NULL,
+  `protocol` varchar(16) NOT NULL DEFAULT 'https',
+  `port` int NOT NULL DEFAULT '0',
+  `path` varchar(500) NOT NULL DEFAULT '/',
+  `tags` json DEFAULT NULL,
+  `expected_status` int NOT NULL DEFAULT '0',
+  `check_interval_seconds` bigint NOT NULL DEFAULT '300',
+  `timeout_seconds` bigint NOT NULL DEFAULT '10',
+  `ssl_expire_warn_days` int NOT NULL DEFAULT '30',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `remarks` varchar(500) DEFAULT NULL,
+  `alert_rule_id` bigint unsigned NOT NULL DEFAULT '0',
+  `notify_rule_ids` json DEFAULT NULL,
+  `status` varchar(32) NOT NULL DEFAULT 'unknown',
+  `status_code` int NOT NULL DEFAULT '0',
+  `response_time_ms` bigint NOT NULL DEFAULT '0',
+  `certificate_expires_at` datetime(3) DEFAULT NULL,
+  `certificate_remaining_days` int NOT NULL DEFAULT '0',
+  `certificate_issuer` varchar(500) DEFAULT NULL,
+  `failure_reason` varchar(1000) DEFAULT NULL,
+  `last_checked_at` datetime(3) DEFAULT NULL,
+  `next_check_at` datetime(3) DEFAULT NULL,
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_alert_domains_domain` (`domain`),
+  KEY `idx_alert_domains_enabled` (`enabled`),
+  KEY `idx_alert_domains_alert_rule_id` (`alert_rule_id`),
+  KEY `idx_alert_domains_status` (`status`),
+  KEY `idx_alert_domains_last_checked_at` (`last_checked_at`),
+  KEY `idx_alert_domains_next_check_at` (`next_check_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_domains
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_event_timeline
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_event_timeline`;
+CREATE TABLE `alert_event_timeline` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `event_id` bigint unsigned DEFAULT NULL,
+  `action` varchar(64) NOT NULL,
+  `message` varchar(500) DEFAULT NULL,
+  `operator` varchar(64) DEFAULT NULL,
+  `metadata` json DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_event_timeline_event_id` (`event_id`),
+  KEY `idx_alert_event_timeline_action` (`action`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_event_timeline
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_history_events
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_history_events`;
+CREATE TABLE `alert_history_events` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `fingerprint` varchar(128) NOT NULL,
+  `active_event_id` bigint unsigned DEFAULT NULL,
+  `rule_id` bigint unsigned DEFAULT NULL,
+  `rule_name` varchar(150) DEFAULT NULL,
+  `datasource_id` bigint unsigned DEFAULT NULL,
+  `datasource_type` varchar(64) DEFAULT NULL,
+  `event_type` varchar(32) NOT NULL,
+  `severity` varchar(32) DEFAULT NULL,
+  `labels` json DEFAULT NULL,
+  `annotations` json DEFAULT NULL,
+  `value` varchar(128) DEFAULT NULL,
+  `trigger_query` text,
+  `trigger_condition` text,
+  `event_detail` text,
+  `asset_id` bigint unsigned DEFAULT NULL,
+  `business_id` varchar(128) DEFAULT NULL,
+  `first_triggered_at` datetime(3) DEFAULT NULL,
+  `recovered_at` datetime(3) DEFAULT NULL,
+  `claim_user` varchar(64) DEFAULT NULL,
+  `occurred_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_history_events_fingerprint` (`fingerprint`),
+  KEY `idx_alert_history_events_active_event_id` (`active_event_id`),
+  KEY `idx_alert_history_events_rule_id` (`rule_id`),
+  KEY `idx_alert_history_events_rule_name` (`rule_name`),
+  KEY `idx_alert_history_events_datasource_id` (`datasource_id`),
+  KEY `idx_alert_history_events_datasource_type` (`datasource_type`),
+  KEY `idx_alert_history_events_event_type` (`event_type`),
+  KEY `idx_alert_history_events_severity` (`severity`),
+  KEY `idx_alert_history_events_asset_id` (`asset_id`),
+  KEY `idx_alert_history_events_business_id` (`business_id`),
+  KEY `idx_alert_history_events_claim_user` (`claim_user`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_history_events
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_notify_channels
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_notify_channels`;
+CREATE TABLE `alert_notify_channels` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `type` varchar(64) NOT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `config` json DEFAULT NULL,
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_notify_channels_name` (`name`),
+  KEY `idx_alert_notify_channels_type` (`type`),
+  KEY `idx_alert_notify_channels_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_notify_channels
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_notify_groups
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_notify_groups`;
+CREATE TABLE `alert_notify_groups` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `business_id` varchar(128) NOT NULL,
+  `channel_type` varchar(64) NOT NULL DEFAULT 'leliao',
+  `user_ids` json DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_alert_notify_groups_business_id` (`business_id`),
+  KEY `idx_alert_notify_groups_name` (`name`),
+  KEY `idx_alert_notify_groups_channel_type` (`channel_type`),
+  KEY `idx_alert_notify_groups_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_notify_groups
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_notify_records
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_notify_records`;
+CREATE TABLE `alert_notify_records` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `event_id` bigint unsigned DEFAULT NULL,
+  `event_type` varchar(32) DEFAULT NULL,
+  `notify_group_key` varchar(200) DEFAULT NULL,
+  `notify_rule_id` bigint unsigned DEFAULT NULL,
+  `rule_id` bigint unsigned DEFAULT NULL,
+  `rule_name` varchar(150) DEFAULT NULL,
+  `channel_id` bigint unsigned DEFAULT NULL,
+  `channel_name` varchar(150) DEFAULT NULL,
+  `channel_type` varchar(64) DEFAULT NULL,
+  `datasource_id` bigint unsigned DEFAULT NULL,
+  `datasource_type` varchar(64) DEFAULT NULL,
+  `severity` varchar(32) DEFAULT NULL,
+  `receiver` varchar(255) DEFAULT NULL,
+  `status` varchar(32) DEFAULT NULL,
+  `error_message` varchar(500) DEFAULT NULL,
+  `event_count` int DEFAULT '0',
+  `resource_count` int DEFAULT '0',
+  `rule_names` json DEFAULT NULL,
+  `request` text,
+  `response` text,
+  `content` text,
+  `business_id` varchar(128) DEFAULT NULL,
+  `operator` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `notify_group_id` bigint unsigned DEFAULT NULL,
+  `notify_group_name` varchar(150) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_notify_records_event_id` (`event_id`),
+  KEY `idx_alert_notify_records_event_type` (`event_type`),
+  KEY `idx_alert_notify_records_notify_group_key` (`notify_group_key`),
+  KEY `idx_alert_notify_records_notify_rule_id` (`notify_rule_id`),
+  KEY `idx_alert_notify_records_rule_id` (`rule_id`),
+  KEY `idx_alert_notify_records_rule_name` (`rule_name`),
+  KEY `idx_alert_notify_records_channel_id` (`channel_id`),
+  KEY `idx_alert_notify_records_channel_type` (`channel_type`),
+  KEY `idx_alert_notify_records_datasource_id` (`datasource_id`),
+  KEY `idx_alert_notify_records_datasource_type` (`datasource_type`),
+  KEY `idx_alert_notify_records_severity` (`severity`),
+  KEY `idx_alert_notify_records_receiver` (`receiver`),
+  KEY `idx_alert_notify_records_status` (`status`),
+  KEY `idx_alert_notify_records_business_id` (`business_id`),
+  KEY `idx_alert_notify_records_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_notify_records
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_notify_route_rules
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_notify_route_rules`;
+CREATE TABLE `alert_notify_route_rules` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `conditions` json DEFAULT NULL,
+  `notify_rule_id` bigint unsigned DEFAULT NULL,
+  `notify_group_id` bigint unsigned NOT NULL,
+  `override_group` tinyint NOT NULL DEFAULT '0',
+  `priority` int NOT NULL DEFAULT '0',
+  `description` varchar(500) DEFAULT NULL,
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_alert_notify_route_rules_name` (`name`),
+  KEY `idx_alert_notify_route_rules_notify_rule_id` (`notify_rule_id`),
+  KEY `idx_alert_notify_route_rules_notify_group_id` (`notify_group_id`),
+  KEY `idx_alert_notify_route_rules_priority` (`priority`),
+  KEY `idx_alert_notify_route_rules_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_notify_route_rules
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_notify_rules
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_notify_rules`;
+CREATE TABLE `alert_notify_rules` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `matchers` json DEFAULT NULL,
+  `channels` json DEFAULT NULL,
+  `receiver_groups` json DEFAULT NULL,
+  `repeat_notify` tinyint NOT NULL DEFAULT '1',
+  `repeat_mode` varchar(32) NOT NULL DEFAULT 'bySeverity',
+  `repeat_interval_seconds` bigint NOT NULL DEFAULT '3600',
+  `repeat_intervals` json DEFAULT NULL,
+  `max_repeat_times` int NOT NULL DEFAULT '0',
+  `recovery_notify` tinyint NOT NULL DEFAULT '1',
+  `aggregation_enabled` tinyint NOT NULL DEFAULT '1',
+  `group_wait_seconds` bigint NOT NULL DEFAULT '30',
+  `group_interval_seconds` bigint NOT NULL DEFAULT '300',
+  `aggregation_window_seconds` bigint NOT NULL DEFAULT '60',
+  `priority` int NOT NULL DEFAULT '0',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_notify_rules_name` (`name`),
+  KEY `idx_alert_notify_rules_priority` (`priority`),
+  KEY `idx_alert_notify_rules_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_notify_rules
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_notify_templates
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_notify_templates`;
+CREATE TABLE `alert_notify_templates` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ident` varchar(100) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `channel_type` varchar(64) NOT NULL,
+  `template_type` varchar(32) NOT NULL DEFAULT 'markdown',
+  `description` varchar(500) DEFAULT NULL,
+  `content` json DEFAULT NULL,
+  `builtin` tinyint NOT NULL DEFAULT '0',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_notify_templates_ident` (`ident`),
+  KEY `idx_alert_notify_templates_name` (`name`),
+  KEY `idx_alert_notify_templates_channel_type` (`channel_type`),
+  KEY `idx_alert_notify_templates_template_type` (`template_type`),
+  KEY `idx_alert_notify_templates_builtin` (`builtin`),
+  KEY `idx_alert_notify_templates_enabled` (`enabled`)
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of app_sh_release
+-- Records of alert_notify_templates
 -- ----------------------------
 BEGIN;
-INSERT INTO `app_sh_release` (`id`, `title`, `reason`, `business_group_id`, `app_id`, `app_name`, `app_code`, `applicant_id`, `applicant_name`, `approver_id`, `approver_name`, `executor_id`, `executor_name`, `execute_dir`, `script_content`, `approval_status`, `approval_time`, `approval_remark`, `execute_status`, `status`, `start_time`, `end_time`, `duration`, `jenkins_env_id`, `build_number`, `log_url`, `error_message`, `created_at`, `updated_at`, `deleted_at`, `parameters`, `server_host_id`, `pull_code_start_time`, `pull_code_end_time`, `script_output`) VALUES (1, 'prod_saas3.0_data-export-数据导出', 'prod_saas3.0_data-export-数据导出', 18, 19, 'prod_saas3.0_data-export', 'prod-saas30-data-export', 1, '管理员', 89, 'admin', 89, 'admin', '/home/dingding/saas3-data-export/', 'ls', 2, '2025-11-28 12:42:48.493', '111', 3, 2, '2025-11-28 12:43:08.943', '2025-11-28 12:43:24.437', 14, 51, 3, 'http://test-ops-jenkins-tc2.dding.net:8080/job/prod_saas3.0_data-export/3/console', '', '2025-11-28 12:41:29.167', '2025-11-28 12:43:24.488', NULL, '{\"commit_id\":\"123456789\"}', 0, NULL, NULL, NULL);
-INSERT INTO `app_sh_release` (`id`, `title`, `reason`, `business_group_id`, `app_id`, `app_name`, `app_code`, `applicant_id`, `applicant_name`, `approver_id`, `approver_name`, `executor_id`, `executor_name`, `execute_dir`, `script_content`, `approval_status`, `approval_time`, `approval_remark`, `execute_status`, `status`, `start_time`, `end_time`, `duration`, `jenkins_env_id`, `build_number`, `log_url`, `error_message`, `created_at`, `updated_at`, `deleted_at`, `parameters`, `server_host_id`, `pull_code_start_time`, `pull_code_end_time`, `script_output`) VALUES (2, '测试001', '测试001', 18, 19, 'prod_saas3.0_data-export', 'prod-saas30-data-export', 1, '管理员', 98, '李四', 89, 'admin', '/home/', 'ls  /root/', 2, '2025-11-28 14:18:58.866', '同意', 3, 1, NULL, NULL, 0, 51, 4, 'http://test-ops-jenkins-tc2.dding.net:8080/job/prod_saas3.0_data-export/4/console', '', '2025-11-28 13:37:27.963', '2025-11-28 14:47:38.777', NULL, '{\"commit_id\":\"123456789\"}', 0, '2025-11-28 14:47:22.389', '2025-11-28 14:47:38.725', NULL);
-INSERT INTO `app_sh_release` (`id`, `title`, `reason`, `business_group_id`, `app_id`, `app_name`, `app_code`, `applicant_id`, `applicant_name`, `approver_id`, `approver_name`, `executor_id`, `executor_name`, `execute_dir`, `script_content`, `approval_status`, `approval_time`, `approval_remark`, `execute_status`, `status`, `start_time`, `end_time`, `duration`, `jenkins_env_id`, `build_number`, `log_url`, `error_message`, `created_at`, `updated_at`, `deleted_at`, `parameters`, `server_host_id`, `pull_code_start_time`, `pull_code_end_time`, `script_output`) VALUES (3, '测试脚本执行', '测试脚本执行', 18, 19, 'prod_saas3.0_data-export', 'prod-saas30-data-export', 1, '管理员', 89, 'admin', 89, 'admin', '/home/dingding/saas3-data-export/', 'pwd\nls\nhostname -I', 2, '2025-11-28 15:19:15.004', '111', 6, 2, '2025-11-28 15:24:27.057', '2025-11-28 15:24:31.379', 3, 51, 5, 'http://test-ops-jenkins-tc2.dding.net:8080/job/prod_saas3.0_data-export/5/console', '', '2025-11-28 15:09:18.474', '2025-11-28 15:24:31.432', NULL, '{\"commit_id\":\"123456789\"}', 501, '2025-11-28 15:19:21.580', '2025-11-28 15:19:34.271', 'bash: line 1: cd: /home/dingding/saas3-data-export/: No such file or directory\ndocker\nelk\njdk11\njdk17\njdk18\nluban-master\nnode\nprometheus\nsnap\n172.20.236.121 172.18.0.1 172.17.0.1 172.19.0.1 \n');
-INSERT INTO `app_sh_release` (`id`, `title`, `reason`, `business_group_id`, `app_id`, `app_name`, `app_code`, `applicant_id`, `applicant_name`, `approver_id`, `approver_name`, `executor_id`, `executor_name`, `execute_dir`, `script_content`, `approval_status`, `approval_time`, `approval_remark`, `execute_status`, `status`, `start_time`, `end_time`, `duration`, `jenkins_env_id`, `build_number`, `log_url`, `error_message`, `created_at`, `updated_at`, `deleted_at`, `parameters`, `server_host_id`, `pull_code_start_time`, `pull_code_end_time`, `script_output`) VALUES (4, '测试脚本002', '测试脚本002', 18, 19, 'prod_saas3.0_data-export', 'prod-saas30-data-export', 1, '管理员', 89, 'admin', 89, 'admin', '/home/dingding/saas3-data-export/', 'hostname\npwd\ndate', 2, '2025-11-28 15:56:35.290', '11', 6, 2, '2025-11-28 15:57:23.260', '2025-11-28 15:57:27.569', 3, 51, 6, 'http://test-ops-jenkins-tc2.dding.net:8080/job/prod_saas3.0_data-export/6/console', '', '2025-11-28 15:56:13.417', '2025-11-28 15:57:27.644', NULL, '{\"commit_id\":\"123456789\"}', 501, '2025-11-28 15:56:44.717', '2025-11-28 15:57:00.303', '/root\nFri Nov 28 03:57:27 PM CST 2025\nbash: line 1: cd: /home/dingding/saas3-data-export/: No such file or directory\n');
-INSERT INTO `app_sh_release` (`id`, `title`, `reason`, `business_group_id`, `app_id`, `app_name`, `app_code`, `applicant_id`, `applicant_name`, `approver_id`, `approver_name`, `executor_id`, `executor_name`, `execute_dir`, `script_content`, `approval_status`, `approval_time`, `approval_remark`, `execute_status`, `status`, `start_time`, `end_time`, `duration`, `jenkins_env_id`, `build_number`, `log_url`, `error_message`, `created_at`, `updated_at`, `deleted_at`, `parameters`, `server_host_id`, `pull_code_start_time`, `pull_code_end_time`, `script_output`) VALUES (5, '测试002', '测试002', 18, 19, 'prod_saas3.0_data-export', 'prod-saas30-data-export', 1, '管理员', 89, 'admin', 89, 'admin', '/home/', 'pwd\nls\nhostname\n', 2, '2025-11-28 16:12:04.059', 'ok', 6, 2, '2025-11-28 16:19:18.636', '2025-11-28 16:19:22.516', 3, 51, 7, 'http://test-ops-jenkins-tc2.dding.net:8080/job/prod_saas3.0_data-export/7/console', '', '2025-11-28 16:10:22.217', '2025-11-28 16:19:22.570', NULL, '{\"commit_id\":\"123456789\"}', 501, '2025-11-28 16:12:11.076', '2025-11-28 16:12:23.702', '/home\ndevops\ndevops.tar.gz\ngo-ops\n');
-INSERT INTO `app_sh_release` (`id`, `title`, `reason`, `business_group_id`, `app_id`, `app_name`, `app_code`, `applicant_id`, `applicant_name`, `approver_id`, `approver_name`, `executor_id`, `executor_name`, `execute_dir`, `script_content`, `approval_status`, `approval_time`, `approval_remark`, `execute_status`, `status`, `start_time`, `end_time`, `duration`, `jenkins_env_id`, `build_number`, `log_url`, `error_message`, `created_at`, `updated_at`, `deleted_at`, `parameters`, `server_host_id`, `pull_code_start_time`, `pull_code_end_time`, `script_output`) VALUES (6, 'test1111111111', 'test', 18, 19, 'prod_saas3.0_data-export', 'prod-saas30-data-export', 1, '管理员', 89, 'admin', 89, 'admin', '/home/dingding/saas3-data-export/', 'pwd  \nls \nhostname', 2, '2025-12-01 01:01:48.329', 'ok', 6, 2, '2025-12-01 01:02:36.996', '2025-12-01 01:02:39.204', 1, 51, 8, 'http://test-ops-jenkins-tc2.dding.net:8080/job/prod_saas3.0_data-export/8/console', '', '2025-12-01 01:01:08.782', '2025-12-01 01:02:39.260', NULL, '{\"commit_id\":\"123456789\"}', 501, '2025-12-01 01:01:59.779', '2025-12-01 01:02:16.154', '/home/dingding/saas3-data-export\nxlsx\ngo-ops\n');
+INSERT INTO `alert_notify_templates` (`id`, `ident`, `name`, `channel_type`, `template_type`, `description`, `content`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (1, 'builtin_feishu_markdown', '飞书通知模板', 'feishu', 'markdown', '发送飞书机器人的普通文本/Markdown 告警通知模板', '{\"title\": \"{{ if .IsRecovered }}【已恢复】{{ else }}【报警中】{{ end }}{{ .RuleName }}\", \"footer\": \"AIOps 运维平台\", \"content\": \"{{ if .IsRecovered }}【已恢复】{{ else }}【报警中】{{ end }}：{{ .RuleName }}\\n【级别】: {{ .Severity }} {{ .SeverityIcon }}\\n{{ if ne .PolicyName .RuleName }}【策略】: {{ .PolicyName }}\\n{{ end }}【规则】: {{ .RuleName }}\\n{{ if gt .EventCount 1 }}【资源】: {{ .AffectedResources }}{{ else }}【目标】: {{ .ResourceName }}{{ end }}\\n{{ if .Condition }}【条件】: {{ .Condition }}{{ end }}\\n{{ if .ValueSummary }}【当前值】: {{ .ValueSummary }}{{ else if .Threshold }}【阈值】: {{ .Threshold }}{{ end }}\\n【时间】: {{ if .IsRecovered }}{{ .RecoveredAt }}{{ else }}{{ .FirstTriggeredAt }}{{ end }}\\n【持续】: {{ .Duration }}\\n{{ if gt .EventCount 1 }}【聚合】: {{ .EventCount }} 个事件 / {{ .ResourceCount }} 个资源{{ end }}\\n{{ if .Description }}【描述】: {{ .Description }}{{ end }}\\n{{ if .LabelLines }}【标签】：\\n{{ .LabelLines }}{{ end }}\\n【详情】: {{ .DetailURL }}\\n【静默】: {{ .SilenceURL }}\"}', 1, 1, 'system', 'system', '2026-07-10 23:50:49.108', '2026-08-03 01:20:03.487');
+INSERT INTO `alert_notify_templates` (`id`, `ident`, `name`, `channel_type`, `template_type`, `description`, `content`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (2, 'builtin_feishu_card', '飞书卡片通知模板', 'feishu_card', 'card', '发送飞书应用机器人的交互式卡片告警通知模板', '{\"raw\": \"{\\n  \\\"schema\\\": \\\"2.0\\\",\\n  \\\"header\\\": {\\n    \\\"template\\\": \\\"{{ if .IsRecovered }}green{{ else }}red{{ end }}\\\",\\n    \\\"title\\\": {\\n      \\\"content\\\": \\\"{{ if .IsRecovered }}【已恢复】{{ else }}【报警中】{{ end }}- {{ .RuleName }}\\\",\\n      \\\"tag\\\": \\\"plain_text\\\"\\n    }\\n  },\\n  \\\"body\\\": {\\n    \\\"elements\\\": [\\n      {\\n        \\\"tag\\\": \\\"div\\\",\\n        \\\"text\\\": {\\n          \\\"tag\\\": \\\"lark_md\\\",\\n          \\\"content\\\": \\\"**级别**: {{ .Severity }} {{ .SeverityIcon }}{{ if ne .PolicyName .RuleName }}\\\\n**策略**: {{ .PolicyName }}{{ end }}\\\\n**规则**: {{ .RuleName }}{{ if gt .EventCount 1 }}\\\\n**资源**: {{ .AffectedResources }}{{ else }}\\\\n**目标**: {{ .ResourceName }}{{ end }}{{ if .ConditionCard }}\\\\n**条件**: {{ .ConditionCard }}{{ end }}{{ if .ValueSummary }}\\\\n**当前值**: {{ .ValueSummary }}{{ else if .Threshold }}\\\\n**阈值**: {{ .Threshold }}{{ end }}\\\\n**时间**: {{ if .IsRecovered }}{{ .RecoveredAt }}{{ else }}{{ .FirstTriggeredAt }}{{ end }}\\\\n**持续**: {{ .Duration }}{{ if gt .EventCount 1 }}\\\\n**聚合**: {{ .EventCount }} 个事件 / {{ .ResourceCount }} 个资源{{ end }}{{ if .Description }}\\\\n**描述**: {{ .Description }}{{ end }}{{ if .LabelLinesCard }}\\\\n**标签**:\\\\n{{ .LabelLinesCard }}{{ end }}\\\"\\n        }\\n      }{{ if not .IsRecovered }},\\n      {\\n        \\\"tag\\\": \\\"hr\\\"\\n      },\\n      {\\n        \\\"tag\\\": \\\"column_set\\\",\\n        \\\"flex_mode\\\": \\\"none\\\",\\n        \\\"horizontal_spacing\\\": \\\"16px\\\",\\n        \\\"columns\\\": [\\n          {\\n            \\\"tag\\\": \\\"column\\\",\\n            \\\"width\\\": \\\"weighted\\\",\\n            \\\"elements\\\": [\\n              {\\n                \\\"tag\\\": \\\"button\\\",\\n                \\\"element_id\\\": \\\"claim_button_{{ .EventID }}\\\",\\n                \\\"text\\\": {\\n                  \\\"tag\\\": \\\"plain_text\\\",\\n                  \\\"content\\\": \\\"认领\\\"\\n                },\\n                \\\"type\\\": \\\"primary_filled\\\",\\n                \\\"width\\\": \\\"default\\\",\\n                \\\"behaviors\\\": [\\n                  {\\n                    \\\"type\\\": \\\"callback\\\",\\n                    \\\"value\\\": {\\n                      \\\"action\\\": \\\"claim\\\",\\n                      \\\"event_id\\\": \\\"{{ .EventID }}\\\",\\n                      \\\"event_ids\\\": \\\"{{ .EventIDs }}\\\",\\n                      \\\"fingerprint\\\": \\\"{{ .Fingerprint }}\\\"\\n                    }\\n                  }\\n                ]\\n              }\\n            ]\\n          },\\n          {\\n            \\\"tag\\\": \\\"column\\\",\\n            \\\"width\\\": \\\"weighted\\\",\\n            \\\"elements\\\": [\\n              {\\n                \\\"tag\\\": \\\"button\\\",\\n                \\\"element_id\\\": \\\"silence_button_{{ .EventID }}\\\",\\n                \\\"text\\\": {\\n                  \\\"tag\\\": \\\"plain_text\\\",\\n                  \\\"content\\\": \\\"静默一小时\\\"\\n                },\\n                \\\"type\\\": \\\"danger_filled\\\",\\n                \\\"width\\\": \\\"default\\\",\\n                \\\"behaviors\\\": [\\n                  {\\n                    \\\"type\\\": \\\"callback\\\",\\n                    \\\"value\\\": {\\n                      \\\"action\\\": \\\"silence\\\",\\n                      \\\"duration\\\": \\\"1h\\\",\\n                      \\\"event_id\\\": \\\"{{ .EventID }}\\\",\\n                      \\\"event_ids\\\": \\\"{{ .EventIDs }}\\\",\\n                      \\\"fingerprint\\\": \\\"{{ .Fingerprint }}\\\"\\n                    }\\n                  }\\n                ]\\n              }\\n            ]\\n          }\\n        ]\\n      }{{ end }}\\n    ]\\n  }\\n}\"}', 1, 1, 'system', 'system', '2026-07-10 23:50:49.108', '2026-08-03 01:20:03.487');
+INSERT INTO `alert_notify_templates` (`id`, `ident`, `name`, `channel_type`, `template_type`, `description`, `content`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (3, 'builtin_dingtalk_markdown', '钉钉通知模板', 'dingtalk', 'markdown', '发送钉钉机器人的 Markdown 告警通知模板', '{\"title\": \"{{ if .IsRecovered }}【已恢复】{{ else }}【报警中】{{ end }}{{ .RuleName }}\", \"footer\": \"AIOps 运维平台\", \"content\": \"### {{ if .IsRecovered }}【已恢复】{{ else }}【报警中】{{ end }}{{ .RuleName }}\\n- **级别**: {{ .Severity }} {{ .SeverityIcon }}\\n{{ if ne .PolicyName .RuleName }}- **策略**: {{ .PolicyName }}\\n{{ end }}- **规则**: {{ .RuleName }}\\n{{ if gt .EventCount 1 }}- **资源**: {{ .AffectedResources }}\\n{{ else }}- **目标**: {{ .ResourceName }}\\n{{ end }}{{ if .Condition }}- **条件**: {{ .Condition }}\\n{{ end }}{{ if .ValueSummary }}- **当前值**: {{ .ValueSummary }}\\n{{ else if .Threshold }}- **阈值**: {{ .Threshold }}\\n{{ end }}- **时间**: {{ if .IsRecovered }}{{ .RecoveredAt }}{{ else }}{{ .FirstTriggeredAt }}{{ end }}\\n- **持续**: {{ .Duration }}\\n{{ if gt .EventCount 1 }}- **聚合**: {{ .EventCount }} 个事件 / {{ .ResourceCount }} 个资源\\n{{ end }}{{ if .Description }}- **描述**: {{ .Description }}\\n{{ end }}{{ if .LabelLines }}- **标签**:\\n{{ .LabelLines }}\\n{{ end }}[事件详情]({{ .DetailURL }}) | [静默1小时]({{ .SilenceURL }})\"}', 1, 1, 'system', 'system', '2026-07-10 23:50:49.108', '2026-08-03 01:20:03.487');
+INSERT INTO `alert_notify_templates` (`id`, `ident`, `name`, `channel_type`, `template_type`, `description`, `content`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (4, 'builtin_wecom_markdown', '企业微信通知模板', 'wecom', 'markdown', '发送企业微信机器人的 Markdown 告警通知模板', '{\"title\": \"{{ if .IsRecovered }}【已恢复】{{ else }}【报警中】{{ end }}{{ .RuleName }}\", \"footer\": \"AIOps 运维平台\", \"content\": \"{{ if .IsRecovered }}<font color=\\\"info\\\">【已恢复】{{ .RuleName }}</font>{{ else }}<font color=\\\"warning\\\">【报警中】{{ .RuleName }}</font>{{ end }}\\n>级别: {{ .Severity }} {{ .SeverityIcon }}\\n{{ if ne .PolicyName .RuleName }}>策略: {{ .PolicyName }}\\n{{ end }}>规则: {{ .RuleName }}\\n{{ if gt .EventCount 1 }}>资源: {{ .AffectedResources }}\\n{{ else }}>目标: {{ .ResourceName }}\\n{{ end }}{{ if .Condition }}>条件: {{ .Condition }}\\n{{ end }}{{ if .ValueSummary }}>当前值: {{ .ValueSummary }}\\n{{ else if .Threshold }}>阈值: {{ .Threshold }}\\n{{ end }}>时间: {{ if .IsRecovered }}{{ .RecoveredAt }}{{ else }}{{ .FirstTriggeredAt }}{{ end }}\\n>持续: {{ .Duration }}\\n{{ if gt .EventCount 1 }}>聚合: {{ .EventCount }} 个事件 / {{ .ResourceCount }} 个资源\\n{{ end }}{{ if .Description }}>描述: {{ .Description }}\\n{{ end }}{{ if .LabelLines }}>标签:\\n{{ .LabelLines }}\\n{{ end }}[事件详情]({{ .DetailURL }}) | [静默1小时]({{ .SilenceURL }})\"}', 1, 1, 'system', 'system', '2026-07-10 23:50:49.108', '2026-08-03 01:20:03.487');
+INSERT INTO `alert_notify_templates` (`id`, `ident`, `name`, `channel_type`, `template_type`, `description`, `content`, `builtin`, `enabled`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (6, 'builtin_leliao_textcard', '乐聊通知模板', 'leliao', 'markdown', '发送公司内部乐聊通知提醒的文本卡片模板', '{\"title\": \"{{ if .IsRecovered }}【已恢复】{{ else }}【告警】{{ end }}AIOps告警中心-{{ .RuleName }}\", \"footer\": \"AIOps 运维平台\", \"content\": \"{{ if .IsRecovered }}【已恢复】{{ else }}【报警中】{{ end }}：{{ .RuleName }}\\n【级别】: {{ .Severity }} {{ .SeverityIcon }}\\n{{ if ne .PolicyName .RuleName }}【策略】: {{ .PolicyName }}\\n{{ end }}【规则】: {{ .RuleName }}\\n{{ if gt .EventCount 1 }}【资源】: {{ .AffectedResources }}{{ else }}【目标】: {{ .ResourceName }}{{ end }}\\n{{ if .Condition }}【条件】: {{ .Condition }}{{ end }}\\n{{ if .ValueSummary }}【当前值】: {{ .ValueSummary }}{{ else if .Threshold }}【阈值】: {{ .Threshold }}{{ end }}\\n【时间】: {{ if .IsRecovered }}{{ .RecoveredAt }}{{ else }}{{ .FirstTriggeredAt }}{{ end }}\\n【持续】: {{ .Duration }}\\n{{ if gt .EventCount 1 }}【聚合】: {{ .EventCount }} 个事件 / {{ .ResourceCount }} 个资源{{ end }}\\n{{ if .Description }}【描述】: {{ .Description }}{{ end }}\\n{{ if .LabelLines }}【标签】：\\n{{ .LabelLines }}{{ end }}\"}', 1, 1, 'system', 'system', '2026-08-03 01:07:46.228', '2026-08-03 01:20:03.487');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_rule_groups
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_rule_groups`;
+CREATE TABLE `alert_rule_groups` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `parent_id` bigint unsigned DEFAULT '0',
+  `name` varchar(100) NOT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `sort` int DEFAULT '0',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_rule_groups_parent_id` (`parent_id`),
+  KEY `idx_alert_rule_groups_name` (`name`),
+  KEY `idx_alert_rule_groups_enabled` (`enabled`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_rule_groups
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_rules
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_rules`;
+CREATE TABLE `alert_rules` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `note` text,
+  `group_id` bigint unsigned DEFAULT NULL,
+  `datasource_id` bigint unsigned DEFAULT NULL,
+  `datasource_type` varchar(64) NOT NULL,
+  `datasource_queries` json DEFAULT NULL,
+  `query` text NOT NULL,
+  `condition_operator` varchar(16) DEFAULT NULL,
+  `condition_value` double DEFAULT NULL,
+  `rule_config` json DEFAULT NULL,
+  `append_tags` json DEFAULT NULL,
+  `cron_pattern` varchar(64) NOT NULL DEFAULT '@every 60s',
+  `eval_interval_seconds` bigint NOT NULL DEFAULT '60',
+  `for_duration_seconds` bigint NOT NULL DEFAULT '0',
+  `recover_duration_seconds` bigint NOT NULL DEFAULT '0',
+  `severity` varchar(32) NOT NULL DEFAULT 'warning',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `enable_in_bg` tinyint NOT NULL DEFAULT '0',
+  `time_zone` varchar(64) NOT NULL DEFAULT 'Asia/Shanghai',
+  `labels` json DEFAULT NULL,
+  `annotations` json DEFAULT NULL,
+  `asset_scope` json DEFAULT NULL,
+  `business_id` varchar(128) DEFAULT NULL,
+  `no_data_policy` varchar(32) DEFAULT 'ignore',
+  `error_policy` varchar(32) DEFAULT 'ignore',
+  `effective_time` json DEFAULT NULL,
+  `notify_rule_ids` json DEFAULT NULL,
+  `notify_recovered` tinyint NOT NULL DEFAULT '1',
+  `notify_repeat_step_minutes` bigint NOT NULL DEFAULT '60',
+  `notify_max_number` int NOT NULL DEFAULT '0',
+  `pipeline_configs` json DEFAULT NULL,
+  `runbook_url` varchar(500) DEFAULT NULL,
+  `callbacks` json DEFAULT NULL,
+  `self_heal_config` json DEFAULT NULL,
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `internal` tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_rules_name` (`name`),
+  KEY `idx_alert_rules_group_id` (`group_id`),
+  KEY `idx_alert_rules_datasource_id` (`datasource_id`),
+  KEY `idx_alert_rules_datasource_type` (`datasource_type`),
+  KEY `idx_alert_rules_severity` (`severity`),
+  KEY `idx_alert_rules_enabled` (`enabled`),
+  KEY `idx_alert_rules_enable_in_bg` (`enable_in_bg`),
+  KEY `idx_alert_rules_business_id` (`business_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_rules
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for alert_silence_rules
+-- ----------------------------
+DROP TABLE IF EXISTS `alert_silence_rules`;
+CREATE TABLE `alert_silence_rules` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(150) NOT NULL,
+  `matchers` json DEFAULT NULL,
+  `start_time` datetime(3) DEFAULT NULL,
+  `end_time` datetime(3) DEFAULT NULL,
+  `repeat_type` varchar(32) DEFAULT 'once',
+  `reason` varchar(500) DEFAULT NULL,
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_silence_rules_name` (`name`),
+  KEY `idx_alert_silence_rules_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of alert_silence_rules
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for bastion_asset_authorization
+-- ----------------------------
+DROP TABLE IF EXISTS `bastion_asset_authorization`;
+CREATE TABLE `bastion_asset_authorization` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
+  `subject_type` varchar(191) NOT NULL COMMENT '''授权对象类型:user/group''',
+  `subject_id` bigint unsigned NOT NULL COMMENT '''授权对象ID(用户ID或用户组ID)''',
+  `asset_type` varchar(191) NOT NULL COMMENT '''资产类型:host/k8s_cluster等''',
+  `asset_id` bigint unsigned NOT NULL COMMENT '''资产ID''',
+  `scope_type` varchar(191) NOT NULL DEFAULT '' COMMENT '''资产子范围类型，空值表示整个资产''',
+  `scope_value` varchar(191) NOT NULL DEFAULT '' COMMENT '''资产子范围值，如K8S命名空间''',
+  `effective_time` datetime(3) DEFAULT NULL COMMENT '''生效时间''',
+  `expire_time` datetime(3) DEFAULT NULL COMMENT '''失效时间''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
+  PRIMARY KEY (`id`),
+  KEY `idx_asset_subject_resource` (`subject_type`,`subject_id`,`asset_type`,`asset_id`,`scope_type`,`scope_value`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of bastion_asset_authorization
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for bastion_host_authorization
+-- ----------------------------
+DROP TABLE IF EXISTS `bastion_host_authorization`;
+CREATE TABLE `bastion_host_authorization` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
+  `subject_type` varchar(191) NOT NULL COMMENT '''授权对象类型:user/group''',
+  `subject_id` bigint unsigned NOT NULL COMMENT '''授权对象ID(用户ID或用户组ID)''',
+  `host_id` bigint unsigned NOT NULL COMMENT '''主机ID''',
+  `auth_ids` text COMMENT '''授权登录账号ID列表，逗号分隔''',
+  `effective_time` datetime(3) DEFAULT NULL COMMENT '''生效时间''',
+  `expire_time` datetime(3) DEFAULT NULL COMMENT '''失效时间''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
+  `asset_type` varchar(191) NOT NULL DEFAULT 'host' COMMENT '''资产类型:host/k8s/log''',
+  `asset_id` bigint unsigned NOT NULL COMMENT '''资产ID:主机ID/K8S集群ID/日志项目ID''',
+  `scope` varchar(191) DEFAULT NULL COMMENT '''授权范围:host/cluster/namespace/project/logStore''',
+  `scope_id` bigint unsigned DEFAULT NULL COMMENT '''范围资源ID:日志库ID等''',
+  `scope_value` varchar(191) DEFAULT NULL COMMENT '''范围资源值:命名空间等''',
+  PRIMARY KEY (`id`),
+  KEY `idx_subject_host` (`subject_type`,`subject_id`,`host_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of bastion_host_authorization
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for bastion_user_group
+-- ----------------------------
+DROP TABLE IF EXISTS `bastion_user_group`;
+CREATE TABLE `bastion_user_group` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
+  `name` varchar(64) NOT NULL COMMENT '''用户组名称''',
+  `description` varchar(500) DEFAULT NULL COMMENT '''用户组描述''',
+  `member_ids` json DEFAULT NULL COMMENT '''成员ID列表(JSON数组)''',
+  `status` bigint NOT NULL DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_bastion_user_group_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of bastion_user_group
+-- ----------------------------
+BEGIN;
+INSERT INTO `bastion_user_group` (`id`, `name`, `description`, `member_ids`, `status`, `create_time`, `update_time`) VALUES (1, 'test', '', '[102]', 1, '2026-07-14 00:10:18.967', '2026-07-14 00:10:18.967');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for bill_cloud_account
+-- ----------------------------
+DROP TABLE IF EXISTS `bill_cloud_account`;
+CREATE TABLE `bill_cloud_account` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `operator` varchar(32) NOT NULL,
+  `account_name` varchar(128) NOT NULL DEFAULT '',
+  `account_id` varchar(128) NOT NULL DEFAULT '',
+  `key_manage_id` bigint unsigned NOT NULL DEFAULT '0',
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `bill_sync_enabled` tinyint NOT NULL DEFAULT '1',
+  `balance_sync_enabled` tinyint NOT NULL DEFAULT '1',
+  `balance_sync_interval_minutes` bigint NOT NULL DEFAULT '60',
+  `sync_cycle` varchar(32) NOT NULL DEFAULT 'daily',
+  `lookback_months` bigint NOT NULL DEFAULT '12',
+  `sync_status` varchar(32) NOT NULL DEFAULT 'pending',
+  `last_sync_time` datetime(3) DEFAULT NULL,
+  `last_sync_error` varchar(1000) DEFAULT NULL,
+  `current_month_cost` decimal(20,6) NOT NULL DEFAULT '0.000000',
+  `available_balance` decimal(20,6) NOT NULL DEFAULT '0.000000',
+  `currency` char(3) NOT NULL DEFAULT 'CNY',
+  `balance_status` varchar(32) NOT NULL DEFAULT 'unknown',
+  `last_balance_time` datetime(3) DEFAULT NULL,
+  `last_balance_error` varchar(1000) DEFAULT NULL,
+  `balance_alert_rule_id` bigint unsigned NOT NULL DEFAULT '0',
+  `balance_alert_enabled` tinyint NOT NULL DEFAULT '0',
+  `balance_alert_threshold` decimal(20,6) NOT NULL DEFAULT '0.000000',
+  `balance_alert_threshold_days` bigint NOT NULL DEFAULT '0',
+  `balance_alert_on_query_error` tinyint NOT NULL DEFAULT '1',
+  `balance_alert_severity` varchar(32) NOT NULL DEFAULT 'warning',
+  `balance_alert_repeat_minutes` bigint NOT NULL DEFAULT '1440',
+  `balance_alert_notify_recovered` tinyint NOT NULL DEFAULT '1',
+  `balance_alert_notify_rule_ids` text,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_bill_cloud_account_operator` (`operator`),
+  KEY `idx_bill_cloud_account_account_name` (`account_name`),
+  KEY `idx_bill_cloud_account_account_id` (`account_id`),
+  KEY `idx_bill_cloud_account_key_manage_id` (`key_manage_id`),
+  KEY `idx_bill_cloud_account_enabled` (`enabled`),
+  KEY `idx_bill_cloud_account_bill_sync_enabled` (`bill_sync_enabled`),
+  KEY `idx_bill_cloud_account_balance_sync_enabled` (`balance_sync_enabled`),
+  KEY `idx_bill_cloud_account_sync_status` (`sync_status`),
+  KEY `idx_bill_cloud_account_last_sync_time` (`last_sync_time`),
+  KEY `idx_bill_cloud_account_balance_status` (`balance_status`),
+  KEY `idx_bill_cloud_account_last_balance_time` (`last_balance_time`),
+  KEY `idx_bill_cloud_account_balance_alert_rule_id` (`balance_alert_rule_id`),
+  KEY `idx_bill_cloud_account_balance_alert_enabled` (`balance_alert_enabled`),
+  KEY `idx_bill_cloud_account_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of bill_cloud_account
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for bill_datasource
+-- ----------------------------
+DROP TABLE IF EXISTS `bill_datasource`;
+CREATE TABLE `bill_datasource` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `operator` varchar(32) NOT NULL,
+  `account_id` varchar(128) NOT NULL,
+  `access_key` varchar(256) NOT NULL,
+  `secret_key` varchar(256) NOT NULL,
+  `sync_cycle` varchar(32) DEFAULT 'daily',
+  `lookback_months` bigint DEFAULT '3',
+  `sync_status` varchar(32) DEFAULT 'success',
+  `last_sync_time` datetime(3) DEFAULT NULL,
+  `current_month_cost` decimal(20,2) DEFAULT '0.00',
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_bill_datasource_operator` (`operator`),
+  KEY `idx_bill_datasource_account_id` (`account_id`),
+  KEY `idx_bill_datasource_sync_status` (`sync_status`),
+  KEY `idx_bill_datasource_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of bill_datasource
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for bill_detail
+-- ----------------------------
+DROP TABLE IF EXISTS `bill_detail`;
+CREATE TABLE `bill_detail` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `resource_id` varchar(128) NOT NULL COMMENT '资源ID',
+  `resource_name` varchar(255) NOT NULL COMMENT '资源名称',
+  `product_name` varchar(128) DEFAULT NULL COMMENT '产品名称',
+  `sub_product_name` varchar(128) DEFAULT NULL COMMENT '子产品名称',
+  `component_name` varchar(128) DEFAULT NULL COMMENT '组件名称',
+  `item_code` varchar(100) DEFAULT NULL COMMENT '计费项编码',
+  `usage` varchar(64) DEFAULT NULL COMMENT '用量',
+  `usage_unit` varchar(32) DEFAULT NULL COMMENT '用量单位',
+  `cost` decimal(20,6) DEFAULT NULL COMMENT '原价',
+  `real_cost` decimal(20,6) DEFAULT NULL COMMENT '实际花费',
+  `discount` decimal(10,6) DEFAULT NULL COMMENT '折扣',
+  `single_price` decimal(20,6) DEFAULT NULL COMMENT '单价',
+  `price_unit` varchar(32) DEFAULT NULL COMMENT '价格单位',
+  `time_span` varchar(32) DEFAULT NULL COMMENT '时长',
+  `pay_time` datetime DEFAULT NULL,
+  `fee_begin_time` datetime DEFAULT NULL COMMENT '开始使用时间',
+  `fee_end_time` datetime DEFAULT NULL COMMENT '结束使用时间',
+  `pay_mode` varchar(32) DEFAULT NULL COMMENT '付费模式',
+  `action_type` varchar(64) DEFAULT NULL COMMENT '交易类型',
+  `region` varchar(64) DEFAULT NULL COMMENT '地域',
+  `zone` varchar(64) DEFAULT NULL COMMENT '可用区',
+  `project_name` varchar(128) DEFAULT NULL COMMENT '项目名称',
+  `order_id` varchar(128) DEFAULT NULL COMMENT '订单ID',
+  `bill_id` varchar(128) DEFAULT NULL COMMENT '交易ID',
+  `record_id` varchar(128) NOT NULL COMMENT '账单记录ID',
+  `operator` varchar(128) NOT NULL COMMENT '运营商',
+  `month` varchar(7) DEFAULT NULL COMMENT '账单月份',
+  `created_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime(3) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_operator_record_name` (`resource_name`),
+  UNIQUE KEY `uk_operator_record` (`operator`,`record_id`),
+  KEY `idx_bill_detail_resource_id` (`resource_id`),
+  KEY `idx_bill_detail_product_name` (`product_name`),
+  KEY `idx_bill_detail_item_code` (`item_code`),
+  KEY `idx_bill_detail_pay_time` (`pay_time`),
+  KEY `idx_bill_detail_region` (`region`),
+  KEY `idx_bill_detail_order_id` (`order_id`),
+  KEY `idx_bill_detail_month` (`month`)
+) ENGINE=InnoDB AUTO_INCREMENT=23091 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of bill_detail
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for bill_monthly_summary
+-- ----------------------------
+DROP TABLE IF EXISTS `bill_monthly_summary`;
+CREATE TABLE `bill_monthly_summary` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `cloud_account_id` bigint unsigned NOT NULL,
+  `operator` varchar(32) NOT NULL,
+  `month` char(7) NOT NULL,
+  `total_cost` decimal(20,4) NOT NULL DEFAULT '0.0000',
+  `currency` char(3) NOT NULL DEFAULT 'CNY',
+  `bill_status` varchar(16) NOT NULL DEFAULT 'estimating',
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_bill_monthly_account` (`cloud_account_id`,`month`),
+  KEY `idx_bill_monthly_summary_cloud_account_id` (`cloud_account_id`),
+  KEY `idx_bill_monthly_summary_operator` (`operator`),
+  KEY `idx_bill_monthly_summary_month` (`month`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of bill_monthly_summary
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_business_model
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_business_model`;
+CREATE TABLE `cmdb_business_model` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(200) NOT NULL COMMENT '业务模型名称',
+  `display_name` varchar(200) DEFAULT NULL COMMENT '展示名称',
+  `env` varchar(50) DEFAULT NULL COMMENT '环境',
+  `owner` varchar(64) DEFAULT NULL COMMENT '负责人',
+  `biz_code` varchar(128) DEFAULT NULL COMMENT '业务编码',
+  `properties` json DEFAULT NULL COMMENT '业务属性',
+  `status` varchar(20) DEFAULT 'active' COMMENT '状态',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_cmdb_business_model_name` (`name`),
+  KEY `idx_cmdb_business_model_deleted_at` (`deleted_at`),
+  KEY `idx_cmdb_business_model_display_name` (`display_name`),
+  KEY `idx_cmdb_business_model_env` (`env`),
+  KEY `idx_cmdb_business_model_owner` (`owner`),
+  KEY `idx_cmdb_business_model_biz_code` (`biz_code`),
+  KEY `idx_cmdb_business_model_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of cmdb_business_model
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_business_model_binding
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_business_model_binding`;
+CREATE TABLE `cmdb_business_model_binding` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `business_id` bigint unsigned NOT NULL COMMENT '业务模型ID',
+  `parent_id` bigint unsigned DEFAULT NULL COMMENT '父绑定节点ID',
+  `name` varchar(200) NOT NULL COMMENT '节点名称',
+  `display_name` varchar(200) DEFAULT NULL COMMENT '展示名称',
+  `resource_type` varchar(50) NOT NULL COMMENT '资源类型',
+  `source_type` varchar(50) DEFAULT NULL COMMENT '来源模块类型',
+  `source_id` bigint unsigned DEFAULT NULL COMMENT '来源模块资源ID',
+  `source_key` varchar(255) DEFAULT NULL COMMENT '来源模块资源唯一键',
+  `env` varchar(50) DEFAULT NULL COMMENT '环境',
+  `owner` varchar(64) DEFAULT NULL COMMENT '负责人',
+  `biz_code` varchar(128) DEFAULT NULL COMMENT '业务编码',
+  `properties` json DEFAULT NULL COMMENT '节点属性',
+  `instance_id` varchar(128) DEFAULT NULL COMMENT '实例唯一ID',
+  `status` varchar(20) DEFAULT 'active' COMMENT '状态',
+  `tags` json DEFAULT NULL COMMENT '标签',
+  PRIMARY KEY (`id`),
+  KEY `idx_cmdb_business_model_binding_deleted_at` (`deleted_at`),
+  KEY `idx_cmdb_business_model_binding_business_id` (`business_id`),
+  KEY `idx_cmdb_business_model_binding_parent_id` (`parent_id`),
+  KEY `idx_cmdb_business_model_binding_name` (`name`),
+  KEY `idx_cmdb_business_model_binding_display_name` (`display_name`),
+  KEY `idx_cmdb_business_model_binding_resource_type` (`resource_type`),
+  KEY `idx_cmdb_business_model_binding_source_type` (`source_type`),
+  KEY `idx_cmdb_business_model_binding_source_id` (`source_id`),
+  KEY `idx_cmdb_business_model_binding_source_key` (`source_key`),
+  KEY `idx_cmdb_business_model_binding_env` (`env`),
+  KEY `idx_cmdb_business_model_binding_owner` (`owner`),
+  KEY `idx_cmdb_business_model_binding_biz_code` (`biz_code`),
+  KEY `idx_cmdb_business_model_binding_instance_id` (`instance_id`),
+  KEY `idx_cmdb_business_model_binding_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of cmdb_business_model_binding
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_business_model_health_snapshot
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_business_model_health_snapshot`;
+CREATE TABLE `cmdb_business_model_health_snapshot` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `business_id` bigint unsigned NOT NULL COMMENT '业务模型ID',
+  `resource_id` bigint unsigned NOT NULL COMMENT '绑定节点ID',
+  `dimension` varchar(50) NOT NULL COMMENT '健康维度',
+  `score` bigint NOT NULL DEFAULT '100' COMMENT '健康评分',
+  `status` varchar(20) NOT NULL DEFAULT 'healthy' COMMENT '健康状态',
+  `source` varchar(50) DEFAULT NULL COMMENT '数据来源',
+  `message` varchar(500) DEFAULT NULL COMMENT '摘要信息',
+  `evidence` json DEFAULT NULL COMMENT '健康证据',
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cmdb_business_health_resource_dimension` (`business_id`,`resource_id`,`dimension`),
+  KEY `idx_cmdb_business_model_health_snapshot_business_id` (`business_id`),
+  KEY `idx_cmdb_business_model_health_snapshot_resource_id` (`resource_id`),
+  KEY `idx_cmdb_business_model_health_snapshot_dimension` (`dimension`),
+  KEY `idx_cmdb_business_model_health_snapshot_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of cmdb_business_model_health_snapshot
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_business_model_relation
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_business_model_relation`;
+CREATE TABLE `cmdb_business_model_relation` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `business_id` bigint unsigned NOT NULL COMMENT '业务模型ID',
+  `src_id` bigint unsigned NOT NULL COMMENT '源绑定节点ID',
+  `dst_id` bigint unsigned NOT NULL COMMENT '目标绑定节点ID',
+  `relation_type` varchar(50) NOT NULL COMMENT '关系类型',
+  `properties` json DEFAULT NULL COMMENT '关系属性',
+  `status` tinyint DEFAULT '1' COMMENT '状态 1-有效 0-无效',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_cmdb_business_relation` (`business_id`,`src_id`,`dst_id`,`relation_type`),
+  KEY `idx_cmdb_business_model_relation_deleted_at` (`deleted_at`),
+  KEY `idx_cmdb_business_model_relation_business_id` (`business_id`),
+  KEY `idx_cmdb_business_model_relation_src_id` (`src_id`),
+  KEY `idx_cmdb_business_model_relation_dst_id` (`dst_id`),
+  KEY `idx_cmdb_business_model_relation_relation_type` (`relation_type`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of cmdb_business_model_relation
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_db_management
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_db_management`;
+CREATE TABLE `cmdb_db_management` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `instance_name` varchar(128) DEFAULT NULL,
+  `type` int NOT NULL,
+  `version` varchar(64) DEFAULT NULL,
+  `environment` varchar(32) DEFAULT NULL,
+  `status` int NOT NULL DEFAULT '1',
+  `auth_status` int NOT NULL DEFAULT '0',
+  `account_id` bigint unsigned NOT NULL,
+  `group_id` bigint unsigned NOT NULL,
+  `host_id` bigint unsigned DEFAULT NULL,
+  `host_ip` varchar(64) DEFAULT NULL,
+  `port` int DEFAULT NULL,
+  `endpoint` varchar(255) DEFAULT NULL,
+  `region` varchar(64) DEFAULT NULL,
+  `idc_room_id` bigint unsigned DEFAULT NULL,
+  `network_area` varchar(128) DEFAULT NULL,
+  `public_access` tinyint(1) DEFAULT '0',
+  `business_system` varchar(128) DEFAULT NULL,
+  `project` varchar(128) DEFAULT NULL,
+  `owner` varchar(64) DEFAULT NULL,
+  `dba_owner` varchar(64) DEFAULT NULL,
+  `ops_owner` varchar(64) DEFAULT NULL,
+  `department` varchar(128) DEFAULT NULL,
+  `cpu` varchar(64) DEFAULT NULL,
+  `memory` varchar(64) DEFAULT NULL,
+  `storage_size_gb` int DEFAULT NULL,
+  `used_storage_gb` int DEFAULT NULL,
+  `storage_type` varchar(64) DEFAULT NULL,
+  `deploy_mode` varchar(64) DEFAULT NULL,
+  `node_count` int DEFAULT NULL,
+  `cluster_name` varchar(128) DEFAULT NULL,
+  `role` varchar(32) DEFAULT NULL,
+  `primary_id` bigint unsigned DEFAULT NULL,
+  `auth_method` varchar(64) DEFAULT NULL,
+  `ssl_enabled` tinyint(1) DEFAULT '0',
+  `audit_enabled` tinyint(1) DEFAULT '0',
+  `security_level` varchar(32) DEFAULT NULL,
+  `risk_tags` varchar(255) DEFAULT NULL,
+  `backup_policy` varchar(255) DEFAULT NULL,
+  `last_backup_time` datetime(3) DEFAULT NULL,
+  `monitor_status` int DEFAULT '0',
+  `alert_status` int DEFAULT '0',
+  `slow_log_path` varchar(512) DEFAULT NULL,
+  `prometheus_account_id` bigint unsigned DEFAULT NULL,
+  `prometheus_label_selector` varchar(255) DEFAULT NULL,
+  `last_inspection_time` datetime(3) DEFAULT NULL,
+  `expire_time` datetime(3) DEFAULT NULL,
+  `tags` varchar(255) DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_cmdb_db_management_name` (`name`),
+  KEY `idx_cmdb_db_management_instance_name` (`instance_name`),
+  KEY `idx_cmdb_db_management_type` (`type`),
+  KEY `idx_cmdb_db_management_environment` (`environment`),
+  KEY `idx_cmdb_db_management_status` (`status`),
+  KEY `idx_cmdb_db_management_auth_status` (`auth_status`),
+  KEY `idx_cmdb_db_management_account_id` (`account_id`),
+  KEY `idx_cmdb_db_management_group_id` (`group_id`),
+  KEY `idx_cmdb_db_management_host_id` (`host_id`),
+  KEY `idx_cmdb_db_management_host_ip` (`host_ip`),
+  KEY `idx_cmdb_db_management_idc_room_id` (`idc_room_id`),
+  KEY `idx_cmdb_db_management_business_system` (`business_system`),
+  KEY `idx_cmdb_db_management_owner` (`owner`),
+  KEY `idx_cmdb_db_management_cluster_name` (`cluster_name`),
+  KEY `idx_cmdb_db_management_primary_id` (`primary_id`),
+  KEY `idx_cmdb_db_management_prometheus_account_id` (`prometheus_account_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of cmdb_db_management
+-- ----------------------------
+BEGIN;
+INSERT INTO `cmdb_db_management` (`id`, `name`, `instance_name`, `type`, `version`, `environment`, `status`, `auth_status`, `account_id`, `group_id`, `host_id`, `host_ip`, `port`, `endpoint`, `region`, `idc_room_id`, `network_area`, `public_access`, `business_system`, `project`, `owner`, `dba_owner`, `ops_owner`, `department`, `cpu`, `memory`, `storage_size_gb`, `used_storage_gb`, `storage_type`, `deploy_mode`, `node_count`, `cluster_name`, `role`, `primary_id`, `auth_method`, `ssl_enabled`, `audit_enabled`, `security_level`, `risk_tags`, `backup_policy`, `last_backup_time`, `monitor_status`, `alert_status`, `slow_log_path`, `prometheus_account_id`, `prometheus_label_selector`, `last_inspection_time`, `expire_time`, `tags`, `description`, `created_at`, `updated_at`) VALUES (1, '本地-autoops', '本地-autoops', 1, '', 'prod', 1, 2, 44, 0, 0, '127.0.0.1', 3306, '127.0.0.1:3306', '', 0, '', 0, '', '', '', '', '', '', '', '', 0, 0, '', '', 1, '', '', 0, '', 0, 0, '', '', '', '0001-01-01 00:00:00.000', 0, 0, '', 0, '', '0001-01-01 00:00:00.000', '0001-01-01 00:00:00.000', '', '', '2026-07-14 01:05:42.693', '2026-08-02 22:15:08.417');
 COMMIT;
 
 -- ----------------------------
@@ -257,37 +1529,42 @@ DROP TABLE IF EXISTS `cmdb_group`;
 CREATE TABLE `cmdb_group` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
   `parent_id` bigint unsigned NOT NULL DEFAULT '0' COMMENT '''父级分组ID''',
-  `name` longtext NOT NULL COMMENT '''分组名称''',
+  `name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''分组名称''',
   `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `remark` longtext COMMENT '''备注''',
+  `remark` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''备注''',
   `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=89 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of cmdb_group
 -- ----------------------------
 BEGIN;
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (1, 0, '默认业务组', '2025-07-10 11:02:07.226', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (2, 0, 'saas3业务线', '2025-07-10 11:03:36.622', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (3, 0, 'saas4业务线', '2025-07-10 11:03:56.083', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (4, 11, '公寓业务', '2025-07-10 11:05:45.431', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (9, 11, '智能窗帘业务', '2025-07-17 10:17:52.017', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (11, 0, 'saas5业务线', '2025-07-17 10:21:44.700', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (12, 2, 'saas3', '2025-07-17 11:07:19.279', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (14, 3, '智慧门锁业务', '2025-07-17 11:19:14.090', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (16, 15, '智能家居业务', '2025-07-22 10:32:14.837', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (18, 2, 'saas4', '2025-07-23 10:40:12.787', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (19, 17, '运维组', '2025-07-23 20:21:08.618', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (20, 17, '安全组', '2025-07-23 20:21:33.222', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (26, 24, '国内鹿客云', '2025-09-07 18:04:56.683', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (27, 24, '新加坡鹿客云', '2025-09-07 18:05:13.713', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (28, 24, '北美鹿客云', '2025-09-07 18:05:31.846', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (29, 17, 'ai运维组', '2025-10-01 15:17:35.617', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (31, 30, 'rental-test', '2025-12-05 20:17:32.169', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (32, 30, 'rental-dev', '2025-12-05 20:17:43.988', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (34, 33, 'saas7', '2025-12-09 21:14:55.863', NULL, NULL);
-INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (35, 33, 'saas8', '2025-12-09 21:15:05.050', NULL, NULL);
+INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (85, 0, '默认业务组', '2026-06-21 15:14:17.299', NULL, '2026-06-21 15:14:17.299');
+INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (86, 0, '深圳科技有限公司', '2026-06-21 16:09:19.842', NULL, '2026-06-21 16:09:28.161');
+INSERT INTO `cmdb_group` (`id`, `parent_id`, `name`, `create_time`, `remark`, `update_time`) VALUES (87, 86, 'AI-运维业务', '2026-06-21 16:09:58.205', NULL, '2026-06-21 16:09:58.205');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_group_authorization
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_group_authorization`;
+CREATE TABLE `cmdb_group_authorization` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
+  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''用户组名称''',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''用户组描述''',
+  `member_ids` json DEFAULT NULL COMMENT '''成员ID列表(JSON数组)''',
+  `status` bigint NOT NULL DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_cmdb_group_authorization_name` (`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_group_authorization
+-- ----------------------------
+BEGIN;
 COMMIT;
 
 -- ----------------------------
@@ -296,37 +1573,354 @@ COMMIT;
 DROP TABLE IF EXISTS `cmdb_host`;
 CREATE TABLE `cmdb_host` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `host_name` longtext NOT NULL COMMENT '''名称''',
+  `host_name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''名称''',
   `group_id` bigint unsigned NOT NULL COMMENT '''分组ID''',
-  `private_ip` longtext COMMENT '''私网IP''',
-  `public_ip` longtext COMMENT '''公网IP''',
-  `ssh_name` longtext COMMENT '''SSH用户名''',
+  `private_ip` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''私网IP''',
+  `public_ip` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''公网IP''',
+  `ssh_name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''SSH用户名''',
   `ssh_key_id` bigint unsigned DEFAULT NULL COMMENT '''SSH凭据ID''',
   `ssh_port` bigint DEFAULT '22' COMMENT '''SSH端口''',
-  `remark` longtext COMMENT '''备注''',
-  `vendor` bigint DEFAULT NULL COMMENT '''1->自建,2->阿里云,3->腾讯云''',
-  `region` longtext COMMENT '''区域''',
-  `instance_id` longtext COMMENT '''实例ID''',
-  `os` longtext COMMENT '''操作系统''',
+  `remark` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''备注''',
+  `vendor` bigint DEFAULT NULL COMMENT '''1->自建,2->阿里云,3->腾讯云,4->百度云,5->华为云,6->AWS''',
+  `region` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''区域''',
+  `instance_id` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''实例ID''',
+  `os` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''操作系统''',
   `status` bigint DEFAULT NULL COMMENT '''状态:1->认证成功,2->未认证,3->认证失败''',
-  `cpu` longtext COMMENT '''CPU信息''',
-  `memory` longtext COMMENT '''内存信息''',
-  `disk` longtext COMMENT '''磁盘信息''',
-  `billing_type` longtext COMMENT '''计费方式''',
+  `cpu` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''CPU信息''',
+  `memory` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''内存信息''',
+  `disk` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''磁盘信息''',
+  `billing_type` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''计费方式''',
   `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
   `expire_time` datetime(3) DEFAULT NULL COMMENT '''到期时间''',
   `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `ssh_ip` longtext NOT NULL COMMENT '''SSH连接IP''',
-  `name` longtext NOT NULL COMMENT '''ecs主机名称''',
+  `ssh_ip` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''SSH连接IP''',
+  `name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''ecs主机名称''',
   `ssh_gateway_id` bigint unsigned DEFAULT NULL COMMENT '''中转网关凭据ID''',
-  `tag` text COMMENT '''标签(格式:key=value,key=value)''',
-  PRIMARY KEY (`id`),
-  KEY `fk_cmdb_group_hosts` (`group_id`),
-  CONSTRAINT `fk_cmdb_group_hosts` FOREIGN KEY (`group_id`) REFERENCES `cmdb_group` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=526 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `tag` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''标签(格式:key=value,key=value)''',
+  `host_type` bigint NOT NULL DEFAULT '1' COMMENT '''主机类型:1->Linux,2->Windows''',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `fk_cmdb_group_hosts` (`group_id`) USING BTREE,
+  CONSTRAINT `fk_cmdb_group_hosts` FOREIGN KEY (`group_id`) REFERENCES `cmdb_group` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE=InnoDB AUTO_INCREMENT=127 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of cmdb_host
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_host_auth
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_host_auth`;
+CREATE TABLE `cmdb_host_auth` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `host_id` bigint unsigned NOT NULL,
+  `auth_id` bigint unsigned NOT NULL,
+  `is_default` bigint NOT NULL DEFAULT '0',
+  `create_time` datetime(3) NOT NULL,
+  `update_time` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_cmdb_host_auth` (`host_id`,`auth_id`) USING BTREE,
+  KEY `idx_cmdb_host_auth_host_id` (`host_id`) USING BTREE,
+  KEY `idx_cmdb_host_auth_auth_id` (`auth_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_host_auth
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_host_authorization
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_host_authorization`;
+CREATE TABLE `cmdb_host_authorization` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
+  `subject_type` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''授权对象类型:user/group''',
+  `subject_id` bigint unsigned NOT NULL COMMENT '''授权对象ID(用户ID或用户组ID)''',
+  `host_id` bigint unsigned NOT NULL COMMENT '''主机ID''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_subject_host` (`subject_type`,`subject_id`,`host_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_host_authorization
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_idc_asset
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_idc_asset`;
+CREATE TABLE `cmdb_idc_asset` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `room_id` bigint unsigned NOT NULL,
+  `cabinet_id` bigint unsigned DEFAULT '0',
+  `cabinet_position` bigint DEFAULT '0',
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `brand` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `model` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `cpu` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `disk` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `memory` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `purpose` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `remote_management_card` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `remark` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `purchase_date` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `warranty_start_date` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `warranty_end_date` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `usage_years` decimal(10,2) DEFAULT '0.00',
+  `asset_evaluation` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `update_time` datetime(3) NOT NULL,
+  `cabinet_u_size` bigint DEFAULT '1',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_cmdb_idc_asset_ip` (`ip`) USING BTREE,
+  KEY `idx_cmdb_idc_asset_room_id` (`room_id`) USING BTREE,
+  KEY `idx_cmdb_idc_asset_cabinet_id` (`cabinet_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_idc_asset
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_idc_cabinet
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_idc_cabinet`;
+CREATE TABLE `cmdb_idc_cabinet` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `room_id` bigint unsigned NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `update_time` datetime(3) NOT NULL,
+  `total_u` bigint NOT NULL DEFAULT '42',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_cmdb_idc_cabinet_room_name` (`room_id`,`name`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_idc_cabinet
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_idc_room
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_idc_room`;
+CREATE TABLE `cmdb_idc_room` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `update_time` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_cmdb_idc_room_name` (`name`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_idc_room
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_idc_vm
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_idc_vm`;
+CREATE TABLE `cmdb_idc_vm` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `physical_asset_id` bigint unsigned NOT NULL,
+  `vm_ip` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `vm_name` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `remark` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `create_time` datetime(3) NOT NULL,
+  `update_time` datetime(3) NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_cmdb_idc_vm_physical_asset_id` (`physical_asset_id`) USING BTREE,
+  KEY `idx_cmdb_idc_vm_vm_ip` (`vm_ip`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=303 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_idc_vm
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_model_definition
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_model_definition`;
+CREATE TABLE `cmdb_model_definition` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `type_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '资源类型标识',
+  `display_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '显示名称',
+  `icon` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '图标',
+  `color` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '拓扑颜色',
+  `aliases` json DEFAULT NULL COMMENT '别名列表',
+  `fields` json DEFAULT NULL COMMENT '字段定义',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '描述',
+  `status` tinyint DEFAULT '1' COMMENT '状态',
+  `sort_order` bigint DEFAULT '0' COMMENT '排序',
+  `category` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '' COMMENT '分组',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_cmdb_model_definition_type_name` (`type_name`) USING BTREE,
+  KEY `idx_cmdb_model_definition_deleted_at` (`deleted_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_model_definition
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_model_health_snapshot
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_model_health_snapshot`;
+CREATE TABLE `cmdb_model_health_snapshot` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `resource_id` bigint unsigned NOT NULL COMMENT '资源ID',
+  `dimension` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '健康维度',
+  `score` bigint NOT NULL DEFAULT '100' COMMENT '健康评分',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'healthy' COMMENT '健康状态',
+  `source` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '数据来源',
+  `message` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '摘要信息',
+  `evidence` json DEFAULT NULL COMMENT '健康证据',
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_cmdb_model_health_resource_dimension` (`resource_id`,`dimension`) USING BTREE,
+  KEY `idx_cmdb_model_health_snapshot_resource_id` (`resource_id`) USING BTREE,
+  KEY `idx_cmdb_model_health_snapshot_dimension` (`dimension`) USING BTREE,
+  KEY `idx_cmdb_model_health_snapshot_status` (`status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=14535 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_model_health_snapshot
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_model_relation
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_model_relation`;
+CREATE TABLE `cmdb_model_relation` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `src_id` bigint unsigned NOT NULL COMMENT '源资源ID',
+  `dst_id` bigint unsigned NOT NULL COMMENT '目标资源ID',
+  `relation_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '关系类型',
+  `properties` json DEFAULT NULL COMMENT '关系属性',
+  `status` tinyint DEFAULT '1' COMMENT '状态 1-有效 0-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_cmdb_model_relation_deleted_at` (`deleted_at`) USING BTREE,
+  KEY `idx_cmdb_model_relation_src_id` (`src_id`) USING BTREE,
+  KEY `idx_cmdb_model_relation_dst_id` (`dst_id`) USING BTREE,
+  KEY `idx_cmdb_model_relation_relation_type` (`relation_type`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3973 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_model_relation
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_model_resource
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_model_resource`;
+CREATE TABLE `cmdb_model_resource` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `deleted_at` datetime(3) DEFAULT NULL,
+  `name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '资源名称',
+  `resource_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '资源类型',
+  `properties` json DEFAULT NULL COMMENT '所有属性',
+  `instance_id` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '实例唯一ID（UUID/SN）允许为空',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'active' COMMENT '状态',
+  `tags` json DEFAULT NULL COMMENT '标签',
+  `display_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '展示名称',
+  `source_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '来源模块类型',
+  `source_id` bigint unsigned DEFAULT NULL COMMENT '来源模块资源ID',
+  `source_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '来源模块资源唯一键',
+  `env` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '环境',
+  `owner` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '负责人',
+  `biz_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '业务编码',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_cmdb_model_resource_deleted_at` (`deleted_at`) USING BTREE,
+  KEY `idx_cmdb_model_resource_name` (`name`) USING BTREE,
+  KEY `idx_cmdb_model_resource_resource_type` (`resource_type`) USING BTREE,
+  KEY `idx_cmdb_model_resource_status` (`status`) USING BTREE,
+  KEY `idx_cmdb_model_resource_instance_id` (`instance_id`) USING BTREE,
+  KEY `idx_cmdb_model_resource_display_name` (`display_name`) USING BTREE,
+  KEY `idx_cmdb_model_resource_source_type` (`source_type`) USING BTREE,
+  KEY `idx_cmdb_model_resource_source_id` (`source_id`) USING BTREE,
+  KEY `idx_cmdb_model_resource_source_key` (`source_key`) USING BTREE,
+  KEY `idx_cmdb_model_resource_env` (`env`) USING BTREE,
+  KEY `idx_cmdb_model_resource_owner` (`owner`) USING BTREE,
+  KEY `idx_cmdb_model_resource_biz_code` (`biz_code`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1082 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_model_resource
+-- ----------------------------
+BEGIN;
+INSERT INTO `cmdb_model_resource` (`id`, `created_at`, `updated_at`, `deleted_at`, `name`, `resource_type`, `properties`, `instance_id`, `status`, `tags`, `display_name`, `source_type`, `source_id`, `source_key`, `env`, `owner`, `biz_code`) VALUES (1081, '2026-06-21 15:17:34.862', '2026-06-21 15:17:34.862', NULL, 'test', 'business_system', NULL, '', 'active', NULL, 'test', '', 0, '', 'prod', '', '');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for cmdb_snmp_devices
+-- ----------------------------
+DROP TABLE IF EXISTS `cmdb_snmp_devices`;
+CREATE TABLE `cmdb_snmp_devices` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''primary key''',
+  `device_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''device name''',
+  `device_type` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''device type''',
+  `device_vendor` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''device vendor''',
+  `device_model` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''device model''',
+  `ip_address` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''device ip address''',
+  `snmp_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''external snmp monitor api url''',
+  `snmp_version` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'v2c' COMMENT '''snmp version''',
+  `snmp_community` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'public' COMMENT '''snmp community''',
+  `snmp_port` bigint DEFAULT '161' COMMENT '''snmp port''',
+  `remote_port` bigint DEFAULT NULL COMMENT '''remote login port''',
+  `remote_username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''remote login username''',
+  `remote_password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''remote login password''',
+  `remote_domain` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''remote login domain''',
+  `exporter_installed` bigint DEFAULT '0' COMMENT '''windows exporter install status''',
+  `exporter_port` bigint DEFAULT '9182' COMMENT '''windows exporter port''',
+  `exporter_version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''windows exporter version''',
+  `monitor_enabled` bigint DEFAULT '1' COMMENT '''monitor enabled''',
+  `location` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''device location''',
+  `owner` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''device owner''',
+  `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''remark''',
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'offline' COMMENT '''device status''',
+  `last_seen` datetime(3) DEFAULT NULL COMMENT '''last seen time''',
+  `create_time` datetime(3) NOT NULL COMMENT '''create time''',
+  `update_time` datetime(3) NOT NULL COMMENT '''update time''',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_cmdb_snmp_devices_ip_address` (`ip_address`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of cmdb_snmp_devices
 -- ----------------------------
 BEGIN;
 COMMIT;
@@ -337,24 +1931,21 @@ COMMIT;
 DROP TABLE IF EXISTS `cmdb_sql`;
 CREATE TABLE `cmdb_sql` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `type` int NOT NULL,
   `account_id` bigint unsigned NOT NULL,
   `group_id` bigint unsigned NOT NULL,
-  `tags` varchar(255) DEFAULT NULL,
-  `description` varchar(500) DEFAULT NULL,
+  `tags` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of cmdb_sql
 -- ----------------------------
 BEGIN;
-INSERT INTO `cmdb_sql` (`id`, `name`, `type`, `account_id`, `group_id`, `tags`, `description`, `created_at`, `updated_at`) VALUES (1, 'saas3-mysql', 1, 1, 1, 'prod', '1111', '2025-07-29 21:23:17.309', '2025-07-29 21:23:17.309');
-INSERT INTO `cmdb_sql` (`id`, `name`, `type`, `account_id`, `group_id`, `tags`, `description`, `created_at`, `updated_at`) VALUES (2, 'saas3-redis-1', 3, 3, 1, 'prod', '1111', '2025-07-29 21:24:57.985', '2025-09-06 15:12:22.605');
-INSERT INTO `cmdb_sql` (`id`, `name`, `type`, `account_id`, `group_id`, `tags`, `description`, `created_at`, `updated_at`) VALUES (4, 'saas3-pgsql', 2, 1, 1, 'prod', '1111', '2025-07-29 21:36:11.147', '2025-09-06 15:12:44.586');
 COMMIT;
 
 -- ----------------------------
@@ -363,73 +1954,26 @@ COMMIT;
 DROP TABLE IF EXISTS `cmdb_sql_log`;
 CREATE TABLE `cmdb_sql_log` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `instance_id` varchar(64) NOT NULL,
-  `database` varchar(128) NOT NULL,
-  `operation_type` varchar(32) NOT NULL,
-  `sql_content` text NOT NULL,
-  `exec_user` varchar(64) NOT NULL,
-  `ip` varchar(64) NOT NULL,
+  `instance_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `database` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `operation_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `sql_content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `exec_user` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `scanned_rows` bigint DEFAULT '0',
   `affected_rows` bigint DEFAULT '0',
   `execution_time` bigint DEFAULT '0',
   `returned_rows` bigint DEFAULT '0',
-  `result` varchar(32) NOT NULL,
+  `result` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `query_time` datetime(3) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_cmdb_sql_log_query_time` (`query_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_cmdb_sql_log_query_time` (`query_time`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of cmdb_sql_log
 -- ----------------------------
 BEGIN;
-INSERT INTO `cmdb_sql_log` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `ip`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`) VALUES (7, '8.130.14.34', 'gin-api', 'SELECT', 'select * from  cmdb_host;', 'admin', '127.0.0.1', 0, 0, 59, 3, 'SUCCESS', '2025-08-25 10:17:24.672');
-COMMIT;
-
--- ----------------------------
--- Table structure for cmdb_sql_records
--- ----------------------------
-DROP TABLE IF EXISTS `cmdb_sql_records`;
-CREATE TABLE `cmdb_sql_records` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `instance_id` varchar(64) NOT NULL,
-  `database` varchar(128) NOT NULL,
-  `operation_type` varchar(32) NOT NULL,
-  `sql_content` text NOT NULL,
-  `exec_user` varchar(64) NOT NULL,
-  `scanned_rows` bigint DEFAULT '0',
-  `affected_rows` bigint DEFAULT '0',
-  `execution_time` bigint DEFAULT '0',
-  `returned_rows` bigint DEFAULT '0',
-  `result` varchar(32) NOT NULL,
-  `query_time` datetime(3) NOT NULL,
-  `name` varchar(64) NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_cmdb_sql_records_query_time` (`query_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Records of cmdb_sql_records
--- ----------------------------
-BEGIN;
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (1, '8.130.14.34:3306', 'gin-api', 'SELECT', 'select * from cmdb_group;', 'anonymous', 14, 0, 403, 14, 'SUCCESS', '2025-07-29 11:14:13.686', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (2, '8.130.14.30', 'saas3-mysql', 'SELECT', 'select * from cmdb_group;', '', 0, 0, 50, 10, 'SUCCESS', '2025-07-30 13:29:24.409', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (3, '8.130.14.34', 'gin-api', 'SELECT', 'select * from cmdb_group;', '', 0, 0, 54, 14, 'SUCCESS', '2025-07-30 13:58:13.386', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (4, '8.130.14.34', 'saas3-mysql', 'INSERT', 'UPDATE `cmdb_group`SET `name` = \'sql测试组0000\' WHERE `parent_id` = 17AND `name` = \'sql测试组\';', '', 0, 1, 80, 0, 'SUCCESS', '2025-07-30 14:00:44.370', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (5, '8.130.14.34', 'saas3-mysql', 'INSERT', 'UPDATE `cmdb_group` SET `name` = \'test123\' WHERE `id` = 22;', '', 0, 1, 80, 0, 'SUCCESS', '2025-07-30 14:04:30.684', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (6, '8.130.14.34', 'saas3-mysql', 'INSERT', 'UPDATE `cmdb_group` SET `name` = \'test123111\' WHERE `id` = 22;', '', 0, 1, 80, 0, 'SUCCESS', '2025-07-30 14:06:34.692', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (7, '8.130.14.34', 'gin-api', 'SELECT', 'UPDATE `cmdb_group` SET `name` = \'test123111\' WHERE `id` = 22;', '', 0, 0, 122, 0, 'SUCCESS', '2025-07-30 14:07:44.151', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (8, '8.130.14.34', 'gin-api', 'SELECT', 'UPDATE `cmdb_group` SET `name` = \'test001\' WHERE `id` = 22;', '', 0, 0, 55, 0, 'SUCCESS', '2025-07-30 14:11:42.626', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (9, '8.130.14.34', 'gin-api', 'SELECT', 'select * from cmdb_group;', '', 0, 0, 67, 15, 'SUCCESS', '2025-07-30 15:24:57.109', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (10, '8.130.14.34', 'gin-api', 'SELECT', 'select * from cmdb_host;', '', 0, 0, 114, 75, 'SUCCESS', '2025-07-30 15:25:19.542', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (11, '8.130.14.34', 'gin-api', 'SELECT', 'select * from cmdb_group;', '', 0, 0, 56, 15, 'SUCCESS', '2025-07-30 15:29:16.507', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (12, '8.130.14.34', 'saas3-mysql', 'EXECUTE', 'create databases  db;', '', 0, 1, 100, 0, 'SUCCESS', '2025-07-30 15:34:31.246', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (13, '8.130.14.34', 'gin-api', 'SELECT', 'select id,name from cmdb_group;', '', 0, 0, 51, 15, 'SUCCESS', '2025-07-30 17:18:52.168', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (14, '8.130.14.34', 'gin-api', 'SELECT', 'select id,name from cmdb_group;', '', 0, 0, 53, 15, 'SUCCESS', '2025-07-30 17:29:36.465', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (15, '8.130.14.34', 'gin-api', 'SELECT', 'select id,name from  cmdb_group;', '', 0, 0, 56, 15, 'SUCCESS', '2025-07-30 21:06:07.136', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (16, '8.130.14.34', 'gin-api', 'SELECT', 'select id,name from  cmdb_group;', '', 0, 0, 64, 15, 'SUCCESS', '2025-07-30 21:12:04.886', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (17, '8.130.14.34', 'gin-api', 'SELECT', 'select id,name from  cmdb_group;', 'admin', 0, 0, 51, 15, 'SUCCESS', '2025-07-30 21:23:55.532', '');
-INSERT INTO `cmdb_sql_records` (`id`, `instance_id`, `database`, `operation_type`, `sql_content`, `exec_user`, `scanned_rows`, `affected_rows`, `execution_time`, `returned_rows`, `result`, `query_time`, `name`) VALUES (18, '8.130.14.34', 'gin-api', 'SELECT', 'select id,name from  cmdb_group;', 'zhangsan', 0, 0, 54, 15, 'SUCCESS', '2025-07-30 21:26:51.642', '');
 COMMIT;
 
 -- ----------------------------
@@ -438,22 +1982,23 @@ COMMIT;
 DROP TABLE IF EXISTS `config_account`;
 CREATE TABLE `config_account` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `alias` varchar(128) NOT NULL,
-  `host` varchar(128) NOT NULL,
+  `alias` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `host` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `port` bigint NOT NULL,
-  `name` varchar(128) NOT NULL,
-  `password` text NOT NULL,
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `password` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `type` bigint NOT NULL,
-  `remark` text,
+  `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of config_account
 -- ----------------------------
 BEGIN;
+INSERT INTO `config_account` (`id`, `alias`, `host`, `port`, `name`, `password`, `type`, `remark`, `created_at`, `updated_at`) VALUES (44, 'mysql', '127.0.0.1:3306', 0, 'root', '0LRBKy+cktFQV7noo2MYGts1qRqnRBEI0brEIQpQYu8=', 3, '', '2026-07-14 01:06:26.813', '2026-07-14 01:06:26.813');
 COMMIT;
 
 -- ----------------------------
@@ -462,22 +2007,32 @@ COMMIT;
 DROP TABLE IF EXISTS `config_ecsauth`;
 CREATE TABLE `config_ecsauth` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `name` longtext NOT NULL COMMENT '''凭证名称''',
-  `type` bigint NOT NULL COMMENT '''认证类型:1->密码,2->私钥,3->公钥(免认证)''',
-  `username` longtext COMMENT '''用户名''',
-  `password` longtext COMMENT '''密码(type=1时使用)''',
-  `public_key` text COMMENT '''私钥内容(type=2时使用，字段名历史原因)''',
+  `name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''凭证名称''',
+  `type` bigint NOT NULL COMMENT '''认证类型:1->密码,2->私钥,3->公钥(免认证),4->跳板机''',
+  `username` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''用户名''',
+  `password` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''密码(type=1时使用)''',
+  `public_key` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''私钥内容(type=2时使用，字段名历史原因)''',
   `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `remark` longtext COMMENT '''备注''',
+  `remark` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''备注''',
+  `bastion_host` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''跳板机IP''',
+  `bastion_port` bigint DEFAULT '22' COMMENT '''跳板机端口''',
+  `bastion_username` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''跳板机用户名''',
+  `bastion_auth_type` bigint DEFAULT NULL COMMENT '''跳板机认证类型:1->密码,2->私钥,3->免密''',
+  `bastion_password` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''跳板机密码''',
+  `bastion_private_key` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''跳板机私钥''',
+  `target_auth_type` bigint DEFAULT NULL COMMENT '''目标机器认证类型:1->密码,2->私钥,3->免密''',
+  `target_password` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''目标机器密码''',
+  `target_private_key` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''目标机器私钥''',
   `port` bigint DEFAULT '22' COMMENT '''端口号''',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `update_time` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=151 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of config_ecsauth
 -- ----------------------------
 BEGIN;
-INSERT INTO `config_ecsauth` (`id`, `name`, `type`, `username`, `password`, `public_key`, `create_time`, `remark`, `port`) VALUES (20, '免密码认证', 3, 'root', '', '', '2025-10-14 21:06:27.749', '', 22);
+INSERT INTO `config_ecsauth` (`id`, `name`, `type`, `username`, `password`, `public_key`, `create_time`, `remark`, `bastion_host`, `bastion_port`, `bastion_username`, `bastion_auth_type`, `bastion_password`, `bastion_private_key`, `target_auth_type`, `target_password`, `target_private_key`, `port`, `update_time`) VALUES (149, '免密认证', 3, 'root', '', '', '2026-07-13 21:49:25.922', '', '', 22, '', 0, '', '', 0, '', '', 22, '2026-07-13 21:49:25.922');
 COMMIT;
 
 -- ----------------------------
@@ -486,14 +2041,15 @@ COMMIT;
 DROP TABLE IF EXISTS `config_keymanage`;
 CREATE TABLE `config_keymanage` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `key_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `key_type` bigint NOT NULL,
-  `key_id` text NOT NULL,
-  `key_secret` text NOT NULL,
-  `remark` text,
+  `key_id` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `key_secret` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of config_keymanage
@@ -507,730 +2063,445 @@ COMMIT;
 DROP TABLE IF EXISTS `config_sync_schedule`;
 CREATE TABLE `config_sync_schedule` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `cron_expr` varchar(100) NOT NULL,
-  `key_types` text NOT NULL,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `cron_expr` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `key_types` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `status` bigint NOT NULL DEFAULT '1',
   `last_run_time` datetime(3) DEFAULT NULL,
   `next_run_time` datetime(3) DEFAULT NULL,
-  `remark` text,
+  `remark` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `sync_log` text,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `sync_log` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of config_sync_schedule
 -- ----------------------------
 BEGIN;
-INSERT INTO `config_sync_schedule` (`id`, `name`, `cron_expr`, `key_types`, `status`, `last_run_time`, `next_run_time`, `remark`, `created_at`, `updated_at`, `sync_log`) VALUES (3, '阿里云定时同步', '*/3 * * * *', '[1]', 0, '2025-10-01 13:33:00.001', '2025-10-01 13:36:00.000', '', '2025-09-29 18:41:10.257', '2025-10-01 13:34:41.439', '[2025-10-01 13:33:00] 开始同步\n- 阿里云: 同步成功\n[2025-10-01 13:33:00] 同步完成，耗时: 827.31718ms\n');
 COMMIT;
 
 -- ----------------------------
--- Table structure for db
+-- Table structure for db_asset_review_policy
 -- ----------------------------
-DROP TABLE IF EXISTS `db`;
-CREATE TABLE `db` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `code` varchar(36) NOT NULL COMMENT '''数据库编码''',
-  `name` varchar(100) NOT NULL COMMENT '''数据库名称''',
-  `database` varchar(500) NOT NULL COMMENT '''数据库名(多个用空格分隔)''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `instance_id` bigint unsigned NOT NULL COMMENT '''实例ID''',
-  `instance_code` varchar(36) DEFAULT NULL COMMENT '''实例编码''',
-  `status` bigint DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  `modifier` varchar(64) DEFAULT NULL COMMENT '''修改人''',
-  `modifier_id` bigint unsigned DEFAULT NULL COMMENT '''修改人ID''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_db_code` (`code`),
-  KEY `idx_db_instance_id` (`instance_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `db_asset_review_policy`;
+CREATE TABLE `db_asset_review_policy` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `asset_id` bigint unsigned NOT NULL,
+  `environment` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `dml_rule_group_id` bigint unsigned DEFAULT NULL,
+  `ddl_rule_group_id` bigint unsigned DEFAULT NULL,
+  `default_approver_id` bigint unsigned DEFAULT NULL,
+  `default_approver_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `default_executor_id` bigint unsigned DEFAULT NULL,
+  `default_executor_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `require_backup` tinyint(1) NOT NULL DEFAULT '0',
+  `require_rollback` tinyint(1) NOT NULL DEFAULT '0',
+  `enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_db_asset_review_policy_asset_id` (`asset_id`) USING BTREE,
+  KEY `idx_db_asset_review_policy_environment` (`environment`) USING BTREE,
+  KEY `idx_db_asset_review_policy_enabled` (`enabled`) USING BTREE,
+  KEY `idx_db_asset_review_policy_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of db
+-- Records of db_asset_review_policy
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for db_es_instance
+-- Table structure for db_operation_audit
 -- ----------------------------
-DROP TABLE IF EXISTS `db_es_instance`;
-CREATE TABLE `db_es_instance` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `code` varchar(36) NOT NULL COMMENT '''实例编码''',
-  `name` varchar(100) NOT NULL COMMENT '''实例名称''',
-  `protocol` varchar(10) DEFAULT 'http' COMMENT '''协议:http|https''',
-  `host` varchar(255) NOT NULL COMMENT '''主机''',
-  `port` bigint DEFAULT '9200' COMMENT '''端口''',
-  `username` varchar(100) DEFAULT NULL COMMENT '''用户名(可选)''',
-  `password` varchar(500) DEFAULT '' COMMENT '''密码(加密)''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `ssh_tunnel_machine_id` bigint unsigned DEFAULT '0' COMMENT '''SSH隧道机器ID''',
-  `status` bigint DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  `modifier` varchar(64) DEFAULT NULL COMMENT '''修改人''',
-  `modifier_id` bigint unsigned DEFAULT NULL COMMENT '''修改人ID''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_db_es_instance_code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `db_operation_audit`;
+CREATE TABLE `db_operation_audit` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `asset_id` bigint unsigned DEFAULT NULL,
+  `engine` int DEFAULT NULL,
+  `database_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `schema_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `object_name` varchar(256) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `object_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `action` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `request_body` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `where_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `before_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `after_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `rows_affected` bigint DEFAULT NULL,
+  `success` tinyint(1) DEFAULT NULL,
+  `error_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `duration_ms` bigint DEFAULT NULL,
+  `operator_id` bigint unsigned DEFAULT NULL,
+  `operator_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `client_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_db_operation_audit_asset_id` (`asset_id`) USING BTREE,
+  KEY `idx_db_operation_audit_engine` (`engine`) USING BTREE,
+  KEY `idx_db_operation_audit_database_name` (`database_name`) USING BTREE,
+  KEY `idx_db_operation_audit_schema_name` (`schema_name`) USING BTREE,
+  KEY `idx_db_operation_audit_object_name` (`object_name`) USING BTREE,
+  KEY `idx_db_operation_audit_object_type` (`object_type`) USING BTREE,
+  KEY `idx_db_operation_audit_action` (`action`) USING BTREE,
+  KEY `idx_db_operation_audit_success` (`success`) USING BTREE,
+  KEY `idx_db_operation_audit_operator_id` (`operator_id`) USING BTREE,
+  KEY `idx_db_operation_audit_operator_name` (`operator_name`) USING BTREE,
+  KEY `idx_db_operation_audit_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1464 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of db_es_instance
+-- Records of db_operation_audit
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for db_export_task
+-- Table structure for db_slow_log_tasks
 -- ----------------------------
-DROP TABLE IF EXISTS `db_export_task`;
-CREATE TABLE `db_export_task` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `task_id` varchar(36) NOT NULL COMMENT '''任务ID''',
-  `db_id` bigint unsigned NOT NULL COMMENT '''数据库ID''',
-  `db_name` varchar(100) NOT NULL COMMENT '''数据库名''',
-  `export_type` varchar(20) NOT NULL COMMENT '''导出类型:structure/full''',
-  `status` varchar(20) NOT NULL COMMENT '''状态''',
-  `file_path` varchar(500) DEFAULT NULL COMMENT '''文件路径''',
-  `file_size` bigint DEFAULT NULL COMMENT '''文件大小(字节)''',
-  `error_message` text COMMENT '''错误信息''',
-  `start_time` datetime(3) DEFAULT NULL COMMENT '''开始时间''',
-  `end_time` datetime(3) DEFAULT NULL COMMENT '''结束时间''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_db_export_task_task_id` (`task_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `db_slow_log_tasks`;
+CREATE TABLE `db_slow_log_tasks` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `task_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `asset_id` bigint unsigned NOT NULL,
+  `engine` int DEFAULT NULL,
+  `status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `progress` int DEFAULT NULL,
+  `message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `error` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `auth_id` bigint unsigned DEFAULT NULL,
+  `request_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `result_json` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `slow_log_path` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `host_id` bigint unsigned DEFAULT NULL,
+  `host_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `host_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `total_bytes` bigint DEFAULT NULL,
+  `read_bytes` bigint DEFAULT NULL,
+  `total_entries` bigint DEFAULT NULL,
+  `matched_entries` bigint DEFAULT NULL,
+  `unique_sql` bigint DEFAULT NULL,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `created_by_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `started_at` datetime(3) DEFAULT NULL,
+  `completed_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_db_slow_log_tasks_task_id` (`task_id`) USING BTREE,
+  KEY `idx_db_slow_log_tasks_asset_id` (`asset_id`) USING BTREE,
+  KEY `idx_db_slow_log_tasks_engine` (`engine`) USING BTREE,
+  KEY `idx_db_slow_log_tasks_status` (`status`) USING BTREE,
+  KEY `idx_db_slow_log_tasks_auth_id` (`auth_id`) USING BTREE,
+  KEY `idx_db_slow_log_tasks_host_id` (`host_id`) USING BTREE,
+  KEY `idx_db_slow_log_tasks_created_by` (`created_by`) USING BTREE,
+  KEY `idx_db_slow_log_tasks_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of db_export_task
--- ----------------------------
-BEGIN;
-INSERT INTO `db_export_task` (`id`, `task_id`, `db_id`, `db_name`, `export_type`, `status`, `file_path`, `file_size`, `error_message`, `start_time`, `end_time`, `create_time`, `update_time`, `creator`, `creator_id`) VALUES (1, '91c691d3-8e72-40d3-9de7-4453057ca1ee', 1, 'devops', 'full', 'completed', 'data/exports/devops_full_1765299147.sql', 689403, '', '2025-12-10 00:52:27.431', '2025-12-10 00:52:40.023', '2025-12-10 00:52:27.082', '2025-12-10 00:52:40.023', '', 0);
-INSERT INTO `db_export_task` (`id`, `task_id`, `db_id`, `db_name`, `export_type`, `status`, `file_path`, `file_size`, `error_message`, `start_time`, `end_time`, `create_time`, `update_time`, `creator`, `creator_id`) VALUES (2, 'e1c6f2c1-7a85-43fb-8255-3d9a9fd229cb', 1, 'mayfly-go', 'full', 'completed', 'data/exports/mayfly-go_full_1765333697.sql', 100718, '', '2025-12-10 10:28:17.221', '2025-12-10 10:28:28.959', '2025-12-10 10:28:16.888', '2025-12-10 10:28:28.959', '', 0);
-INSERT INTO `db_export_task` (`id`, `task_id`, `db_id`, `db_name`, `export_type`, `status`, `file_path`, `file_size`, `error_message`, `start_time`, `end_time`, `create_time`, `update_time`, `creator`, `creator_id`) VALUES (3, 'd788c68a-bab0-4d4c-8b6f-467d672876b1', 2, 'database_name', 'full', 'completed', 'data/exports/database_name_full_1765342425.sql', 1307, '', '2025-12-10 12:53:45.551', '2025-12-10 12:53:46.084', '2025-12-10 12:53:45.207', '2025-12-10 12:53:46.084', '', 0);
-INSERT INTO `db_export_task` (`id`, `task_id`, `db_id`, `db_name`, `export_type`, `status`, `file_path`, `file_size`, `error_message`, `start_time`, `end_time`, `create_time`, `update_time`, `creator`, `creator_id`) VALUES (4, 'c6c4abdf-5dff-4a43-ba4c-64fac0dfc6de', 1, 'gin-api', 'full', 'completed', 'data/exports/gin-api_full_1765636630.sql', 652608, '', '2025-12-13 22:37:10.521', '2025-12-13 22:37:24.556', '2025-12-13 22:37:10.153', '2025-12-13 22:37:24.556', '', 0);
-COMMIT;
-
--- ----------------------------
--- Table structure for db_instance
--- ----------------------------
-DROP TABLE IF EXISTS `db_instance`;
-CREATE TABLE `db_instance` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `code` varchar(36) NOT NULL COMMENT '''实例编码''',
-  `name` varchar(100) NOT NULL COMMENT '''实例名称''',
-  `type` varchar(20) NOT NULL COMMENT '''数据库类型:mysql,postgres,oracle等''',
-  `host` varchar(100) NOT NULL COMMENT '''主机地址''',
-  `port` bigint NOT NULL COMMENT '''端口''',
-  `network` varchar(20) DEFAULT 'tcp' COMMENT '''网络类型:tcp,unix''',
-  `params` varchar(500) DEFAULT NULL COMMENT '''连接参数''',
-  `username` varchar(100) NOT NULL COMMENT '''用户名''',
-  `password` varchar(500) NOT NULL COMMENT '''密码(加密)''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `ssh_tunnel_machine_id` bigint unsigned DEFAULT '0' COMMENT '''SSH隧道机器ID''',
-  `status` bigint DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  `modifier` varchar(64) DEFAULT NULL COMMENT '''修改人''',
-  `modifier_id` bigint unsigned DEFAULT NULL COMMENT '''修改人ID''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_db_instance_code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Records of db_instance
+-- Records of db_slow_log_tasks
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for db_mongo_instance
+-- Table structure for db_sql_approval_record
 -- ----------------------------
-DROP TABLE IF EXISTS `db_mongo_instance`;
-CREATE TABLE `db_mongo_instance` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `code` varchar(36) NOT NULL COMMENT '''实例编码''',
-  `name` varchar(100) NOT NULL COMMENT '''实例名称''',
-  `uri` varchar(500) NOT NULL COMMENT '''连接URI''',
-  `ssh_tunnel_machine_id` bigint unsigned DEFAULT '0' COMMENT '''SSH隧道机器ID''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `status` bigint DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  `modifier` varchar(64) DEFAULT NULL COMMENT '''修改人''',
-  `modifier_id` bigint unsigned DEFAULT NULL COMMENT '''修改人ID''',
-  `type` varchar(20) DEFAULT 'mongodb' COMMENT '''MongoDB类型:mongodb,mongodb-atlas等''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_db_mongo_instance_code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `db_sql_approval_record`;
+CREATE TABLE `db_sql_approval_record` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_id` bigint unsigned NOT NULL,
+  `operator_id` bigint unsigned DEFAULT NULL,
+  `operator_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `action` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `comment` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_db_sql_approval_record_ticket_id` (`ticket_id`) USING BTREE,
+  KEY `idx_db_sql_approval_record_operator_id` (`operator_id`) USING BTREE,
+  KEY `idx_db_sql_approval_record_operator_name` (`operator_name`) USING BTREE,
+  KEY `idx_db_sql_approval_record_action` (`action`) USING BTREE,
+  KEY `idx_db_sql_approval_record_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of db_mongo_instance
+-- Records of db_sql_approval_record
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for db_redis_instance
+-- Table structure for db_sql_execution_record
 -- ----------------------------
-DROP TABLE IF EXISTS `db_redis_instance`;
-CREATE TABLE `db_redis_instance` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `code` varchar(36) NOT NULL COMMENT '''实例编码''',
-  `name` varchar(100) NOT NULL COMMENT '''实例名称''',
-  `mode` varchar(20) NOT NULL COMMENT '''模式:standalone,cluster,sentinel''',
-  `host` varchar(300) NOT NULL COMMENT '''主机: standalone为host:port, cluster为逗号分隔, sentinel为master=hosts''',
-  `port` bigint DEFAULT '0' COMMENT '''端口(standalone可用)''',
-  `db` bigint DEFAULT '0' COMMENT '''默认库号''',
-  `username` varchar(100) DEFAULT NULL COMMENT '''用户名(可选)''',
-  `password` varchar(500) NOT NULL COMMENT '''密码(加密)''',
-  `redis_node_password` varchar(500) DEFAULT '' COMMENT '''节点密码(仅sentinel)''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `ssh_tunnel_machine_id` bigint unsigned DEFAULT '0' COMMENT '''SSH隧道机器ID''',
-  `status` bigint DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  `modifier` varchar(64) DEFAULT NULL COMMENT '''修改人''',
-  `modifier_id` bigint unsigned DEFAULT NULL COMMENT '''修改人ID''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_db_redis_instance_code` (`code`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `db_sql_execution_record`;
+CREATE TABLE `db_sql_execution_record` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_id` bigint unsigned NOT NULL,
+  `statement_id` bigint unsigned DEFAULT NULL,
+  `sql_text` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `rows_affected` bigint DEFAULT NULL,
+  `duration_ms` bigint DEFAULT NULL,
+  `error_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `started_at` datetime(3) DEFAULT NULL,
+  `finished_at` datetime(3) DEFAULT NULL,
+  `executor_id` bigint unsigned DEFAULT NULL,
+  `executor_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `result_columns` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `result_rows` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `exec_log` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_db_sql_execution_record_ticket_id` (`ticket_id`) USING BTREE,
+  KEY `idx_db_sql_execution_record_statement_id` (`statement_id`) USING BTREE,
+  KEY `idx_db_sql_execution_record_status` (`status`) USING BTREE,
+  KEY `idx_db_sql_execution_record_executor_id` (`executor_id`) USING BTREE,
+  KEY `idx_db_sql_execution_record_executor_name` (`executor_name`) USING BTREE,
+  KEY `idx_db_sql_execution_record_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of db_redis_instance
+-- Records of db_sql_execution_record
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for db_sql
+-- Table structure for db_sql_review_result
 -- ----------------------------
-DROP TABLE IF EXISTS `db_sql`;
-CREATE TABLE `db_sql` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `db_id` bigint unsigned NOT NULL COMMENT '''数据库ID''',
-  `db` varchar(100) NOT NULL COMMENT '''数据库名''',
-  `name` varchar(100) NOT NULL COMMENT '''SQL名称''',
-  `type` bigint DEFAULT '1' COMMENT '''类型:1->查询,2->更新''',
-  `sql` text NOT NULL COMMENT '''SQL语句''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  `modifier` varchar(64) DEFAULT NULL COMMENT '''修改人''',
-  `modifier_id` bigint unsigned DEFAULT NULL COMMENT '''修改人ID''',
-  PRIMARY KEY (`id`),
-  KEY `idx_db_sql_db_id` (`db_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `db_sql_review_result`;
+CREATE TABLE `db_sql_review_result` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_id` bigint unsigned NOT NULL,
+  `statement_id` bigint unsigned DEFAULT NULL,
+  `rule_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `rule_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `level` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `suggestion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `start_line` bigint DEFAULT NULL,
+  `end_line` bigint DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_db_sql_review_result_ticket_id` (`ticket_id`) USING BTREE,
+  KEY `idx_db_sql_review_result_statement_id` (`statement_id`) USING BTREE,
+  KEY `idx_db_sql_review_result_rule_code` (`rule_code`) USING BTREE,
+  KEY `idx_db_sql_review_result_level` (`level`) USING BTREE,
+  KEY `idx_db_sql_review_result_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of db_sql
+-- Records of db_sql_review_result
 -- ----------------------------
 BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for db_sql_exec
+-- Table structure for db_sql_rollback_record
 -- ----------------------------
-DROP TABLE IF EXISTS `db_sql_exec`;
-CREATE TABLE `db_sql_exec` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `db_id` bigint unsigned NOT NULL COMMENT '''数据库ID''',
-  `db_name` varchar(100) NOT NULL COMMENT '''数据库名''',
-  `table_name` varchar(100) DEFAULT NULL COMMENT '''表名''',
-  `type` tinyint NOT NULL COMMENT '''类型:1->查询,2->插入,3->更新,4->删除,5->DDL''',
-  `sql` text NOT NULL COMMENT '''SQL语句''',
-  `old_value` longtext COMMENT '''旧值(用于回滚)''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `status` tinyint NOT NULL COMMENT '''状态:1->成功,2->失败''',
-  `res` text COMMENT '''执行结果''',
-  `exec_time` bigint DEFAULT NULL COMMENT '''执行时长(ms)''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  PRIMARY KEY (`id`),
-  KEY `idx_db_sql_exec_db_id` (`db_id`),
-  KEY `idx_db_sql_exec_create_time` (`create_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=456 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `db_sql_rollback_record`;
+CREATE TABLE `db_sql_rollback_record` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_id` bigint unsigned NOT NULL,
+  `statement_id` bigint unsigned DEFAULT NULL,
+  `statement_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `original_database` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `original_table` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `backup_database` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `backup_table` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `backup_rows` bigint DEFAULT NULL,
+  `rollback_sql` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `rollback_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'manual',
+  `available` tinyint(1) NOT NULL DEFAULT '0',
+  `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `created_at` datetime(3) DEFAULT NULL,
+  `binlog_start_file` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `binlog_start_pos` bigint unsigned DEFAULT NULL,
+  `binlog_end_file` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `binlog_end_pos` bigint unsigned DEFAULT NULL,
+  `flashback_tool` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `generated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_ticket_id` (`ticket_id`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_statement_id` (`statement_id`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_statement_type` (`statement_type`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_original_database` (`original_database`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_original_table` (`original_table`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_backup_database` (`backup_database`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_backup_table` (`backup_table`) USING BTREE,
+  KEY `idx_db_sql_rollback_record_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
--- Records of db_sql_exec
+-- Records of db_sql_rollback_record
 -- ----------------------------
 BEGIN;
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (1, 1, 'gin-api', 'APP_APPLICATION', 0, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 110, '2025-11-29 18:05:04.883', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (2, 1, 'gin-api', 'APP_APPLICATION', 0, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 112, '2025-11-29 18:05:05.487', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (3, 1, 'gin-api', 'CMDB_GROUP', 0, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 119, '2025-11-29 18:05:10.402', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (4, 1, 'gin-api', 'CMDB_GROUP', 0, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 116, '2025-11-29 18:05:10.598', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (5, 1, 'gin-api', 'CMDB_SQL', 0, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 122, '2025-11-29 18:05:17.424', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (6, 1, 'gin-api', 'CMDB_SQL', 0, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 136, '2025-11-29 18:05:17.580', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (7, 1, 'gin-api', 'APP_JENKINS_ENV', 0, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 119, '2025-11-29 18:11:06.550', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (8, 1, 'gin-api', 'APP_JENKINS_ENV', 0, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 493, '2025-11-29 18:11:06.802', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (9, 1, 'gin-api', 'APP_JENKINS_ENV', 0, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 127, '2025-11-29 18:11:15.554', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (10, 1, 'gin-api', 'APP_JENKINS_ENV', 0, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 2, '数据库不存在', 110, '2025-11-29 18:11:15.687', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (11, 1, 'gin-api', 'APP_SERVICE_RELEASE_ITEM', 1, 'SELECT * FROM app_service_release_item LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 548, '2025-11-29 18:28:12.401', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (12, 1, 'gin-api', 'APP_SERVICE_RELEASE_ITEM', 1, 'SELECT * FROM app_service_release_item LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 1083, '2025-11-29 18:28:12.656', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (13, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 277, '2025-11-29 18:28:25.668', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (14, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 281, '2025-11-29 18:28:25.951', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (15, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 308, '2025-11-29 18:31:23.236', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (16, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 346, '2025-11-29 18:31:23.606', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (17, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 298, '2025-11-29 18:35:52.379', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (18, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 303, '2025-11-29 18:35:52.538', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (19, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 266, '2025-11-29 18:35:53.254', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (20, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 259, '2025-11-29 18:35:53.562', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (21, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 283, '2025-11-29 18:37:11.404', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (22, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 320, '2025-11-29 18:37:12.000', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (23, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 273, '2025-11-29 18:37:11.713', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (24, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 299, '2025-11-29 18:37:12.382', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (25, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 255, '2025-11-29 18:37:12.911', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (26, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 282, '2025-11-29 18:37:13.296', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (27, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 248, '2025-11-29 18:37:58.462', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (28, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 260, '2025-11-29 18:37:59.326', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (29, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 275, '2025-11-29 18:38:46.987', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (30, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 277, '2025-11-29 18:38:47.151', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (31, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 265, '2025-11-29 18:38:47.925', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (32, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 266, '2025-11-29 18:38:48.246', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (33, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-11-29 18:39:00.606', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (34, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 304, '2025-11-29 18:39:00.775', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (35, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 287, '2025-11-29 18:39:01.496', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (36, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 263, '2025-11-29 18:39:01.812', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (37, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 403, '2025-11-29 18:48:01.028', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (38, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 335, '2025-11-29 18:48:01.099', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (39, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 10295, '2025-11-29 18:48:15.394', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (40, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 2650, '2025-11-29 18:48:14.638', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (41, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 6494, '2025-11-29 18:48:15.978', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (42, 1, 'devops', 'CMDB_HOST', 1, 'SELECT COUNT(*) as total FROM cmdb_host', '', '', 1, '执行成功', 293, '2025-11-29 18:48:16.898', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (43, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 3692, '2025-11-29 18:48:12.891', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (44, 1, 'devops', 'CMDB_HOST', 1, 'SELECT COUNT(*) as total FROM cmdb_host', '', '', 1, '执行成功', 281, '2025-11-29 18:48:21.045', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (45, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 340, '2025-11-29 18:50:12.488', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (46, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 284, '2025-11-29 18:50:13.429', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (47, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 304, '2025-11-29 18:54:02.563', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (48, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT COUNT(*) as total FROM app_jenkins_env', '', '', 1, '执行成功', 294, '2025-11-29 18:54:03.463', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (49, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 328, '2025-11-29 18:54:07.320', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (50, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT COUNT(*) as total FROM cmdb_group', '', '', 1, '执行成功', 313, '2025-11-29 18:54:08.231', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (51, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 282, '2025-11-29 18:55:28.076', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (52, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 280, '2025-11-29 18:55:28.949', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (53, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-11-29 18:55:29.997', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (54, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT COUNT(*) as total FROM app_jenkins_env', '', '', 1, '执行成功', 277, '2025-11-29 18:55:30.867', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (55, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 282, '2025-11-29 18:56:33.893', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (56, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT COUNT(*) as total FROM app_jenkins_env', '', '', 1, '执行成功', 275, '2025-11-29 18:56:34.766', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (57, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 309, '2025-11-29 18:56:37.254', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (58, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT COUNT(*) as total FROM cmdb_group', '', '', 1, '执行成功', 293, '2025-11-29 18:56:38.144', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (59, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 276, '2025-11-29 18:57:16.850', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (60, 1, 'devops', 'CMDB_HOST', 1, 'SELECT COUNT(*) as total FROM cmdb_host', '', '', 1, '执行成功', 284, '2025-11-29 18:57:17.734', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (61, 1, 'devops', 'CMDB_SQL_LOG', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 402, '2025-11-29 18:57:49.376', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (62, 1, 'devops', 'CMDB_SQL_LOG', 1, 'SELECT COUNT(*) as total FROM cmdb_sql_log', '', '', 1, '执行成功', 274, '2025-11-29 18:57:50.233', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (63, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 315, '2025-11-29 19:00:49.626', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (64, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 330, '2025-11-29 19:00:50.546', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (65, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 484, '2025-11-29 19:00:57.485', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (66, 1, 'devops', 'CMDB_HOST', 1, 'SELECT COUNT(*) as total FROM cmdb_host', '', '', 1, '执行成功', 656, '2025-11-29 19:00:59.337', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (67, 1, 'devops', 'CMDB_SQL', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 432, '2025-11-29 19:01:33.694', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (68, 1, 'devops', 'CMDB_SQL', 1, 'SELECT COUNT(*) as total FROM cmdb_sql', '', '', 1, '执行成功', 285, '2025-11-29 19:01:34.585', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (69, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT * FROM config_account LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 300, '2025-11-29 19:01:52.297', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (70, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT COUNT(*) as total FROM config_account', '', '', 1, '执行成功', 282, '2025-11-29 19:01:53.222', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (71, 1, 'devops', 'CMDB_SQL_LOG', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 442, '2025-11-29 19:02:12.743', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (72, 1, 'devops', 'CMDB_SQL_LOG', 1, 'SELECT COUNT(*) as total FROM cmdb_sql_log', '', '', 1, '执行成功', 388, '2025-11-29 19:02:13.732', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (73, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 321, '2025-11-29 19:04:24.978', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (74, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 291, '2025-11-29 19:04:25.863', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (75, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 286, '2025-11-29 19:05:02.134', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (76, 1, 'devops', 'CMDB_HOST', 1, 'SELECT COUNT(*) as total FROM cmdb_host', '', '', 1, '执行成功', 309, '2025-11-29 19:05:03.008', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (77, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 361, '2025-11-29 19:06:09.051', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (78, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 291, '2025-11-29 19:06:10.002', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (79, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 1109, '2025-11-29 19:06:32.787', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (80, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 1586, '2025-11-29 19:06:33.149', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (81, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 303, '2025-11-29 19:06:33.300', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (82, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 552, '2025-11-29 19:06:33.428', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (83, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 307, '2025-11-29 19:06:33.766', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (84, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 254, '2025-11-29 19:06:34.069', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (85, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 553, '2025-11-29 19:06:34.715', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (86, 1, 'gin-api', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 302, '2025-11-29 19:06:35.225', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (87, 1, 'gin-api', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 295, '2025-11-29 19:06:36.173', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (88, 1, 'gin-api', 'APP_JENKINS_ENV', 1, 'SELECT COUNT(*) as total FROM app_jenkins_env', '', '', 1, '执行成功', 276, '2025-11-29 19:06:37.028', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (89, 1, 'devops', 'CMDB_SQL', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 275, '2025-11-29 19:08:02.114', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (90, 1, 'devops', 'CMDB_SQL', 1, 'SELECT COUNT(*) as total FROM cmdb_sql', '', '', 1, '执行成功', 331, '2025-11-29 19:08:03.077', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (91, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT * FROM config_account LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 324, '2025-11-29 19:08:59.699', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (92, 1, 'devops', 'CMDB_SQL_RECORDS', 1, 'SELECT * FROM cmdb_sql_records LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 299, '2025-11-29 19:08:59.964', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (93, 1, 'devops', 'CMDB_SQL_RECORDS', 1, 'SELECT * FROM cmdb_sql_records LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 275, '2025-11-29 19:09:00.054', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (94, 1, 'devops', 'CMDB_SQL_RECORDS', 1, 'SELECT * FROM cmdb_sql_records LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 259, '2025-11-29 19:09:00.169', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (95, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT * FROM config_account LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 360, '2025-11-29 19:08:59.813', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (96, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT COUNT(*) as total FROM config_account', '', '', 1, '执行成功', 292, '2025-11-29 19:09:00.602', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (97, 1, 'devops', 'CMDB_SQL_RECORDS', 1, 'SELECT COUNT(*) as total FROM cmdb_sql_records', '', '', 1, '执行成功', 303, '2025-11-29 19:09:00.855', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (98, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT COUNT(*) as total FROM config_account', '', '', 1, '执行成功', 326, '2025-11-29 19:09:01.089', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (99, 1, 'devops', 'CMDB_SQL_RECORDS', 1, 'SELECT COUNT(*) as total FROM cmdb_sql_records', '', '', 1, '执行成功', 295, '2025-11-29 19:09:01.217', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (100, 1, 'devops', 'CMDB_SQL_RECORDS', 1, 'SELECT COUNT(*) as total FROM cmdb_sql_records', '', '', 1, '执行成功', 334, '2025-11-29 19:09:01.611', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (101, 1, 'devops', 'CMDB_SQL', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 280, '2025-11-29 19:09:14.451', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (102, 1, 'devops', 'CMDB_SQL', 1, 'SELECT COUNT(*) as total FROM cmdb_sql', '', '', 1, '执行成功', 278, '2025-11-29 19:09:15.298', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (103, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 1029, '2025-11-29 19:09:29.074', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (104, 1, 'devops', 'CMDB_HOST', 1, 'SELECT COUNT(*) as total FROM cmdb_host', '', '', 1, '执行成功', 6538, '2025-11-29 19:09:36.486', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (105, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 264, '2025-11-29 19:23:51.118', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (106, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 296, '2025-11-29 19:23:51.990', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (107, 1, 'devops', 'CMDB_SQL', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 295, '2025-11-29 19:23:59.137', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (108, 1, 'devops', 'CMDB_SQL', 1, 'SELECT COUNT(*) as total FROM cmdb_sql', '', '', 1, '执行成功', 279, '2025-11-29 19:24:00.023', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (109, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 100;', '', '', 1, '执行成功', 280, '2025-11-29 19:25:10.430', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (110, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 284, '2025-11-29 19:49:42.427', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (111, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT COUNT(*) as total FROM app_application', '', '', 1, '执行成功', 287, '2025-11-29 19:49:43.313', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (112, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 239, '2025-11-29 19:57:17.599', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (113, 1, 'devops', 'CMDB_SQL_LOG', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 213, '2025-11-29 19:57:40.935', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (114, 1, 'devops', 'CMDB_SQL', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 213, '2025-11-29 19:57:40.616', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (115, 1, 'devops', 'CMDB_SQL_LOG', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 212, '2025-11-29 19:57:40.797', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (116, 1, 'devops', 'CMDB_SQL_LOG', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 210, '2025-11-29 19:57:59.070', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (117, 1, 'devops', 'CMDB_SQL_RECORDS', 1, 'SELECT * FROM cmdb_sql_records LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 248, '2025-11-29 19:58:15.888', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (118, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 307, '2025-11-29 19:58:47.223', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (119, 1, 'devops', 'CMDB_HOST;', 1, 'SELECT * FROM cmdb_host;', '', '', 1, '执行成功', 212, '2025-11-29 20:00:09.885', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (120, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 263, '2025-11-29 20:03:26.517', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (121, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 213, '2025-11-29 20:03:44.248', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (122, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 100;', '', '', 1, '执行成功', 220, '2025-11-29 20:04:04.538', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (123, 1, 'devops', 'TASK_WORK', 1, 'SELECT * FROM task_work LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 234, '2025-11-29 20:04:29.401', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (124, 1, 'devops', 'K8S_CLUSTER', 1, 'SELECT * FROM k8s_cluster LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 247, '2025-11-29 20:05:20.336', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (125, 1, 'devops', 'CONFIG_ECSAUTH', 1, 'SELECT * FROM config_ecsauth LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 515, '2025-11-29 20:07:54.567', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (126, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT * FROM config_account LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 219, '2025-11-29 20:08:12.059', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (127, 1, 'devops', 'CONFIG_ECSAUTH', 1, 'SELECT * FROM config_ecsauth LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 386, '2025-11-29 20:08:56.093', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (128, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT * FROM config_account LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 212, '2025-11-29 20:09:15.428', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (129, 1, 'devops', 'CONFIG_ACCOUNT', 1, 'SELECT * FROM config_account LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 241, '2025-11-29 20:09:18.899', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (130, 1, 'devops', 'SYS_MENU', 1, 'SELECT * FROM sys_menu LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 211, '2025-11-29 20:09:31.833', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (131, 1, 'devops', 'CONFIG_KEYMANAGE', 1, 'SELECT * FROM config_keymanage LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 218, '2025-11-29 20:10:16.736', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (132, 1, 'gin-api', 'APP_SERVICE_RELEASE', 1, 'SELECT * FROM app_service_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 229, '2025-11-29 20:10:41.975', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (133, 1, 'gin-api', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 321, '2025-11-29 20:11:33.117', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (134, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 213, '2025-11-29 20:14:46.781', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (135, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 213, '2025-11-29 20:17:07.095', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (136, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 211, '2025-11-29 20:17:20.352', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (137, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 240, '2025-11-29 20:27:29.297', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (138, 1, 'devops', 'CMDB_SQL', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 258, '2025-11-29 20:28:55.241', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (139, 1, 'devops', 'CMDB_SQL', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 579, '2025-11-29 20:28:55.466', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (140, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 205, '2025-11-29 20:30:47.480', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (141, 1, 'devops', 'CMDB_HOST', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 199, '2025-11-29 20:30:58.495', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (142, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-11-29 20:34:21.225', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (143, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 4246, '2025-11-29 20:45:39.121', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (144, 1, 'devops', 'CMDB_GROUP', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 582, '2025-11-29 20:49:42.415', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (145, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 212, '2025-11-29 20:59:18.272', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (146, 1, 'devops', 'APP_APPLICATION', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-11-29 21:02:11.486', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (147, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 242, '2025-11-29 21:05:56.924', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (148, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 269, '2025-11-29 21:06:38.995', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (149, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 327, '2025-11-29 21:08:52.177', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (150, 1, 'devops', 'APP_JENKINS_ENV', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 646, '2025-11-29 21:10:07.252', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (151, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 100;', '', '', 1, '执行成功', 293, '2025-11-29 21:18:18.161', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (152, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 320, '2025-11-29 21:21:01.619', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (153, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 297, '2025-11-29 21:21:10.168', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (154, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 326, '2025-11-29 21:21:27.886', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (155, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 283, '2025-11-29 21:22:09.300', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (156, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 283, '2025-11-29 21:22:19.066', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (157, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 276, '2025-11-29 21:22:21.160', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (158, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 264, '2025-11-29 21:34:45.094', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (159, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 1520, '2025-11-29 21:35:20.063', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (160, 1, 'sys', 'sys_config', 1, 'SELECT * FROM sys_config LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 293, '2025-11-29 21:36:51.862', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (161, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-11-29 21:37:07.653', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (162, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 292, '2025-11-29 21:37:26.201', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (163, 1, 'devops', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 298, '2025-11-29 21:37:48.390', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (164, 1, 'devops', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 277, '2025-11-29 21:38:13.100', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (165, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 282, '2025-11-29 21:40:52.663', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (166, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 283, '2025-11-29 21:42:31.577', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (167, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 283, '2025-11-29 21:45:10.707', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (168, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 285, '2025-11-29 21:45:23.126', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (169, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 270, '2025-11-29 21:45:42.521', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (170, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 491, '2025-11-29 21:46:03.897', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (171, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 295, '2025-11-29 21:50:35.944', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (172, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 270, '2025-11-29 21:50:58.532', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (173, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 258, '2025-11-29 21:51:00.879', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (174, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 266, '2025-11-29 21:54:42.129', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (175, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 299, '2025-11-29 21:57:35.040', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (176, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 408, '2025-11-29 21:57:38.152', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (177, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 279, '2025-11-29 21:57:43.563', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (178, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 341, '2025-11-29 21:57:53.234', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (179, 1, 'devops', 'config_ecsauth', 1, 'SELECT * FROM config_ecsauth LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 309, '2025-11-29 21:58:20.086', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (180, 1, 'devops', 'config_ecsauth', 1, 'SELECT * FROM config_ecsauth LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 579, '2025-11-29 21:58:20.467', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (181, 1, 'devops', 'config_ecsauth', 1, 'SELECT * FROM config_ecsauth LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 299, '2025-11-29 21:58:28.291', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (182, 1, 'devops', 'monitor_agent', 1, 'SELECT * FROM monitor_agent LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 277, '2025-11-29 21:58:36.381', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (183, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 330, '2025-11-29 21:59:23.190', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (184, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 450, '2025-11-29 21:59:44.784', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (185, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 295, '2025-11-29 22:10:51.726', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (186, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 266, '2025-11-29 22:10:54.896', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (187, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 323, '2025-11-29 22:11:01.210', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (188, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 288, '2025-11-29 22:11:01.374', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (189, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 319, '2025-11-29 22:14:15.745', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (190, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 508, '2025-11-29 22:14:16.040', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (191, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 261, '2025-11-29 22:14:22.801', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (192, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 278, '2025-11-29 22:14:29.071', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (193, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 587, '2025-11-29 22:17:49.851', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (194, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 273, '2025-11-29 22:21:41.845', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (195, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 297, '2025-11-29 22:21:41.996', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (196, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 338, '2025-11-29 22:21:41.638', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (197, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 935, '2025-11-29 22:21:42.359', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (198, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 280, '2025-11-29 22:21:45.552', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (199, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 290, '2025-11-29 22:25:38.566', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (200, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 262, '2025-11-29 22:26:39.755', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (201, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 299, '2025-11-29 22:29:18.342', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (202, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 288, '2025-11-29 22:30:54.805', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (203, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 282, '2025-11-29 22:31:17.619', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (204, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 289, '2025-11-29 22:32:34.668', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (205, 1, 'devops', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 272, '2025-11-29 22:32:43.903', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (206, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 312, '2025-11-29 22:32:59.875', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (207, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 268, '2025-11-29 22:38:19.169', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (208, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 285, '2025-11-29 22:42:46.982', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (209, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 283, '2025-11-29 22:48:01.180', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (210, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 279, '2025-11-29 22:53:17.671', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (211, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 271, '2025-11-29 22:57:40.841', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (212, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 262, '2025-11-29 22:59:48.099', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (213, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 278, '2025-11-29 23:00:34.141', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (214, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 569, '2025-11-29 23:04:04.638', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (215, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 542, '2025-11-29 23:10:59.541', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (216, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 309, '2025-11-29 23:13:35.399', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (217, 1, 'gin-api', 'app_sh_release', 1, 'SELECT * FROM app_sh_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 316, '2025-11-29 23:17:36.816', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (218, 1, 'gin-api', 'app_sh_release', 1, 'SELECT * FROM app_sh_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 713, '2025-11-29 23:17:37.046', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (219, 1, 'gin-api', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 311, '2025-11-29 23:17:41.461', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (220, 1, 'gin-api', 'config_ecsauth', 1, 'SELECT * FROM config_ecsauth LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 451, '2025-11-29 23:18:01.612', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (221, 1, 'gin-api', 'config_keymanage', 1, 'SELECT * FROM config_keymanage LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 300, '2025-11-29 23:18:03.029', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (222, 1, 'gin-api', 'config_sync_schedule', 1, 'SELECT * FROM config_sync_schedule LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 305, '2025-11-29 23:18:04.708', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (223, 1, 'gin-api', 'sys_operation_log', 1, 'SELECT * FROM sys_operation_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 303, '2025-11-29 23:18:07.975', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (224, 1, 'gin-api', 'sys_operation_log', 1, 'SELECT * FROM sys_operation_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 334, '2025-11-29 23:18:13.728', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (225, 1, 'gin-api', 'app_service_release', 1, 'SELECT * FROM app_service_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 304, '2025-11-29 23:26:31.908', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (226, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 420, '2025-11-29 23:30:01.262', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (227, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 331, '2025-11-29 23:35:23.442', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (228, 1, 'devops', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 306, '2025-11-29 23:36:11.800', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (229, 1, 'devops', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 293, '2025-11-29 23:36:35.095', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (230, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 297, '2025-11-29 23:39:22.251', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (231, 1, 'gin-api', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 340, '2025-11-29 23:39:24.638', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (232, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 289, '2025-11-29 23:39:32.922', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (233, 1, 'devops', '', 5, 'RENAME TABLE app_jenkins_env_copy_20251129233940 TO app_jenkins_env_copy_20251129233940_new111', '', '', 1, '执行成功', 298, '2025-11-29 23:39:51.148', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (234, 1, 'devops', 'app_jenkins_env_copy_20251129233940_new111', 1, 'SELECT * FROM app_jenkins_env_copy_20251129233940_new111 LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 563, '2025-11-29 23:40:20.699', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (235, 1, 'devops', '', 5, 'DROP TABLE app_jenkins_env_copy_20251129233940_new111', '', '', 1, '执行成功', 291, '2025-11-29 23:40:30.953', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (236, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 434, '2025-11-29 23:44:31.265', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (237, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 466, '2025-11-29 23:45:21.575', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (238, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 288, '2025-11-29 23:52:27.278', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (239, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 302, '2025-11-29 23:55:28.566', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (240, 1, 'gin-api', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 319, '2025-11-29 23:58:06.595', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (241, 2, 'postgres', '', 5, 'CREATE DATABASE database_name;', '', '', 1, '执行成功', 599, '2025-11-30 00:56:01.163', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (242, 2, 'database_name', '', 5, 'CREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    name VARCHAR(100) NOT NULL,\n    email VARCHAR(150) UNIQUE NOT NULL\n);', '', '', 1, '执行成功', 3259, '2025-11-30 01:10:07.720', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (243, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 4965, '2025-11-30 01:10:34.369', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (244, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 198, '2025-11-30 01:10:34.867', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (245, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 201, '2025-11-30 01:10:35.037', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (246, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 208, '2025-11-30 01:10:35.181', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (247, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 208, '2025-11-30 01:10:35.442', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (248, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 192, '2025-11-30 01:10:35.755', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (249, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 205, '2025-11-30 01:10:35.988', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (250, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 202, '2025-11-30 01:10:39.921', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (251, 2, 'database_name', 'users', 2, 'INSERT INTO users (name, email) VALUES (\'张三\', \'zhangsan@123.com\')', '', '', 1, '执行成功', 376, '2025-11-30 01:11:20.911', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (252, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 299, '2025-11-30 01:11:21.506', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (253, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 299, '2025-11-30 11:38:28.572', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (254, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 275, '2025-11-30 11:38:44.346', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (255, 1, 'gin-api', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 272, '2025-11-30 11:38:53.975', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (256, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 342, '2025-11-30 11:39:11.611', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (257, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 277, '2025-11-30 11:39:53.115', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (258, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 284, '2025-11-30 11:40:04.010', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (259, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 273, '2025-11-30 14:35:46.125', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (260, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 219, '2025-11-30 15:43:25.630', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (261, 1, 'RECOVER_YOUR_DATA', '', 5, 'CREATE DATABASE IF NOT EXISTS test \n  DEFAULT CHARACTER SET utf8mb4;', '', '', 1, '执行成功', 762, '2025-11-30 23:49:38.276', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (262, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 345, '2025-11-30 23:50:09.029', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (263, 1, 'devops', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 304, '2025-11-30 23:50:24.695', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (264, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 311, '2025-11-30 23:50:29.549', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (265, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 285, '2025-11-30 23:51:51.702', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (266, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 308, '2025-11-30 23:53:56.382', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (267, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 291, '2025-11-30 23:54:23.552', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (268, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 292, '2025-11-30 23:54:33.359', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (269, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 303, '2025-11-30 23:54:38.550', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (270, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 333, '2025-11-30 23:54:46.965', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (271, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 319, '2025-11-30 23:54:58.898', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (272, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 314, '2025-11-30 23:54:59.768', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (273, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 315, '2025-11-30 23:55:02.322', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (274, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 290, '2025-11-30 23:55:11.683', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (275, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 282, '2025-11-30 23:55:36.034', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (276, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 261, '2025-11-30 23:55:40.374', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (277, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 100;', '', '', 1, '执行成功', 288, '2025-11-30 23:56:00.161', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (278, 1, 'devops', 'cmdb_group;', 1, 'SELECT * FROM cmdb_group;', '', '', 1, '执行成功', 272, '2025-11-30 23:56:57.273', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (279, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 279, '2025-11-30 23:57:18.128', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (280, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 286, '2025-11-30 23:57:32.189', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (281, 1, 'devops', 'cmdb_group', 2, 'INSERT INTO cmdb_group (parent_id, name, create_time, remark, update_time) VALUES (\'0\', \'test\', \'\', \'123\', \'\')', '', '', 2, 'Error 1292 (22007): Incorrect datetime value: \'\' for column \'create_time\' at row 1', 234, '2025-11-30 23:58:10.839', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (282, 1, 'devops', 'cmdb_host_copy_20251130235846', 1, 'SELECT * FROM cmdb_host_copy_20251130235846 LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 286, '2025-11-30 23:58:49.791', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (283, 1, 'devops', '', 5, 'DROP TABLE cmdb_host_copy_20251130235846', '', '', 1, '执行成功', 295, '2025-11-30 23:58:54.686', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (284, 1, 'devops', '', 5, 'RENAME TABLE cmdb_host_copy_20251130235914 TO cmdb_host_copy_123', '', '', 1, '执行成功', 274, '2025-11-30 23:59:22.577', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (285, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 207, '2025-11-30 23:59:58.611', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (286, 2, 'database_name', 'users', 2, 'INSERT INTO users (name, email) VALUES (\'李四\', \'lisi@123.com\')', '', '', 1, '执行成功', 285, '2025-12-01 00:00:30.571', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (287, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 214, '2025-12-01 00:00:31.076', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (288, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 280, '2025-12-01 00:05:29.288', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (289, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 295, '2025-12-01 00:06:23.704', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (290, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 1184, '2025-12-01 00:06:54.903', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (291, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 611, '2025-12-01 00:15:50.948', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (292, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 291, '2025-12-01 00:17:04.651', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (293, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 303, '2025-12-01 00:19:18.036', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (294, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 417, '2025-12-01 00:19:22.279', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (295, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 280, '2025-12-01 00:20:01.970', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (296, 1, 'devops', 'cmdb_host', 3, 'UPDATE cmdb_host SET host_name = \'虚拟机001111\', group_id = 12, private_ip = \'172.16.226.16\', public_ip = \'120.231.244.158\', ssh_name = \'root\', ssh_key_id = 13, ssh_port = 22, remark = \'123\', vendor = 1, region = \'\', instance_id = \'\', os = \'CentOSLinux7(Core)\', status = 1, cpu = \'2\', memory = \'4\', disk = \'17\', billing_type = \'\', create_time = \'2025-11-23 23:44:35\', expire_time = NULL, update_time = \'2025-11-23 23:45:32\', ssh_ip = \'172.16.226.16\', name = \'jenkins\', ssh_gateway_id = NULL WHERE id = 511;', '', '', 1, '执行成功', 254, '2025-12-01 00:20:08.106', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (297, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 292, '2025-12-01 00:20:08.651', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (298, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 301, '2025-12-01 00:20:11.764', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (299, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 100;', '', '', 1, '执行成功', 293, '2025-12-01 00:20:31.016', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (300, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 302, '2025-12-01 00:21:51.502', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (301, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 100;', '', '', 1, '执行成功', 569, '2025-12-01 00:21:57.257', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (302, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 367, '2025-12-01 00:23:39.693', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (303, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 100;', '', '', 1, '执行成功', 540, '2025-12-01 00:23:47.277', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (304, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 217, '2025-12-01 00:24:18.173', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (305, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 289, '2025-12-01 00:25:05.373', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (306, 2, 'database_name', 'users', 2, 'INSERT INTO users (name, email) VALUES (\'test\', \'123@123.com\')', '', '', 1, '执行成功', 553, '2025-12-01 00:30:03.796', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (307, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 205, '2025-12-01 00:30:04.267', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (308, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-01 00:30:24.140', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (309, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 452, '2025-12-01 00:37:20.181', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (310, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 235, '2025-12-01 00:37:27.599', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (311, 2, 'database_name', 'users_copy_20251201003823', 1, 'SELECT * FROM users_copy_20251201003823 LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 197, '2025-12-01 00:38:47.198', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (312, 2, 'database_name', 'users_copy_20251201003823', 1, 'SELECT * FROM users_copy_20251201003823 LIMIT 100;', '', '', 1, '执行成功', 227, '2025-12-01 00:38:56.092', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (313, 1, 'RECOVER_YOUR_DATA', '', 5, 'CREATE DATABASE IF NOT EXISTS ops \n  DEFAULT CHARACTER SET utf8mb4;', '', '', 1, '执行成功', 729, '2025-12-01 00:43:24.905', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (314, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 296, '2025-12-01 00:43:58.889', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (315, 1, 'devops', 'cmdb_host_copy_123', 1, 'SELECT * FROM cmdb_host_copy_123 LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 351, '2025-12-01 00:44:00.240', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (316, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 320, '2025-12-01 00:44:02.951', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (317, 1, 'devops', 'cmdb_host', 3, 'UPDATE cmdb_host SET host_name = \'虚拟机01\', group_id = 12, private_ip = \'172.16.226.16\', public_ip = \'120.231.244.158\', ssh_name = \'root\', ssh_key_id = 13, ssh_port = 22, remark = \'123\', vendor = 1, region = \'\', instance_id = \'\', os = \'CentOSLinux7(Core)\', status = 1, cpu = \'2\', memory = \'4\', disk = \'17\', billing_type = \'\', create_time = \'2025-11-23 23:44:35\', expire_time = NULL, update_time = \'2025-11-23 23:45:32\', ssh_ip = \'172.16.226.16\', name = \'jenkins\', ssh_gateway_id = NULL WHERE id = 511;', '', '', 1, '执行成功', 722, '2025-12-01 00:44:23.250', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (318, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 333, '2025-12-01 00:44:26.196', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (319, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 297, '2025-12-01 00:44:31.613', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (320, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 316, '2025-12-01 00:44:46.505', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (321, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 475, '2025-12-01 00:46:30.077', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (322, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 326, '2025-12-01 00:46:48.843', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (323, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 290, '2025-12-01 00:46:53.212', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (324, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 296, '2025-12-01 00:46:57.044', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (325, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 306, '2025-12-01 00:47:00.548', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (326, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 296, '2025-12-01 00:47:09.235', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (327, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 327, '2025-12-01 00:47:22.518', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (328, 1, 'devops', 'cmdb_host;', 1, 'SELECT * FROM  cmdb_host;', '', '', 1, '执行成功', 297, '2025-12-01 00:48:12.389', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (329, 1, 'devops', '', 5, 'DROP TABLE cmdb_host_copy_123', '', '', 1, '执行成功', 578, '2025-12-01 00:49:01.428', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (330, 1, 'devops', 'cmdb_host_copy_20251201004911', 1, 'SELECT * FROM cmdb_host_copy_20251201004911 LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 321, '2025-12-01 00:49:15.842', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (331, 1, 'devops', '', 5, 'RENAME TABLE cmdb_host_copy_20251201004911 TO cmdb_host_copy_123', '', '', 1, '执行成功', 253, '2025-12-01 00:49:25.590', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (332, 1, 'devops', '', 5, 'DROP TABLE cmdb_host_copy_123', '', '', 1, '执行成功', 259, '2025-12-01 00:49:43.125', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (333, 2, 'database_name', '', 5, 'CREATE TABLE students (\n    id SERIAL PRIMARY KEY,                -- 学生ID，自增主键\n    student_id VARCHAR(20) UNIQUE NOT NULL, -- 学号，唯一且非空\n    name VARCHAR(50) NOT NULL,            -- 姓名\n    gender CHAR(1) CHECK (gender IN (\'M\', \'F\')), -- 性别：M 男，F 女\n    birth_date DATE,                      -- 出生日期\n    email VARCHAR(100) UNIQUE,            -- 邮箱，唯一\n    phone VARCHAR(20),                    -- 电话\n    enrollment_date DATE DEFAULT CURRENT_DATE, -- 入学日期，默认为当前日期\n    major VARCHAR(100),                   -- 专业\n    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 记录创建时间\n);', '', '', 1, '执行成功', 239, '2025-12-01 00:50:33.682', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (334, 2, 'database_name', 'students', 1, 'SELECT * FROM students LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 222, '2025-12-01 00:50:38.712', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (335, 2, 'database_name', 'students', 2, 'INSERT INTO students (student_id, name, gender, birth_date, email, phone, enrollment_date, major) VALUES (\'1\', \'张三\', \'m\', \'2004-05-15\', \'123@456.com\', \'12345678911\', \'2004-05-15\', \'软件工程\')', '', '', 2, 'pq: new row for relation \"students\" violates check constraint \"students_gender_check\"', 186, '2025-12-01 00:52:04.216', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (336, 2, 'database_name', 'students', 2, 'INSERT INTO students (student_id, name, gender, birth_date, email, phone, enrollment_date, major) VALUES (\'20230001\', \'张三\', \'m\', \'2004-05-15\', \'123@456.com\', \'13800138001\', \'2004-05-15\', \'软件工程\')', '', '', 2, 'pq: new row for relation \"students\" violates check constraint \"students_gender_check\"', 182, '2025-12-01 00:52:31.225', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (337, 2, 'database_name', 'students', 2, 'INSERT INTO students (student_id, name, gender, birth_date, email, phone, enrollment_date, major) VALUES (\'20230001\', \'张三\', \'\'\'M\'\'\', \'2004-05-15\', \'123@456.com\', \'13800138001\', \'2004-05-15\', \'软件工程\')', '', '', 2, 'pq: value too long for type character(1)', 214, '2025-12-01 00:52:54.401', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (338, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 542, '2025-12-01 00:52:58.529', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (339, 2, 'database_name', 'users', 2, 'INSERT INTO users (name, email) VALUES (\'test123\', \'123@123.com\')', '', '', 1, '执行成功', 183, '2025-12-01 00:53:22.992', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (340, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 253, '2025-12-01 00:53:23.494', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (341, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 207, '2025-12-01 00:53:33.443', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (342, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 100;', '', '', 1, '执行成功', 196, '2025-12-01 00:53:54.378', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (343, 2, 'database_name', 'users_copy_20251201003823', 1, 'SELECT * FROM users_copy_20251201003823 LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 231, '2025-12-01 00:53:59.552', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (344, 2, 'database_name', '', 5, 'DROP TABLE users_copy_20251201003823', '', '', 1, '执行成功', 184, '2025-12-01 00:54:05.164', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (345, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 286, '2025-12-01 10:18:58.108', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (346, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 100;', '', '', 1, '执行成功', 257, '2025-12-01 10:19:34.501', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (347, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-12-01 12:05:45.106', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (348, 1, 'RECOVER_YOUR_DATA', 'RECOVER_YOUR_DATA', 1, 'SELECT * FROM RECOVER_YOUR_DATA LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 288, '2025-12-01 14:07:15.387', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (349, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-01 14:07:23.511', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (350, 1, 'gin-api', 'app_sh_release', 1, 'SELECT * FROM app_sh_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 254, '2025-12-01 17:10:51.225', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (351, 1, 'gin-api', 'app_service_release', 1, 'SELECT * FROM app_service_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 245, '2025-12-01 17:11:07.319', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (352, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 253, '2025-12-01 17:11:39.058', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (353, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 248, '2025-12-01 17:11:57.884', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (354, 1, 'gin-api', 'quick_deployment_tasks', 1, 'SELECT * FROM quick_deployment_tasks LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 280, '2025-12-01 17:12:31.887', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (355, 1, 'gin-api', 'quick_deployments', 1, 'SELECT * FROM quick_deployments LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 254, '2025-12-01 17:12:34.351', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (356, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 248, '2025-12-01 19:50:46.392', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (357, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 294, '2025-12-02 11:13:02.970', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (358, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-12-02 11:34:17.783', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (359, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-02 11:35:41.192', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (360, 1, 'gin-api', 'sys_operation_log', 1, 'SELECT * FROM sys_operation_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 292, '2025-12-02 12:01:05.583', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (361, 1, 'gin-api', 'sys_operation_log', 1, 'SELECT * FROM sys_operation_log LIMIT 100;', '', '', 1, '执行成功', 555, '2025-12-02 12:06:45.939', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (362, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 257, '2025-12-02 12:08:01.959', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (363, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 250, '2025-12-02 12:25:37.979', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (364, 1, 'devops', 'app_application', 1, 'SELECT *\nFROM  app_application\nLIMIT  100;', '', '', 1, '执行成功', 252, '2025-12-02 12:25:58.932', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (365, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 277, '2025-12-02 12:30:05.820', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (366, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 253, '2025-12-02 12:35:09.666', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (367, 2, 'database_name', 'students', 1, 'SELECT * FROM students LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 180, '2025-12-02 12:35:11.544', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (368, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 262, '2025-12-02 12:38:20.200', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (369, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 251, '2025-12-02 12:38:39.691', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (370, 1, 'gin-api', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 250, '2025-12-02 14:59:49.691', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (371, 1, 'gin-api', 'db', 1, 'SELECT * FROM db LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 261, '2025-12-02 15:00:14.754', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (372, 1, 'gin-api', 'db_instance', 1, 'SELECT * FROM db_instance LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 258, '2025-12-02 15:01:14.757', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (373, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 255, '2025-12-02 15:09:10.006', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (374, 1, 'gin-api', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 247, '2025-12-02 15:41:50.960', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (375, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 251, '2025-12-02 15:42:08.133', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (376, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 252, '2025-12-02 15:42:47.779', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (377, 1, 'RECOVER_YOUR_DATA', 'RECOVER_YOUR_DATA', 1, 'SELECT * FROM RECOVER_YOUR_DATA LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 284, '2025-12-02 16:00:08.047', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (378, 1, 'mayfly-go', 't_db_backup_history', 1, 'SELECT * FROM t_db_backup_history LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 284, '2025-12-02 16:00:14.480', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (379, 1, 'mayfly-go', 't_db_restore', 1, 'SELECT * FROM t_db_restore LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 283, '2025-12-02 16:00:16.976', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (380, 3, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-02 16:59:07.917', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (381, 3, 'gin-api', 'app_service_release_item', 1, 'SELECT * FROM app_service_release_item LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 261, '2025-12-02 16:59:08.689', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (382, 1, 'gin-api', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-12-03 10:26:41.230', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (383, 1, 'gin-api', 'app_service_release_item', 1, 'SELECT * FROM app_service_release_item LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 323, '2025-12-03 10:27:20.235', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (384, 1, 'gin-api', 'app_sh_release', 1, 'SELECT * FROM app_sh_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-03 10:27:21.025', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (385, 1, 'gin-api', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 548, '2025-12-03 10:31:37.487', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (386, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 263, '2025-12-03 10:36:57.065', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (387, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 340, '2025-12-03 10:37:02.051', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (388, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 266, '2025-12-03 10:40:18.048', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (389, 1, 'devops', 'cmdb_host_1', 2, 'INSERT INTO cmdb_host_1 (id, host_name, group_id, private_ip, public_ip, ssh_name, ssh_key_id, ssh_port, remark, vendor, region, instance_id, os, status, cpu, memory, disk, billing_type, create_time, expire_time, update_time, ssh_ip, name, ssh_gateway_id) VALUES (506, \'华为云ops\', 4, \'172.31.6.35\', \'139.9.205.38\', \'root\', 22, 22, \'123\', 5, \'\', \'\', \'Ubuntu24.04.2\', 1, \'2\', \'2\', \'40\', \'\', \'2025-11-11 17:24:36\', NULL, \'2025-11-26 17:22:07\', \'139.9.205.38\', \'hw-ops\', NULL);', '', '', 2, 'Error 1146 (42S02): Table \'devops.cmdb_host_1\' doesn\'t exist', 202, '2025-12-03 10:43:12.842', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (390, 1, 'devops', 'cmdb_host_1', 2, 'INSERT INTO cmdb_host_1 (id, host_name, group_id, private_ip, public_ip, ssh_name, ssh_key_id, ssh_port, remark, vendor, region, instance_id, os, status, cpu, memory, disk, billing_type, create_time, expire_time, update_time, ssh_ip, name, ssh_gateway_id) VALUES (506, \'华为云ops\', 4, \'172.31.6.35\', \'139.9.205.38\', \'root\', 22, 22, \'123\', 5, \'\', \'\', \'Ubuntu24.04.2\', 1, \'2\', \'2\', \'40\', \'\', \'2025-11-11 17:24:36\', NULL, \'2025-11-26 17:22:07\', \'139.9.205.38\', \'hw-ops\', NULL);', '', '', 2, 'Error 1146 (42S02): Table \'devops.cmdb_host_1\' doesn\'t exist', 216, '2025-12-03 10:43:14.148', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (391, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 785, '2025-12-03 11:09:19.304', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (392, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-12-03 11:24:14.607', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (393, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 275, '2025-12-03 11:35:15.655', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (394, 1, 'mayfly-go', 't_db', 1, 'SELECT * FROM t_db LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 266, '2025-12-03 11:40:08.029', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (395, 1, 'mayfly-go', 't_db_backup', 1, 'SELECT * FROM t_db_backup LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-12-03 11:40:10.424', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (396, 1, 'mayfly-go', 't_db_data_sync_log', 1, 'SELECT * FROM t_db_data_sync_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 416, '2025-12-03 11:41:35.563', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (397, 1, 'mayfly-go', 't_db_instance', 1, 'SELECT * FROM t_db_instance LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 259, '2025-12-03 11:41:38.235', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (398, 1, 'gin-api', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-03 11:41:41.904', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (399, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 257, '2025-12-03 11:41:59.928', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (400, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 269, '2025-12-03 11:43:46.442', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (401, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 317, '2025-12-03 11:45:13.925', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (402, 1, 'devops', '', 5, 'CREATE TABLE `app_jenkins_env123` ( `id` bigint(20) NOT NULL AUTO_INCREMENT, `app_id` bigint(20) NOT NULL, `env_name` varchar(50) NOT NULL, `jenkins_server_id` bigint(20), `job_name` varchar(255), `job_url` varchar(500), `build_params` json, `deploy_config` json, `notification` json, `is_active` tinyint(3) DEFAULT 1, `created_at` datetime, `updated_at` datetime, `deleted_at` datetime, PRIMARY KEY (id) ); ALTER TABLE `app_jenkins_env` ADD INDEX `idx_app_jenkins_env_app_id`(`app_id`) USING BTREE; ALTER TABLE `app_jenkins_env` ADD INDEX `idx_app_jenkins_env_deleted_at`(`deleted_at`) USING BTREE', '', '', 2, 'Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near \'ALTER TABLE `app_jenkins_env` ADD INDEX `idx_app_jenkins_env_app_id`(`app_id`) U\' at line 1', 204, '2025-12-03 11:47:45.166', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (403, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 270, '2025-12-03 11:48:51.742', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (404, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-12-03 11:52:55.287', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (405, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 257, '2025-12-03 11:52:58.121', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (406, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 260, '2025-12-03 11:53:00.314', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (407, 1, 'gin-api', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 295, '2025-12-03 11:56:02.107', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (408, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-03 12:04:05.208', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (409, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 254, '2025-12-03 12:07:28.099', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (410, 1, 'gin-api', 'app_sh_release', 1, 'SELECT * FROM app_sh_release LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 261, '2025-12-03 12:08:37.417', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (411, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 327, '2025-12-03 12:08:52.889', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (412, 1, 'devops', 'cmdb_group', 1, 'SELECT * FROM cmdb_group LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 258, '2025-12-03 12:14:02.575', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (413, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 342, '2025-12-03 12:16:54.823', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (414, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 261, '2025-12-03 12:19:56.646', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (415, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 257, '2025-12-03 12:23:13.577', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (416, 1, 'devops', 'cmdb_sql', 1, 'SELECT * FROM cmdb_sql LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 261, '2025-12-03 12:26:28.689', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (417, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 253, '2025-12-03 12:28:20.840', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (418, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 244, '2025-12-03 12:29:04.357', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (419, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 395, '2025-12-03 12:32:00.866', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (420, 1, 'devops', '', 5, 'CREATE TABLE `cmdb_group123` (\n `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT \'\'\'主键\'\'\',\n `parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT \'\'\'父级分组ID\'\'\',\n `name` longtext NOT NULL COMMENT \'\'\'分组名称\'\'\',\n `create_time` datetime NOT NULL COMMENT \'\'\'创建时间\'\'\',\n `remark` longtext COMMENT \'\'\'备注\'\'\',\n `update_time` datetime COMMENT \'\'\'更新时间\'\'\', \nPRIMARY KEY (id)\n)', '', '', 1, '执行成功', 244, '2025-12-03 12:42:43.341', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (421, 1, 'devops', 'cmdb_group123', 1, 'SELECT * FROM cmdb_group123 LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 262, '2025-12-03 12:42:51.081', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (422, 1, 'devops', '', 5, 'DROP TABLE cmdb_group123', '', '', 1, '执行成功', 228, '2025-12-03 12:43:02.777', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (423, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 265, '2025-12-03 12:46:17.553', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (424, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 278, '2025-12-03 15:54:52.850', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (425, 1, 'devops', 'cmdb_sql_log', 1, 'SELECT * FROM cmdb_sql_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 252, '2025-12-03 15:55:18.939', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (426, 1, 'gin-api', 'sys_operation_log', 1, 'SELECT * FROM sys_operation_log LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 254, '2025-12-03 15:55:30.381', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (427, 1, 'gin-api', 'sys_operation_log', 1, 'SELECT *\nFROM  sys_operation_log\nLIMIT  100;', '', '', 1, '执行成功', 266, '2025-12-03 15:55:49.290', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (428, 1, 'gin-api', 'sys_admin', 1, 'SELECT *\nFROM  sys_admin\nLIMIT  100;', '', '', 1, '执行成功', 250, '2025-12-03 15:57:53.622', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (429, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 256, '2025-12-05 20:29:40.131', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (430, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 262, '2025-12-05 20:32:28.584', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (431, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 392, '2025-12-05 20:33:31.694', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (432, 1, 'devops', 'app_application', 1, 'SELECT *\nFROM  app_application\nLIMIT  100;', '', '', 1, '执行成功', 308, '2025-12-05 20:33:51.765', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (433, 1, 'devops', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 424, '2025-12-05 20:34:23.519', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (434, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 273, '2025-12-05 20:34:30.817', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (435, 1, 'devops', 'cmdb_host', 3, 'UPDATE cmdb_host SET host_name = \'虚拟机2025\', group_id = 4, private_ip = \'172.16.226.13\', public_ip = \'120.231.244.158\', ssh_name = \'root\', ssh_key_id = 13, ssh_port = 22, remark = \'123\', vendor = 1, region = \'\', instance_id = \'\', os = \'Ubuntu20.04.2\', status = 1, cpu = \'2\', memory = \'3\', disk = \'19\', billing_type = \'\', create_time = \'2025-11-23 23:46:03\', expire_time = NULL, update_time = \'2025-11-23 23:46:07\', ssh_ip = \'172.16.226.13\', name = \'k8s-node02\', ssh_gateway_id = NULL WHERE id = 512;', '', '', 1, '执行成功', 436, '2025-12-05 20:34:45.595', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (436, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-12-05 20:34:46.094', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (437, 1, 'devops', 'cmdb_host', 1, 'SELECT * FROM cmdb_host LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-12-05 20:34:49.893', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (438, 1, 'devops', '', 5, 'CREATE DATABASE IF NOT EXISTS test1\n  DEFAULT CHARACTER SET utf8mb4;', '', '', 1, '执行成功', 237, '2025-12-05 20:35:34.369', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (439, 1, 'test1', '', 5, 'CREATE TABLE test1.your_table_name (\n  id BIGINT PRIMARY KEY AUTO_INCREMENT,\n  -- your columns here\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;', '', '', 2, 'Error 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near \') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4\' at line 4', 219, '2025-12-05 20:35:52.483', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (440, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 217, '2025-12-05 20:36:57.655', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (441, 2, 'database_name', 'users', 2, 'INSERT INTO users (name, email) VALUES (\'王五\', \'xxxx@123.com\')', '', '', 1, '执行成功', 191, '2025-12-05 20:37:14.770', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (442, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 205, '2025-12-05 20:37:15.207', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (443, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-12-08 10:52:11.033', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (444, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 288, '2025-12-08 23:01:38.354', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (445, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-12-08 23:01:38.638', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (446, 1, 'gin-api', 'sys_config', 1, 'SELECT * FROM sys_config LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 259, '2025-12-09 13:21:51.379', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (447, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 280, '2025-12-09 23:45:28.566', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (448, 1, 'gin-api', 'app_jenkins_env', 1, 'SELECT * FROM app_jenkins_env LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 268, '2025-12-09 23:48:06.048', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (449, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 267, '2025-12-10 11:22:14.627', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (450, 1, 'gin-api', 'sys_admin', 1, 'SELECT * FROM sys_admin LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 268, '2025-12-10 17:17:50.042', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (451, 1, 'gin-api', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 276, '2025-12-11 18:04:01.397', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (452, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 314, '2025-12-13 00:03:02.341', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (453, 2, 'database_name', 'users', 1, 'SELECT * FROM users LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 287, '2025-12-13 00:03:27.273', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (454, 2, 'database_name', 'students', 1, 'SELECT * FROM students LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 257, '2025-12-13 00:03:29.263', '', 0);
-INSERT INTO `db_sql_exec` (`id`, `db_id`, `db_name`, `table_name`, `type`, `sql`, `old_value`, `remark`, `status`, `res`, `exec_time`, `create_time`, `creator`, `creator_id`) VALUES (455, 1, 'devops', 'app_application', 1, 'SELECT * FROM app_application LIMIT 20 OFFSET 0', '', '', 1, '执行成功', 303, '2025-12-13 16:15:43.928', '', 0);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for db_sql_rule_group
+-- ----------------------------
+DROP TABLE IF EXISTS `db_sql_rule_group`;
+CREATE TABLE `db_sql_rule_group` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `engine` int DEFAULT NULL,
+  `environment` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `enabled` tinyint(1) NOT NULL DEFAULT '1',
+  `rules_json` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_db_sql_rule_group_name` (`name`) USING BTREE,
+  KEY `idx_db_sql_rule_group_engine` (`engine`) USING BTREE,
+  KEY `idx_db_sql_rule_group_environment` (`environment`) USING BTREE,
+  KEY `idx_db_sql_rule_group_enabled` (`enabled`) USING BTREE,
+  KEY `idx_db_sql_rule_group_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of db_sql_rule_group
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for db_sql_statement
+-- ----------------------------
+DROP TABLE IF EXISTS `db_sql_statement`;
+CREATE TABLE `db_sql_statement` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_id` bigint unsigned NOT NULL,
+  `statement_index` bigint NOT NULL,
+  `sql_text` text NOT NULL,
+  `statement_type` varchar(64) DEFAULT NULL,
+  `object_name` varchar(256) DEFAULT NULL,
+  `object_type` varchar(64) DEFAULT NULL,
+  `database_name` varchar(128) DEFAULT NULL,
+  `schema_name` varchar(128) DEFAULT NULL,
+  `risk_level` varchar(32) DEFAULT NULL,
+  `estimated_rows` bigint DEFAULT NULL,
+  `review_status` varchar(32) DEFAULT NULL,
+  `message` text,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_db_sql_statement_ticket_id` (`ticket_id`),
+  KEY `idx_db_sql_statement_statement_type` (`statement_type`),
+  KEY `idx_db_sql_statement_object_name` (`object_name`),
+  KEY `idx_db_sql_statement_object_type` (`object_type`),
+  KEY `idx_db_sql_statement_database_name` (`database_name`),
+  KEY `idx_db_sql_statement_schema_name` (`schema_name`),
+  KEY `idx_db_sql_statement_risk_level` (`risk_level`),
+  KEY `idx_db_sql_statement_review_status` (`review_status`),
+  KEY `idx_db_sql_statement_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of db_sql_statement
+-- ----------------------------
+BEGIN;
+INSERT INTO `db_sql_statement` (`id`, `ticket_id`, `statement_index`, `sql_text`, `statement_type`, `object_name`, `object_type`, `database_name`, `schema_name`, `risk_level`, `estimated_rows`, `review_status`, `message`, `created_at`) VALUES (1, 1, 1, 'SELECT * FROM `autoops`.`cmdb_host` LIMIT 20', 'select', 'autoops.cmdb_host', '', 'autoops', '', 'low', 0, 'warn', '查询SQL建议包含WHERE条件', '2026-07-26 16:35:32.523');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for db_sql_ticket
+-- ----------------------------
+DROP TABLE IF EXISTS `db_sql_ticket`;
+CREATE TABLE `db_sql_ticket` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_no` varchar(64) NOT NULL,
+  `title` varchar(256) NOT NULL,
+  `ticket_type` varchar(16) NOT NULL,
+  `asset_id` bigint unsigned NOT NULL,
+  `use_gh_ost` tinyint(1) NOT NULL DEFAULT '0',
+  `gh_ost_script` text,
+  `engine` int DEFAULT NULL,
+  `database_name` varchar(128) DEFAULT NULL,
+  `schema_name` varchar(128) DEFAULT NULL,
+  `environment` varchar(64) DEFAULT NULL,
+  `sql_content` text NOT NULL,
+  `sql_fingerprint` varchar(128) DEFAULT NULL,
+  `status` varchar(32) NOT NULL,
+  `risk_level` varchar(32) NOT NULL,
+  `backup_required` tinyint(1) NOT NULL DEFAULT '0',
+  `rollback_required` tinyint(1) NOT NULL DEFAULT '0',
+  `review_passed` tinyint(1) NOT NULL DEFAULT '0',
+  `remark` text,
+  `submitter_id` bigint unsigned DEFAULT NULL,
+  `submitter_name` varchar(128) DEFAULT NULL,
+  `submitted_at` datetime(3) DEFAULT NULL,
+  `approver_id` bigint unsigned DEFAULT NULL,
+  `approver_name` varchar(128) DEFAULT NULL,
+  `reviewed_at` datetime(3) DEFAULT NULL,
+  `review_comment` text,
+  `executor_id` bigint unsigned DEFAULT NULL,
+  `executor_name` varchar(128) DEFAULT NULL,
+  `executed_at` datetime(3) DEFAULT NULL,
+  `execute_comment` text,
+  `scheduled_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `workflow_instance_id` bigint unsigned DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_db_sql_ticket_ticket_no` (`ticket_no`),
+  KEY `idx_db_sql_ticket_title` (`title`),
+  KEY `idx_db_sql_ticket_ticket_type` (`ticket_type`),
+  KEY `idx_db_sql_ticket_asset_id` (`asset_id`),
+  KEY `idx_db_sql_ticket_engine` (`engine`),
+  KEY `idx_db_sql_ticket_database_name` (`database_name`),
+  KEY `idx_db_sql_ticket_schema_name` (`schema_name`),
+  KEY `idx_db_sql_ticket_environment` (`environment`),
+  KEY `idx_db_sql_ticket_sql_fingerprint` (`sql_fingerprint`),
+  KEY `idx_db_sql_ticket_status` (`status`),
+  KEY `idx_db_sql_ticket_risk_level` (`risk_level`),
+  KEY `idx_db_sql_ticket_review_passed` (`review_passed`),
+  KEY `idx_db_sql_ticket_submitter_id` (`submitter_id`),
+  KEY `idx_db_sql_ticket_submitter_name` (`submitter_name`),
+  KEY `idx_db_sql_ticket_approver_id` (`approver_id`),
+  KEY `idx_db_sql_ticket_approver_name` (`approver_name`),
+  KEY `idx_db_sql_ticket_executor_id` (`executor_id`),
+  KEY `idx_db_sql_ticket_executor_name` (`executor_name`),
+  KEY `idx_db_sql_ticket_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of db_sql_ticket
+-- ----------------------------
+BEGIN;
+INSERT INTO `db_sql_ticket` (`id`, `ticket_no`, `title`, `ticket_type`, `asset_id`, `use_gh_ost`, `gh_ost_script`, `engine`, `database_name`, `schema_name`, `environment`, `sql_content`, `sql_fingerprint`, `status`, `risk_level`, `backup_required`, `rollback_required`, `review_passed`, `remark`, `submitter_id`, `submitter_name`, `submitted_at`, `approver_id`, `approver_name`, `reviewed_at`, `review_comment`, `executor_id`, `executor_name`, `executed_at`, `execute_comment`, `scheduled_at`, `created_at`, `updated_at`, `workflow_instance_id`) VALUES (1, 'DB-QUERY-20260726163532', '查询主机资产', 'query', 1, 0, '', 1, 'autoops', '', 'prod', 'SELECT * FROM `autoops`.`cmdb_host` LIMIT 20', '6cd6aa9df520d4958572f3433242d19106c13626', 'succeeded', 'medium', 0, 0, 1, '', 89, 'admin', '2026-07-26 16:35:32.523', 89, 'admin', '2026-07-26 16:35:53.451', '', 89, 'admin', '2026-07-26 16:36:06.222', '', NULL, '2026-07-26 16:35:32.523', '2026-07-26 16:36:06.222', NULL);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for host_ssh_upload_tasks
+-- ----------------------------
+DROP TABLE IF EXISTS `host_ssh_upload_tasks`;
+CREATE TABLE `host_ssh_upload_tasks` (
+  `task_id` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `host_id` bigint unsigned DEFAULT NULL,
+  `file_name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `file_size` bigint DEFAULT NULL,
+  `dest_path` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `status` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `progress` double DEFAULT NULL,
+  `uploaded_bytes` bigint DEFAULT NULL,
+  `total_bytes` bigint DEFAULT NULL,
+  `message` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `error` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `created_by` bigint unsigned DEFAULT NULL,
+  `created_by_name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `created_at` datetime(3) DEFAULT NULL,
+  `started_at` datetime(3) DEFAULT NULL,
+  `completed_at` datetime(3) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of host_ssh_upload_tasks
+-- ----------------------------
+BEGIN;
 COMMIT;
 
 -- ----------------------------
@@ -1239,27 +2510,460 @@ COMMIT;
 DROP TABLE IF EXISTS `k8s_cluster`;
 CREATE TABLE `k8s_cluster` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键ID''',
-  `name` varchar(100) NOT NULL COMMENT '''集群名称''',
-  `version` varchar(50) NOT NULL COMMENT '''集群版本''',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''集群名称''',
+  `version` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''集群版本''',
   `status` bigint NOT NULL DEFAULT '1' COMMENT '''集群状态:1-创建中,2-运行中,3-离线''',
-  `credential` text COMMENT '''集群凭证(kubeconfig)''',
-  `description` text COMMENT '''集群描述''',
+  `credential` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''集群凭证(kubeconfig)''',
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''集群描述''',
   `cluster_type` bigint NOT NULL DEFAULT '1' COMMENT '''集群类型:1-自建,2-导入''',
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
   `node_count` bigint DEFAULT '0' COMMENT '''节点数量''',
   `ready_nodes` bigint DEFAULT '0' COMMENT '''就绪节点数''',
   `master_nodes` bigint DEFAULT '0' COMMENT '''Master节点数''',
   `worker_nodes` bigint DEFAULT '0' COMMENT '''Worker节点数''',
   `last_sync_at` datetime(3) DEFAULT NULL COMMENT '''最后同步时间''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_k8s_cluster_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `monitor_datasource_id` bigint unsigned DEFAULT '0' COMMENT '''绑定监控数据源ID''',
+  `monitor_datasource_type` varchar(64) DEFAULT NULL COMMENT '''监控数据源类型''',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_k8s_cluster_name` (`name`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of k8s_cluster
 -- ----------------------------
 BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for k8s_cluster_inspections
+-- ----------------------------
+DROP TABLE IF EXISTS `k8s_cluster_inspections`;
+CREATE TABLE `k8s_cluster_inspections` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `cluster_id` bigint unsigned NOT NULL,
+  `cluster_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `status` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `progress` bigint DEFAULT '0',
+  `current_step` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `completed_clusters` bigint DEFAULT '0',
+  `total_clusters` bigint DEFAULT '1',
+  `score` bigint DEFAULT NULL,
+  `check_count` bigint DEFAULT NULL,
+  `pass_count` bigint DEFAULT NULL,
+  `warning_count` bigint DEFAULT NULL,
+  `fail_count` bigint DEFAULT NULL,
+  `duration` bigint DEFAULT NULL,
+  `report_data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `start_time` datetime(3) DEFAULT NULL,
+  `end_time` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_k8s_cluster_inspections_cluster_id` (`cluster_id`) USING BTREE,
+  KEY `idx_k8s_cluster_inspections_status` (`status`) USING BTREE,
+  KEY `idx_k8s_cluster_inspections_user_id` (`user_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of k8s_cluster_inspections
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_agent_operation
+-- ----------------------------
+DROP TABLE IF EXISTS `log_agent_operation`;
+CREATE TABLE `log_agent_operation` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `agent_id` bigint unsigned NOT NULL,
+  `host_id` bigint unsigned NOT NULL,
+  `op_type` varchar(64) NOT NULL,
+  `op_status` varchar(32) NOT NULL DEFAULT 'pending',
+  `progress` bigint NOT NULL DEFAULT '0',
+  `progress_text` varchar(128) DEFAULT NULL,
+  `target_version` varchar(64) DEFAULT NULL,
+  `config_version` bigint NOT NULL DEFAULT '0',
+  `request_json` text,
+  `result_json` text,
+  `error_msg` text,
+  `operator` varchar(64) DEFAULT NULL,
+  `started_at` datetime(3) DEFAULT NULL,
+  `finished_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_log_agent_operation_agent_id` (`agent_id`),
+  KEY `idx_log_agent_operation_host_id` (`host_id`),
+  KEY `idx_log_agent_operation_op_type` (`op_type`),
+  KEY `idx_log_agent_operation_op_status` (`op_status`),
+  KEY `idx_log_agent_operation_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_agent_operation
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_agent_status
+-- ----------------------------
+DROP TABLE IF EXISTS `log_agent_status`;
+CREATE TABLE `log_agent_status` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `agent_id` bigint unsigned NOT NULL,
+  `host_id` bigint unsigned NOT NULL,
+  `runtime_type` varchar(32) NOT NULL DEFAULT 'host',
+  `cluster_id` bigint unsigned DEFAULT NULL,
+  `node_name` varchar(128) DEFAULT NULL,
+  `vector_version` varchar(64) DEFAULT NULL,
+  `vector_status` varchar(32) NOT NULL DEFAULT 'not_installed',
+  `vector_p_id` bigint DEFAULT NULL,
+  `install_path` varchar(256) DEFAULT NULL,
+  `config_path` varchar(256) DEFAULT NULL,
+  `desired_config_version` bigint NOT NULL DEFAULT '0',
+  `applied_config_version` bigint NOT NULL DEFAULT '0',
+  `desired_config_hash` varchar(128) DEFAULT NULL,
+  `applied_config_hash` varchar(128) DEFAULT NULL,
+  `config_status` varchar(32) NOT NULL DEFAULT 'pending',
+  `last_heartbeat_at` datetime(3) DEFAULT NULL,
+  `last_reload_at` datetime(3) DEFAULT NULL,
+  `last_error` text,
+  `last_error_at` datetime(3) DEFAULT NULL,
+  `metrics_json` text,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `vector_pid` bigint DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_log_agent_status_agent_id` (`agent_id`),
+  KEY `idx_log_agent_status_agent_id` (`agent_id`),
+  KEY `idx_log_agent_status_host_id` (`host_id`),
+  KEY `idx_log_agent_status_cluster_id` (`cluster_id`),
+  KEY `idx_log_agent_status_node_name` (`node_name`),
+  KEY `idx_log_agent_status_vector_status` (`vector_status`),
+  KEY `idx_log_agent_status_config_status` (`config_status`),
+  KEY `idx_log_agent_status_last_heartbeat_at` (`last_heartbeat_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_agent_status
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_alert_event
+-- ----------------------------
+DROP TABLE IF EXISTS `log_alert_event`;
+CREATE TABLE `log_alert_event` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `rule_id` bigint unsigned NOT NULL,
+  `project_id` bigint unsigned NOT NULL,
+  `store_id` bigint unsigned NOT NULL,
+  `source_name` varchar(128) DEFAULT NULL,
+  `severity` varchar(32) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `trigger_reason` text,
+  `summary` text,
+  `match_count` bigint NOT NULL DEFAULT '0',
+  `first_match_time` datetime(3) DEFAULT NULL,
+  `last_match_time` datetime(3) DEFAULT NULL,
+  `fired_at` datetime(3) DEFAULT NULL,
+  `recovered_at` datetime(3) DEFAULT NULL,
+  `sample_query_json` text,
+  `sample_event_ids_json` text,
+  `diagnosis_report_id` bigint unsigned DEFAULT NULL,
+  `notify_status` varchar(32) DEFAULT NULL,
+  `notify_result` text,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_log_alert_event_rule_id` (`rule_id`),
+  KEY `idx_log_alert_event_project_id` (`project_id`),
+  KEY `idx_log_alert_event_store_id` (`store_id`),
+  KEY `idx_log_alert_event_status` (`status`),
+  KEY `idx_log_alert_event_fired_at` (`fired_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_alert_event
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_alert_rule
+-- ----------------------------
+DROP TABLE IF EXISTS `log_alert_rule`;
+CREATE TABLE `log_alert_rule` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `project_id` bigint unsigned NOT NULL,
+  `store_id` bigint unsigned NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `code` varchar(128) NOT NULL,
+  `rule_type` varchar(64) NOT NULL,
+  `severity` varchar(32) NOT NULL,
+  `scan_interval_minutes` bigint NOT NULL DEFAULT '5',
+  `window_minutes` bigint NOT NULL DEFAULT '5',
+  `threshold` bigint NOT NULL DEFAULT '1',
+  `silence_minutes` bigint NOT NULL DEFAULT '30',
+  `keywords_json` text,
+  `field_conditions_json` text,
+  `query_json` text,
+  `notify_channels_json` text,
+  `labels_json` text,
+  `annotations_json` text,
+  `status` bigint NOT NULL DEFAULT '1',
+  `last_eval_at` datetime(3) DEFAULT NULL,
+  `remark` text,
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_log_alert_rule_code` (`code`),
+  KEY `idx_log_alert_rule_project_id` (`project_id`),
+  KEY `idx_log_alert_rule_store_id` (`store_id`),
+  KEY `idx_log_alert_rule_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_alert_rule
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_collect_task
+-- ----------------------------
+DROP TABLE IF EXISTS `log_collect_task`;
+CREATE TABLE `log_collect_task` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `project_id` bigint unsigned NOT NULL,
+  `store_id` bigint unsigned NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `code` varchar(128) NOT NULL,
+  `collect_type` varchar(64) NOT NULL,
+  `execute_mode` varchar(64) NOT NULL,
+  `execute_targets_json` text,
+  `path_pattern` text NOT NULL,
+  `path_patterns_json` text,
+  `k8s_log_source` varchar(64) DEFAULT NULL,
+  `parse_template_id` bigint unsigned DEFAULT NULL,
+  `parse_mode_snapshot` varchar(64) DEFAULT NULL,
+  `sample_log` text,
+  `regex_pattern` text,
+  `multiline_pattern_snapshot` varchar(512) DEFAULT NULL,
+  `labels_json` text,
+  `filters_json` text,
+  `config_version` bigint NOT NULL DEFAULT '1',
+  `status` bigint NOT NULL DEFAULT '1',
+  `last_error` text,
+  `remark` text,
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `name_key` varchar(64) DEFAULT NULL,
+  `config_key` varchar(64) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_log_collect_task_code` (`code`),
+  UNIQUE KEY `uk_log_collect_task_name_key` (`name_key`),
+  UNIQUE KEY `uk_log_collect_task_config_key` (`config_key`),
+  KEY `idx_log_collect_task_project_id` (`project_id`),
+  KEY `idx_log_collect_task_store_id` (`store_id`),
+  KEY `idx_log_collect_task_parse_template_id` (`parse_template_id`),
+  KEY `idx_log_collect_task_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_collect_task
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_k8s_cluster_collector_operation
+-- ----------------------------
+DROP TABLE IF EXISTS `log_k8s_cluster_collector_operation`;
+CREATE TABLE `log_k8s_cluster_collector_operation` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `cluster_id` bigint unsigned NOT NULL,
+  `cluster_name` varchar(128) NOT NULL,
+  `op_type` varchar(64) NOT NULL,
+  `op_status` varchar(32) NOT NULL DEFAULT 'pending',
+  `progress` bigint NOT NULL DEFAULT '0',
+  `progress_text` varchar(128) DEFAULT NULL,
+  `request_json` text,
+  `result_json` text,
+  `error_msg` text,
+  `operator` varchar(64) DEFAULT NULL,
+  `started_at` datetime(3) DEFAULT NULL,
+  `finished_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_log_k8s_cluster_collector_op_cluster_id` (`cluster_id`),
+  KEY `idx_log_k8s_cluster_collector_op_type` (`op_type`),
+  KEY `idx_log_k8s_cluster_collector_op_status` (`op_status`),
+  KEY `idx_log_k8s_cluster_collector_op_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_k8s_cluster_collector_operation
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_k8s_collector_operation
+-- ----------------------------
+DROP TABLE IF EXISTS `log_k8s_collector_operation`;
+CREATE TABLE `log_k8s_collector_operation` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `task_id` bigint unsigned NOT NULL,
+  `target_index` bigint NOT NULL DEFAULT '0',
+  `cluster_id` bigint unsigned NOT NULL,
+  `namespace` varchar(128) NOT NULL,
+  `workload_type` varchar(64) NOT NULL,
+  `workload_name` varchar(128) NOT NULL,
+  `k8_s_log_source` varchar(64) NOT NULL,
+  `op_type` varchar(64) NOT NULL,
+  `op_status` varchar(32) NOT NULL DEFAULT 'pending',
+  `progress` bigint NOT NULL DEFAULT '0',
+  `progress_text` varchar(128) DEFAULT NULL,
+  `request_json` text,
+  `result_json` text,
+  `error_msg` text,
+  `operator` varchar(64) DEFAULT NULL,
+  `started_at` datetime(3) DEFAULT NULL,
+  `finished_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_log_k8s_collector_op_task_id` (`task_id`),
+  KEY `idx_log_k8s_collector_op_target` (`target_index`),
+  KEY `idx_log_k8s_collector_op_cluster_id` (`cluster_id`),
+  KEY `idx_log_k8s_collector_op_namespace` (`namespace`),
+  KEY `idx_log_k8s_collector_op_workload` (`workload_name`),
+  KEY `idx_log_k8s_collector_op_type` (`op_type`),
+  KEY `idx_log_k8s_collector_op_status` (`op_status`),
+  KEY `idx_log_k8s_collector_op_created_at` (`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_k8s_collector_operation
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_parse_template
+-- ----------------------------
+DROP TABLE IF EXISTS `log_parse_template`;
+CREATE TABLE `log_parse_template` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `project_id` bigint unsigned NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `code` varchar(128) NOT NULL,
+  `parse_mode` varchar(64) NOT NULL,
+  `input_format` varchar(64) DEFAULT NULL,
+  `multiline_enabled` tinyint(1) NOT NULL DEFAULT '0',
+  `multiline_pattern` varchar(512) DEFAULT NULL,
+  `time_key` varchar(128) DEFAULT NULL,
+  `time_format` varchar(128) DEFAULT NULL,
+  `level_key` varchar(128) DEFAULT NULL,
+  `message_key` varchar(128) DEFAULT NULL,
+  `trace_id_key` varchar(128) DEFAULT NULL,
+  `span_id_key` varchar(128) DEFAULT NULL,
+  `fields_mapping_json` text,
+  `labels_mapping_json` text,
+  `vrl_script` text,
+  `status` bigint NOT NULL DEFAULT '1',
+  `version` bigint NOT NULL DEFAULT '1',
+  `remark` text,
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_log_parse_template_code` (`code`),
+  KEY `idx_log_parse_template_project_id` (`project_id`),
+  KEY `idx_log_parse_template_status` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_parse_template
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_project
+-- ----------------------------
+DROP TABLE IF EXISTS `log_project`;
+CREATE TABLE `log_project` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `code` varchar(128) NOT NULL,
+  `description` text,
+  `owner_type` varchar(64) DEFAULT NULL,
+  `owner_id` bigint unsigned DEFAULT NULL,
+  `owner_name` varchar(128) DEFAULT NULL,
+  `env` varchar(64) DEFAULT NULL,
+  `status` bigint NOT NULL DEFAULT '1',
+  `extra_json` text,
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_log_project_code` (`code`),
+  KEY `idx_log_project_owner_id` (`owner_id`),
+  KEY `idx_log_project_env` (`env`),
+  KEY `idx_log_project_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_project
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for log_store
+-- ----------------------------
+DROP TABLE IF EXISTS `log_store`;
+CREATE TABLE `log_store` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `project_id` bigint unsigned NOT NULL,
+  `name` varchar(128) NOT NULL,
+  `code` varchar(128) NOT NULL,
+  `description` text,
+  `store_type` varchar(64) DEFAULT NULL,
+  `retention_days` bigint NOT NULL DEFAULT '7',
+  `status` bigint NOT NULL DEFAULT '1',
+  `sort` bigint NOT NULL DEFAULT '0',
+  `vlogs_tenant` varchar(128) DEFAULT NULL,
+  `extra_json` text,
+  `created_by` varchar(64) DEFAULT NULL,
+  `updated_by` varchar(64) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_log_store_code` (`code`),
+  KEY `idx_log_store_project_id` (`project_id`),
+  KEY `idx_log_store_status` (`status`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of log_store
+-- ----------------------------
+BEGIN;
+INSERT INTO `log_store` (`id`, `project_id`, `name`, `code`, `description`, `store_type`, `retention_days`, `status`, `sort`, `vlogs_tenant`, `extra_json`, `created_by`, `updated_by`, `created_at`, `updated_at`) VALUES (1, 1, 'K8S', 'k8s_00b22a42', '', 'app', 7, 1, 1, '', '', 'admin', 'admin', '2026-07-12 21:49:43.965', '2026-07-12 21:49:43.965');
 COMMIT;
 
 -- ----------------------------
@@ -1269,20 +2973,20 @@ DROP TABLE IF EXISTS `monitor_agent`;
 CREATE TABLE `monitor_agent` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
   `host_id` bigint unsigned NOT NULL COMMENT '''主机ID''',
-  `host_name` longtext COMMENT '''主机名称''',
-  `version` varchar(191) DEFAULT '1.0.0' COMMENT '''Agent版本''',
+  `host_name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''主机名称''',
+  `version` varchar(191) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT '1.0.0' COMMENT '''Agent版本''',
   `status` bigint DEFAULT NULL COMMENT '''状态:1->部署中,2->部署失败,3->运行中,4->已停止''',
-  `install_path` longtext COMMENT '''安装路径''',
-  `port` bigint DEFAULT '9100' COMMENT '''监听端口''',
+  `install_path` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''安装路径''',
+  `port` bigint DEFAULT '12580' COMMENT '''监听端口''',
   `pid` bigint DEFAULT NULL COMMENT '''进程ID''',
   `last_heartbeat` datetime(3) DEFAULT NULL COMMENT '''最后心跳时间''',
   `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
   `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `error_msg` text COMMENT '''错误信息''',
+  `error_msg` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''错误信息''',
   `install_progress` bigint DEFAULT '0' COMMENT '''安装进度(0-100)''',
-  PRIMARY KEY (`id`),
-  KEY `idx_monitor_agent_host_id` (`host_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_monitor_agent_host_id` (`host_id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=348 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of monitor_agent
@@ -1291,193 +2995,89 @@ BEGIN;
 COMMIT;
 
 -- ----------------------------
--- Table structure for monitor_domain
+-- Table structure for monitor_alerts_groups
 -- ----------------------------
-DROP TABLE IF EXISTS `monitor_domain`;
-CREATE TABLE `monitor_domain` (
+DROP TABLE IF EXISTS `monitor_alerts_groups`;
+CREATE TABLE `monitor_alerts_groups` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `domain` varchar(255) NOT NULL,
-  `tags` varchar(500) DEFAULT NULL,
-  `remark` text,
-  `status` bigint DEFAULT '1' COMMENT '状态(1:启用,0:禁用)',
-  `is_alive` bigint DEFAULT '0' COMMENT '存活状态(1:正常,0:异常)',
-  `status_code` bigint DEFAULT NULL COMMENT 'HTTP状态码',
-  `response_time` bigint DEFAULT NULL COMMENT '响应时间(ms)',
-  `ssl_expire_at` datetime DEFAULT NULL COMMENT 'SSL证书过期时间',
-  `ssl_days_left` bigint DEFAULT NULL COMMENT 'SSL证书剩余天数',
-  `ssl_issuer` varchar(255) DEFAULT NULL COMMENT 'SSL证书颁发者',
-  `last_check_at` datetime DEFAULT NULL COMMENT '最后检查时间',
-  `error_msg` text COMMENT '错误信息',
-  `create_time` datetime(3) DEFAULT NULL,
-  `update_time` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_monitor_domain_domain` (`domain`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Records of monitor_domain
--- ----------------------------
-BEGIN;
-INSERT INTO `monitor_domain` (`id`, `domain`, `tags`, `remark`, `status`, `is_alive`, `status_code`, `response_time`, `ssl_expire_at`, `ssl_days_left`, `ssl_issuer`, `last_check_at`, `error_msg`, `create_time`, `update_time`) VALUES (6, 'gitee.com', '', '', 1, 1, 200, 530, '2026-02-17 23:59:59', 70, 'TrustAsia DV TLS RSA CA 2025', '2025-12-09 17:05:50', '', '2025-12-04 10:21:13.921', '2025-12-09 17:05:50.292');
-INSERT INTO `monitor_domain` (`id`, `domain`, `tags`, `remark`, `status`, `is_alive`, `status_code`, `response_time`, `ssl_expire_at`, `ssl_days_left`, `ssl_issuer`, `last_check_at`, `error_msg`, `create_time`, `update_time`) VALUES (7, 'ops.dding.net', '', '', 1, 1, 200, 228, '2025-12-20 23:59:59', 11, 'Encryption Everywhere DV TLS CA - G1', '2025-12-09 17:05:50', '', '2025-12-04 10:21:28.741', '2025-12-09 17:05:49.990');
-INSERT INTO `monitor_domain` (`id`, `domain`, `tags`, `remark`, `status`, `is_alive`, `status_code`, `response_time`, `ssl_expire_at`, `ssl_days_left`, `ssl_issuer`, `last_check_at`, `error_msg`, `create_time`, `update_time`) VALUES (8, 'docker.aityp.com', '', '', 1, 1, 200, 559, '2025-12-28 23:58:52', 19, 'E8', '2025-12-09 17:05:50', '', '2025-12-04 10:21:54.359', '2025-12-09 17:05:50.321');
-INSERT INTO `monitor_domain` (`id`, `domain`, `tags`, `remark`, `status`, `is_alive`, `status_code`, `response_time`, `ssl_expire_at`, `ssl_days_left`, `ssl_issuer`, `last_check_at`, `error_msg`, `create_time`, `update_time`) VALUES (12, 'www.jd.com', 'ops', '123', 1, 1, 200, 60, '2026-12-20 04:28:34', 375, 'GlobalSign RSA OV SSL CA 2018', '2025-12-09 17:05:51', '', '2025-12-05 20:50:58.505', '2025-12-09 17:05:50.638');
-INSERT INTO `monitor_domain` (`id`, `domain`, `tags`, `remark`, `status`, `is_alive`, `status_code`, `response_time`, `ssl_expire_at`, `ssl_days_left`, `ssl_issuer`, `last_check_at`, `error_msg`, `create_time`, `update_time`) VALUES (28, 'ai.feishu.cn', '', '', 1, 1, 403, 567, '2026-03-25 23:59:59', 101, 'RapidSSL TLS RSA CA G1', '2025-12-14 14:31:39', '', '2025-12-08 22:30:11.616', '2025-12-14 14:31:39.462');
-COMMIT;
-
--- ----------------------------
--- Table structure for monitor_domain_schedule
--- ----------------------------
-DROP TABLE IF EXISTS `monitor_domain_schedule`;
-CREATE TABLE `monitor_domain_schedule` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `enabled` tinyint(1) DEFAULT '0' COMMENT '是否启用',
-  `interval_mins` bigint DEFAULT NULL COMMENT '检查间隔(分钟)',
-  `next_run_at` datetime DEFAULT NULL COMMENT '下次执行时间',
-  `last_run_at` datetime DEFAULT NULL COMMENT '上次执行时间',
-  `status` varchar(50) DEFAULT NULL COMMENT '任务状态(running/paused/stopped)',
-  `create_time` datetime(3) DEFAULT NULL,
-  `update_time` datetime(3) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Records of monitor_domain_schedule
--- ----------------------------
-BEGIN;
-INSERT INTO `monitor_domain_schedule` (`id`, `enabled`, `interval_mins`, `next_run_at`, `last_run_at`, `status`, `create_time`, `update_time`) VALUES (1, 0, 2, NULL, NULL, 'stopped', '2025-12-04 23:09:32.660', '2025-12-05 23:12:27.687');
-INSERT INTO `monitor_domain_schedule` (`id`, `enabled`, `interval_mins`, `next_run_at`, `last_run_at`, `status`, `create_time`, `update_time`) VALUES (2, 0, 120, NULL, NULL, 'stopped', '2025-12-04 23:09:32.660', '2025-12-04 23:09:32.660');
-COMMIT;
-
--- ----------------------------
--- Table structure for monitor_incident
--- ----------------------------
-DROP TABLE IF EXISTS `monitor_incident`;
-CREATE TABLE `monitor_incident` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `alert_time` datetime(3) NOT NULL COMMENT '''告警时间''',
-  `business_line` longtext COMMENT '''业务线(saas3/saas4/saas5等)''',
-  `frequency` longtext COMMENT '''频率(偶发/频繁)''',
-  `alert_desc` text COMMENT '''告警描述''',
-  `alert_level` varchar(191) DEFAULT 'P4' COMMENT '''告警级别(P1/P2/P3/P4)''',
-  `incident_cause` text COMMENT '''故障原因''',
-  `department` longtext COMMENT '''所属部门(研发部/运维部)''',
-  `solution` text COMMENT '''解决方案''',
-  `detail_url` longtext COMMENT '''故障详情URL链接''',
-  `handler` longtext COMMENT '''处理人(用户名)''',
-  `handler_id` bigint unsigned DEFAULT NULL COMMENT '''处理人ID''',
-  `status` bigint DEFAULT '1' COMMENT '''处理状态:1->未处理,2->处理中,3->已完成''',
-  `remark` text COMMENT '''备注信息''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `business_line_id` bigint unsigned DEFAULT NULL COMMENT '''业务线ID(关联cmdb_group二级分组)''',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Records of monitor_incident
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
--- Table structure for quick_deployment_tasks
--- ----------------------------
-DROP TABLE IF EXISTS `quick_deployment_tasks`;
-CREATE TABLE `quick_deployment_tasks` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `deployment_id` bigint unsigned NOT NULL,
-  `app_id` bigint unsigned NOT NULL,
-  `app_name` varchar(255) DEFAULT NULL,
-  `app_code` varchar(255) DEFAULT NULL,
-  `environment` varchar(50) DEFAULT NULL,
-  `jenkins_env_id` bigint unsigned NOT NULL,
-  `jenkins_job_url` varchar(500) DEFAULT NULL,
-  `build_number` bigint DEFAULT NULL,
-  `status` tinyint DEFAULT '1',
-  `execute_order` bigint NOT NULL,
-  `start_time` datetime(3) DEFAULT NULL,
-  `end_time` datetime(3) DEFAULT NULL,
-  `duration` bigint DEFAULT NULL,
-  `error_message` text,
-  `log_url` varchar(500) DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `filters` json DEFAULT NULL,
+  `sort_order` bigint DEFAULT '0',
+  `status` bigint DEFAULT '1',
+  `created_by` varchar(100) DEFAULT NULL,
   `created_at` datetime(3) DEFAULT NULL,
   `updated_at` datetime(3) DEFAULT NULL,
-  `parameters` text,
-  PRIMARY KEY (`id`),
-  KEY `idx_quick_deployment_tasks_deployment_id` (`deployment_id`),
-  KEY `fk_quick_deployment_tasks_application` (`app_id`),
-  KEY `fk_quick_deployment_tasks_jenkins_env` (`jenkins_env_id`),
-  CONSTRAINT `fk_quick_deployment_tasks_application` FOREIGN KEY (`app_id`) REFERENCES `app_application` (`id`),
-  CONSTRAINT `fk_quick_deployment_tasks_jenkins_env` FOREIGN KEY (`jenkins_env_id`) REFERENCES `app_jenkins_env` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `fk_quick_deployments_tasks` FOREIGN KEY (`deployment_id`) REFERENCES `quick_deployments` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Records of quick_deployment_tasks
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
--- Table structure for quick_deployments
--- ----------------------------
-DROP TABLE IF EXISTS `quick_deployments`;
-CREATE TABLE `quick_deployments` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `business_group_id` bigint unsigned NOT NULL,
-  `business_dept_id` bigint unsigned NOT NULL,
-  `description` text,
-  `status` tinyint DEFAULT '1',
-  `task_count` bigint NOT NULL DEFAULT '0',
-  `creator_id` bigint unsigned NOT NULL,
-  `creator_name` varchar(100) DEFAULT NULL,
-  `start_time` datetime(3) DEFAULT NULL,
-  `end_time` datetime(3) DEFAULT NULL,
-  `duration` bigint DEFAULT NULL,
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
-  `execution_mode` tinyint DEFAULT '1',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- ----------------------------
--- Records of quick_deployments
--- ----------------------------
-BEGIN;
-COMMIT;
-
--- ----------------------------
--- Table structure for redis_instance
--- ----------------------------
-DROP TABLE IF EXISTS `redis_instance`;
-CREATE TABLE `redis_instance` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `code` varchar(36) NOT NULL COMMENT '''实例编码''',
-  `name` varchar(100) NOT NULL COMMENT '''实例名称''',
-  `mode` varchar(20) NOT NULL COMMENT '''模式:standalone,cluster,sentinel''',
-  `host` varchar(300) NOT NULL COMMENT '''主机: standalone为host:port, cluster为逗号分隔, sentinel为master=hosts''',
-  `port` bigint DEFAULT '0' COMMENT '''端口(standalone可用)''',
-  `db` bigint DEFAULT '0' COMMENT '''默认库号''',
-  `username` varchar(100) DEFAULT NULL COMMENT '''用户名(可选)''',
-  `password` varchar(500) NOT NULL COMMENT '''密码(加密)''',
-  `redis_node_password` varchar(500) DEFAULT '' COMMENT '''节点密码(仅sentinel)''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
-  `ssh_tunnel_machine_id` bigint unsigned DEFAULT '0' COMMENT '''SSH隧道机器ID''',
-  `status` bigint DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  `creator` varchar(64) DEFAULT NULL COMMENT '''创建人''',
-  `creator_id` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
-  `modifier` varchar(64) DEFAULT NULL COMMENT '''修改人''',
-  `modifier_id` bigint unsigned DEFAULT NULL COMMENT '''修改人ID''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_redis_instance_code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of redis_instance
+-- Records of monitor_alerts_groups
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for monitor_alerts_history
+-- ----------------------------
+DROP TABLE IF EXISTS `monitor_alerts_history`;
+CREATE TABLE `monitor_alerts_history` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `fingerprint` varchar(64) NOT NULL,
+  `alert_name` varchar(255) NOT NULL,
+  `severity` varchar(32) DEFAULT NULL,
+  `labels` json DEFAULT NULL,
+  `annotations` json DEFAULT NULL,
+  `source` enum('discover','receive') NOT NULL,
+  `event_type` enum('firing','resolved','reminder') NOT NULL,
+  `source_detail` json DEFAULT NULL,
+  `source_name` varchar(191) DEFAULT NULL,
+  `is_latest_in_source` tinyint(1) NOT NULL DEFAULT '1',
+  `query` text,
+  `triggered_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `idx_alert_history_source_fingerprint_latest_id` (`source_name`,`fingerprint`,`is_latest_in_source`,`id`),
+  KEY `idx_fingerprint` (`fingerprint`),
+  KEY `idx_alert_name` (`alert_name`),
+  KEY `idx_severity` (`severity`),
+  KEY `idx_source` (`source`),
+  KEY `idx_event_type` (`event_type`),
+  KEY `idx_alert_history_source_event_triggered` (`source_name`,`event_type`,`triggered_at`),
+  KEY `idx_alert_history_latest_event_triggered` (`is_latest_in_source`,`event_type`,`triggered_at`),
+  KEY `idx_alert_history_source_created` (`source_name`,`created_at`),
+  KEY `idx_alert_history_source_latest_event_triggered` (`source_name`,`is_latest_in_source`,`triggered_at`),
+  KEY `idx_triggered_at` (`triggered_at`),
+  KEY `idx_created_at` (`created_at`),
+  KEY `idx_alert_history_source_fingerprint_id` (`source_name`,`fingerprint`,`id`),
+  KEY `idx_alert_history_fingerprint_id` (`fingerprint`,`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of monitor_alerts_history
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_activity_log
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_activity_log`;
+CREATE TABLE `sys_activity_log` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `activity_type` bigint NOT NULL COMMENT '''动态类型：1=密钥同步，2=域名检查，3=服务器巡检，4=定时任务，5=其他''',
+  `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''动态标题''',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''动态详细内容''',
+  `status` bigint NOT NULL DEFAULT '1' COMMENT '''状态：1=成功，2=失败，3=部分成功''',
+  `related_id` bigint unsigned DEFAULT NULL COMMENT '''关联ID（如同步任务ID、域名ID等）''',
+  `summary` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''摘要信息''',
+  `duration` bigint DEFAULT NULL COMMENT '''执行耗时（秒）''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_activity_log
 -- ----------------------------
 BEGIN;
 COMMIT;
@@ -1502,13 +3102,14 @@ CREATE TABLE `sys_admin` (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `username` (`username`) USING BTREE,
   KEY `create_time` (`create_time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='后台管理员表';
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='后台管理员表';
 
 -- ----------------------------
 -- Records of sys_admin
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_admin` (`id`, `post_id`, `dept_id`, `username`, `password`, `nickname`, `icon`, `email`, `phone`, `note`, `create_time`, `status`) VALUES (89, 1, 15, 'admin', 'e10adc3949ba59abbe56e057f20f883e', 'admin', 'http://192.168.3.7:8080/api/v1/upload/20251213/862328000.png', '123456789@qq.com', '13754354536', '后端研发', '2023-05-23 22:15:50', 1);
+INSERT INTO `sys_admin` (`id`, `post_id`, `dept_id`, `username`, `password`, `nickname`, `icon`, `email`, `phone`, `note`, `create_time`, `status`) VALUES (89, 1, 5, 'admin', 'e10adc3949ba59abbe56e057f20f883e', '管理员', 'http://192.168.1.15:8080/api/v1/upload/avatar/20260802/186915000.png', '123456789@qq.com', '13754354536', '后端研发', '2023-05-23 22:15:50', 1);
+INSERT INTO `sys_admin` (`id`, `post_id`, `dept_id`, `username`, `password`, `nickname`, `icon`, `email`, `phone`, `note`, `create_time`, `status`) VALUES (102, 12, 3, 'test', 'e10adc3949ba59abbe56e057f20f883e', '游客', 'http://192.168.3.7:8080/api/v1/upload/avatar/20260711/477449000.png', 'zfwh1024@163.com', '13826541511', '游客', '2025-09-24 12:49:06', 1);
 COMMIT;
 
 -- ----------------------------
@@ -1524,7 +3125,228 @@ CREATE TABLE `sys_admin_role` (
 -- Records of sys_admin_role
 -- ----------------------------
 BEGIN;
+INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (102, 14);
+INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (0, 1);
+INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (0, 1);
+INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (0, 1);
+INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (113, 1);
 INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (89, 1);
+INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (114, 1);
+INSERT INTO `sys_admin_role` (`admin_id`, `role_id`) VALUES (115, 1);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_blocking_policy
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_blocking_policy`;
+CREATE TABLE `sys_blocking_policy` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `enabled` tinyint(1) DEFAULT '1',
+  `priority` bigint DEFAULT '0',
+  `block_mode` bigint DEFAULT '1',
+  `enable_alias_resolution` tinyint(1) DEFAULT '1',
+  `enable_script_scanning` tinyint(1) DEFAULT '1',
+  `custom_rules` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `whitelist_cmds` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_blocking_policy
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_command_audit
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_command_audit`;
+CREATE TABLE `sys_command_audit` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键ID''',
+  `recording_id` bigint unsigned NOT NULL COMMENT '''录制记录ID''',
+  `session_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''会话ID''',
+  `command` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''执行的命令''',
+  `timestamp` double NOT NULL COMMENT '''相对时间戳(秒)''',
+  `sequence` bigint NOT NULL COMMENT '''命令序号''',
+  `is_sensitive` tinyint(1) DEFAULT '0' COMMENT '''是否为敏感命令''',
+  `risk_level` bigint DEFAULT '0' COMMENT '''风险等级:0-正常 1-可疑 2-高危''',
+  `risk_reason` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''风险原因''',
+  `execute_time` datetime(3) NOT NULL COMMENT '''执行时间(绝对时间)''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_sys_command_audit_recording_id` (`recording_id`) USING BTREE,
+  KEY `idx_sys_command_audit_session_id` (`session_id`) USING BTREE,
+  KEY `idx_sys_command_audit_is_sensitive` (`is_sensitive`) USING BTREE,
+  KEY `idx_sys_command_audit_risk_level` (`risk_level`) USING BTREE,
+  KEY `idx_sys_command_audit_execute_time` (`execute_time`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1419 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_command_audit
+-- ----------------------------
+BEGIN;
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1300, 493, '1783864622_045c6cdf31eebdc5', 'ls', 2.822665946, 1, 0, 0, '', '2026-07-12 21:57:05.703', '2026-07-12 21:57:22.578');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1301, 493, '1783864622_045c6cdf31eebdc5', 'pwd', 7.535494526, 2, 0, 0, '', '2026-07-12 21:57:10.415', '2026-07-12 21:57:22.578');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1302, 493, '1783864622_045c6cdf31eebdc5', 'ls', 8.405747648, 3, 0, 0, '', '2026-07-12 21:57:11.286', '2026-07-12 21:57:22.578');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1303, 495, '1783865320_5bca49db52f33df9', 'ls', 1.583180301, 1, 0, 0, '', '2026-07-12 22:08:41.613', '2026-07-12 22:09:36.173');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1304, 495, '1783865320_5bca49db52f33df9', 'k3s kubectl create clusterrolebinding default-admin-cluster-admin \\', 12.045703169, 2, 0, 0, '', '2026-07-12 22:08:52.076', '2026-07-12 22:09:36.173');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1305, 495, '1783865320_5bca49db52f33df9', 'k3s kubectl auth can-i delete daemonsets.apps -n aiops-vector \\', 18.598756288, 3, 0, 0, '', '2026-07-12 22:08:58.629', '2026-07-12 22:09:36.173');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1306, 496, '1783865629_e5157f5f717f2045', 'k3s kubectl get ds aiops-vector -n aiops-vector \\', 4.673116395, 1, 0, 0, '', '2026-07-12 22:13:53.775', '2026-07-12 22:14:39.828');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1307, 497, '1783865691_36ab1c2e578dacd0', 'crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/vector:latest-debian[Hdockercrpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/vector:latest-debian  pull', 7.731174886, 1, 1, 1, '包含敏感操作关键词', '2026-07-12 22:14:59.636', '2026-07-12 22:16:45.080');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1308, 500, '1783866471_cfef2a4dc8d8a420', 'ls', 1.336389636, 1, 0, 0, '', '2026-07-12 22:27:53.259', '2026-07-12 22:29:05.880');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1309, 500, '1783866471_cfef2a4dc8d8a420', 'kubectl get pods', 7.743061318, 2, 0, 0, '', '2026-07-12 22:27:59.666', '2026-07-12 22:29:05.880');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1310, 500, '1783866471_cfef2a4dc8d8a420', 'svc', 19.066740975, 3, 0, 0, '', '2026-07-12 22:28:10.990', '2026-07-12 22:29:05.880');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1311, 500, '1783866471_cfef2a4dc8d8a420', 'hostname -I', 34.580573766, 4, 0, 0, '', '2026-07-12 22:28:26.504', '2026-07-12 22:29:05.880');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1312, 500, '1783866471_cfef2a4dc8d8a420', 'curl 172.31.6.35:30320', 47.104326098, 5, 1, 1, '包含敏感操作关键词', '2026-07-12 22:28:39.027', '2026-07-12 22:29:05.881');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1313, 501, '1783866560_1d3848fabf8a88f3', 'curl  http://127.0.0.1', 68.720307256, 1, 1, 1, '包含敏感操作关键词', '2026-07-12 22:30:28.948', '2026-07-12 22:30:40.870');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1314, 501, '1783866560_1d3848fabf8a88f3', 'ifconfig.io', 77.18500021, 2, 0, 0, '', '2026-07-12 22:30:37.413', '2026-07-12 22:30:40.870');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1315, 503, '1783866651_bd10b30192f040f2', '[A[A[A[B[B', 5.914663595, 1, 0, 0, '', '2026-07-12 22:30:56.935', '2026-07-12 22:31:38.913');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1316, 503, '1783866651_bd10b30192f040f2', '[A[A[A[139.9.205.38', 13.694669962, 2, 0, 0, '', '2026-07-12 22:31:04.715', '2026-07-12 22:31:38.921');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1317, 507, '1783868481_f1da48f3bdf52c87', 'for i in $(seq 1 10); do', 2.570566858, 1, 0, 0, '', '2026-07-12 23:01:24.491', '2026-07-12 23:04:49.719');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1318, 507, '1783868481_f1da48f3bdf52c87', '[A', 15.784858136, 2, 0, 0, '', '2026-07-12 23:01:37.705', '2026-07-12 23:04:49.719');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1319, 507, '1783868481_f1da48f3bdf52c87', '[A', 31.033889368, 3, 0, 0, '', '2026-07-12 23:01:52.954', '2026-07-12 23:04:49.719');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1320, 507, '1783868481_f1da48f3bdf52c87', '[A', 53.360820742, 4, 0, 0, '', '2026-07-12 23:02:15.281', '2026-07-12 23:04:49.719');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1321, 507, '1783868481_f1da48f3bdf52c87', '[A', 127.943860936, 5, 0, 0, '', '2026-07-12 23:03:29.864', '2026-07-12 23:04:49.733');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1322, 507, '1783868481_f1da48f3bdf52c87', '[A', 134.943868589, 6, 0, 0, '', '2026-07-12 23:03:36.864', '2026-07-12 23:04:49.733');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1323, 506, '1783867925_7b86c665c5720cd4', 'k3s kubectl logs -n aiops-vector ds/aiops-vector --tail=100 | egrep -i \'kafka|rdkafka|healthcheck|error|timeout\'', 2.272579999, 1, 0, 0, '', '2026-07-12 22:52:07.522', '2026-07-12 23:04:49.725');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1324, 506, '1783867925_7b86c665c5720cd4', 'k3s kubectl get cm aiops-vector -n aiops-vector \\', 30.048028841, 2, 0, 0, '', '2026-07-12 22:52:35.297', '2026-07-12 23:04:49.725');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1325, 506, '1783867925_7b86c665c5720cd4', 'kubectl get pods', 327.449668746, 3, 0, 0, '', '2026-07-12 22:57:32.699', '2026-07-12 23:04:49.726');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1326, 506, '1783867925_7b86c665c5720cd4', 'kubectl get log -f my-nginx-6844ccb58c-8qqh2', 345.537906618, 4, 0, 0, '', '2026-07-12 22:57:50.787', '2026-07-12 23:04:49.726');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1327, 506, '1783867925_7b86c665c5720cd4', '[A[B[A[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[Ds', 356.45011394, 5, 0, 0, '', '2026-07-12 22:58:01.699', '2026-07-12 23:04:49.726');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1328, 506, '1783867925_7b86c665c5720cd4', 'kubectl logs -f my-nginx-6844ccb58c-8qqh2', 401.178137404, 6, 0, 0, '', '2026-07-12 22:58:46.427', '2026-07-12 23:04:49.727');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1329, 506, '1783867925_7b86c665c5720cd4', '[A', 464.161971363, 7, 0, 0, '', '2026-07-12 22:59:49.411', '2026-07-12 23:04:49.732');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1330, 506, '1783867925_7b86c665c5720cd4', 'kubectl get pod', 508.30772728, 8, 0, 0, '', '2026-07-12 23:00:33.557', '2026-07-12 23:04:49.732');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1331, 506, '1783867925_7b86c665c5720cd4', 'svc', 514.603598448, 9, 0, 0, '', '2026-07-12 23:00:39.853', '2026-07-12 23:04:49.732');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1332, 506, '1783867925_7b86c665c5720cd4', 'kubectl logs deploy/my-nginx --tail=20', 569.146306006, 10, 0, 0, '', '2026-07-12 23:01:34.395', '2026-07-12 23:04:49.734');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1333, 506, '1783867925_7b86c665c5720cd4', '[A', 584.427132063, 11, 0, 0, '', '2026-07-12 23:01:49.676', '2026-07-12 23:04:49.734');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1334, 506, '1783867925_7b86c665c5720cd4', '[A', 607.401450838, 12, 0, 0, '', '2026-07-12 23:02:12.650', '2026-07-12 23:04:49.735');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1335, 506, '1783867925_7b86c665c5720cd4', 'kubectl exec -n aiops-vector ds/aiops-vector -- sh -c \'', 679.860287628, 13, 0, 0, '', '2026-07-12 23:03:25.109', '2026-07-12 23:04:49.735');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1336, 506, '1783867925_7b86c665c5720cd4', 'kubectl exec -n aiops-vector ds/aiops-vector -- sh -c \'', 703.847784645, 14, 0, 0, '', '2026-07-12 23:03:49.097', '2026-07-12 23:04:49.735');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1337, 506, '1783867925_7b86c665c5720cd4', 'kubectl logs -n aiops-vector ds/aiops-vector --tail=300 | egrep -i \'k8s_stdout_file|file|kafka|rdkafka|error|warn|parse|abort\'', 716.680788622, 15, 0, 0, '', '2026-07-12 23:04:01.930', '2026-07-12 23:04:49.736');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1338, 505, '1783867199_3f4e5bc015295334', 'ls', 24.390633254, 1, 0, 0, '', '2026-07-12 22:40:23.546', '2026-07-12 23:04:49.735');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1339, 505, '1783867199_3f4e5bc015295334', 'docker ps', 28.686574804, 2, 0, 0, '', '2026-07-12 22:40:27.842', '2026-07-12 23:04:49.736');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1340, 505, '1783867199_3f4e5bc015295334', 'docker inspect kafka-broker | grep KAFKA_ADVERTISED_LISTENERS', 244.423620135, 3, 0, 0, '', '2026-07-12 22:44:03.579', '2026-07-12 23:04:49.737');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1341, 505, '1783867199_3f4e5bc015295334', 'KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://112.74.57.93:9092', 342.191468482, 4, 0, 0, '', '2026-07-12 22:45:41.346', '2026-07-12 23:04:49.738');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1342, 505, '1783867199_3f4e5bc015295334', 'docker rm -f kafka-broker', 348.832634783, 5, 1, 1, '包含敏感操作关键词', '2026-07-12 22:45:47.988', '2026-07-12 23:04:49.738');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1343, 505, '1783867199_3f4e5bc015295334', 'docker exec -it kafka-broker /opt/kafka/bin/kafka-topics.sh \\', 363.877518398, 6, 0, 0, '', '2026-07-12 22:46:03.033', '2026-07-12 23:04:49.738');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1344, 505, '1783867199_3f4e5bc015295334', 'docker inspect kafka-broker | grep KAFKA_ADVERTISED_LISTENERS', 545.414167761, 7, 0, 0, '', '2026-07-12 22:49:04.569', '2026-07-12 23:04:49.739');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1345, 505, '1783867199_3f4e5bc015295334', 'k3s kubectl get cm aiops-vector -n aiops-vector \\', 562.287158527, 8, 0, 0, '', '2026-07-12 22:49:21.442', '2026-07-12 23:04:49.739');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1346, 505, '1783867199_3f4e5bc015295334', '.', 564.430730567, 9, 0, 0, '', '2026-07-12 22:49:23.586', '2026-07-12 23:04:49.739');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1347, 505, '1783867199_3f4e5bc015295334', '[', 566.888508661, 10, 0, 0, '', '2026-07-12 22:49:26.044', '2026-07-12 23:04:49.739');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1348, 505, '1783867199_3f4e5bc015295334', '[A[H[', 578.045657356, 11, 0, 0, '', '2026-07-12 22:49:37.201', '2026-07-12 23:04:49.739');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1349, 505, '1783867199_3f4e5bc015295334', 'k3s kubectl get cm aiops-vector -n aiops-vector \\', 585.391489289, 12, 0, 0, '', '2026-07-12 22:49:44.546', '2026-07-12 23:04:49.739');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1350, 505, '1783867199_3f4e5bc015295334', 'k3s kubectl delete pod -n aiops-vector -l app=aiops-vector', 597.846727584, 13, 0, 0, '', '2026-07-12 22:49:57.002', '2026-07-12 23:04:49.739');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1351, 505, '1783867199_3f4e5bc015295334', 'k3s kubectl get cm aiops-vector -n aiops-vector \\', 704.191034987, 14, 0, 0, '', '2026-07-12 22:51:43.346', '2026-07-12 23:04:49.740');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1352, 505, '1783867199_3f4e5bc015295334', 'k3s kubectl logs -n aiops-vector ds/aiops-vector --tail=100 | egrep -i \'kafka|rdkafka|healthcheck|error|timeout\'', 717.478452709, 15, 0, 0, '', '2026-07-12 22:51:56.633', '2026-07-12 23:04:49.740');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1353, 505, '1783867199_3f4e5bc015295334', 'docker exec -it kafka-broker /opt/kafka/bin/kafka-consumer-groups.sh \\', 744.053529782, 16, 0, 0, '', '2026-07-12 22:52:23.209', '2026-07-12 23:04:49.740');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1354, 505, '1783867199_3f4e5bc015295334', 'docker ps | grep aiops-vector-aggregator', 805.24778042, 17, 0, 0, '', '2026-07-12 22:53:24.403', '2026-07-12 23:04:49.740');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1355, 505, '1783867199_3f4e5bc015295334', '[A', 877.870771434, 18, 0, 0, '', '2026-07-12 22:54:37.026', '2026-07-12 23:04:49.740');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1356, 505, '1783867199_3f4e5bc015295334', 'docker rm -f aiops-vector-aggregator', 880.412181747, 19, 1, 1, '包含敏感操作关键词', '2026-07-12 22:54:39.567', '2026-07-12 23:04:49.740');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1357, 505, '1783867199_3f4e5bc015295334', '[A[A[A[A[A[A[B', 886.958437423, 20, 0, 0, '', '2026-07-12 22:54:46.113', '2026-07-12 23:04:49.741');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1358, 505, '1783867199_3f4e5bc015295334', '[A[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D f', 905.877799016, 21, 0, 0, '', '2026-07-12 22:55:05.033', '2026-07-12 23:04:49.741');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1359, 505, '1783867199_3f4e5bc015295334', 'docker exec -it kafka-broker /opt/kafka/bin/kafka-consumer-groups.sh \\', 924.791272991, 22, 0, 0, '', '2026-07-12 22:55:23.946', '2026-07-12 23:04:49.741');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1360, 505, '1783867199_3f4e5bc015295334', 'docker exec -it kafka-broker /opt/kafka/bin/kafka-consumer-groups.sh \\', 924.915889046, 23, 0, 0, '', '2026-07-12 22:55:24.071', '2026-07-12 23:04:49.741');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1361, 505, '1783867199_3f4e5bc015295334', '[A[A', 935.214417297, 24, 0, 0, '', '2026-07-12 22:55:34.369', '2026-07-12 23:04:49.741');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1362, 505, '1783867199_3f4e5bc015295334', 'docker exec -it kafka-broker /opt/kafka/bin/kafka-consumer-groups.sh \\', 974.732542029, 25, 0, 0, '', '2026-07-12 22:56:13.888', '2026-07-12 23:04:49.741');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1363, 505, '1783867199_3f4e5bc015295334', 'docker exec -it kafka-broker /opt/kafka/bin/kafka-console-consumer.sh \\', 1035.790958575, 26, 0, 0, '', '2026-07-12 22:57:14.946', '2026-07-12 23:04:49.741');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1364, 505, '1783867199_3f4e5bc015295334', '[A', 1168.494847528, 27, 0, 0, '', '2026-07-12 22:59:27.650', '2026-07-12 23:04:49.742');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1365, 505, '1783867199_3f4e5bc015295334', '[A', 1326.973999508, 28, 0, 0, '', '2026-07-12 23:02:06.129', '2026-07-12 23:04:49.742');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1366, 508, '1783868704_ea1cde6cd8cc01d7', '[A', 3.077660416, 1, 0, 0, '', '2026-07-12 23:05:08.058', '2026-07-12 23:06:35.147');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1367, 508, '1783868704_ea1cde6cd8cc01d7', '[A[A', 6.717615015, 2, 0, 0, '', '2026-07-12 23:05:11.698', '2026-07-12 23:06:35.148');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1368, 508, '1783868704_ea1cde6cd8cc01d7', '[A[A', 22.75014956, 3, 0, 0, '', '2026-07-12 23:05:27.730', '2026-07-12 23:06:35.149');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1369, 511, '1783869848_f215a702e0fece56', 'kubectl exec -n aiops-vector ds/aiops-vector -- vector validate /etc/vector/vector.yaml', 2.894735502, 1, 0, 0, '', '2026-07-12 23:24:11.365', '2026-07-12 23:27:35.008');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1370, 510, '1783869836_9d692a20fe9af254', 'kubectl exec -n aiops-vector ds/aiops-vector -- vector validate /etc/vector/vector.yaml', 3.145290772, 1, 0, 0, '', '2026-07-12 23:23:59.818', '2026-07-12 23:27:35.008');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1371, 512, '1783869857_67f4a076e3850f31', '[A[A', 2.708907725, 1, 0, 0, '', '2026-07-12 23:24:20.270', '2026-07-12 23:27:35.059');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1372, 512, '1783869857_67f4a076e3850f31', '[A[A', 16.331322704, 2, 0, 0, '', '2026-07-12 23:24:33.892', '2026-07-12 23:27:35.059');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1373, 512, '1783869857_67f4a076e3850f31', 'kubectl exec -n aiops-vector ds/aiops-vector -- sh -c \'', 28.688533014, 3, 0, 0, '', '2026-07-12 23:24:46.250', '2026-07-12 23:27:35.059');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1374, 520, '1784127518_d3b0e61902506324', 'docker ps', 9.297641667, 1, 0, 0, '', '2026-07-15 22:58:47.774', '2026-07-15 22:59:27.568');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1375, 520, '1784127518_d3b0e61902506324', '[A[A', 14.362020525, 2, 0, 0, '', '2026-07-15 22:58:52.838', '2026-07-15 22:59:27.569');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1376, 520, '1784127518_d3b0e61902506324', '[15;5Rls', 18.449199436, 3, 0, 0, '', '2026-07-15 22:58:56.925', '2026-07-15 22:59:27.569');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1377, 520, '1784127518_d3b0e61902506324', '[20;5Rps -ef', 21.754481388, 4, 0, 0, '', '2026-07-15 22:59:00.230', '2026-07-15 22:59:27.569');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1378, 519, '1784127431_3386d9eab93f3680', 'ls', 1.740415161, 1, 0, 0, '', '2026-07-15 22:57:13.112', '2026-07-15 22:59:27.568');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1379, 519, '1784127431_3386d9eab93f3680', 'ls', 3.308146154, 2, 0, 0, '', '2026-07-15 22:57:14.680', '2026-07-15 22:59:27.569');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1380, 519, '1784127431_3386d9eab93f3680', 'kubectl get nodesl', 13.844595074, 3, 0, 0, '', '2026-07-15 22:57:25.217', '2026-07-15 22:59:27.569');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1381, 519, '1784127431_3386d9eab93f3680', '[', 17.622116682, 4, 0, 0, '', '2026-07-15 22:57:28.994', '2026-07-15 22:59:27.575');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1382, 519, '1784127431_3386d9eab93f3680', 'pods   --all', 32.396786367, 5, 0, 0, '', '2026-07-15 22:57:43.769', '2026-07-15 22:59:27.575');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1383, 519, '1784127431_3386d9eab93f3680', 'kubectl get pods -A', 134.012342698, 6, 0, 0, '', '2026-07-15 22:59:25.384', '2026-07-15 22:59:27.576');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1384, 521, '1784127575_68d833e663c85bce', '[A', 271.362621623, 1, 0, 0, '', '2026-07-15 23:04:06.729', '2026-07-15 23:20:18.039');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1385, 521, '1784127575_68d833e663c85bce', 'nodes', 297.937702117, 2, 0, 0, '', '2026-07-15 23:04:33.304', '2026-07-15 23:20:18.039');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1386, 521, '1784127575_68d833e663c85bce', 'apt  -y install  helm repo update', 1141.567040851, 3, 0, 0, '', '2026-07-15 23:18:36.933', '2026-07-15 23:20:18.039');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1387, 521, '1784127575_68d833e663c85bce', 'lldx', 1238.298600137, 4, 0, 0, '', '2026-07-15 23:20:13.665', '2026-07-15 23:20:18.040');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1388, 524, '1784129732_6dd0f99f22500852', 'kubectl get nodes', 8.280205389, 1, 0, 0, '', '2026-07-15 23:35:41.035', '2026-07-16 00:20:57.149');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1389, 524, '1784129732_6dd0f99f22500852', '[A[pod  -A', 2207.554619386, 2, 0, 0, '', '2026-07-16 00:12:20.310', '2026-07-16 00:20:57.149');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1390, 524, '1784129732_6dd0f99f22500852', '[A', 2348.860612502, 3, 0, 0, '', '2026-07-16 00:14:41.616', '2026-07-16 00:20:57.149');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1391, 524, '1784129732_6dd0f99f22500852', 'kubectl -n monitoring get pods,pvc -o wide', 2380.058863694, 4, 0, 0, '', '2026-07-16 00:15:12.814', '2026-07-16 00:20:57.149');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1392, 524, '1784129732_6dd0f99f22500852', 'docdoc  pull registry.cn-hangzhou.aliyuncs.com/rancher/mirrored-metrics-server:v0.8.1', 2495.759017618, 5, 1, 1, '包含敏感操作关键词', '2026-07-16 00:17:08.514', '2026-07-16 00:20:57.149');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1393, 524, '1784129732_6dd0f99f22500852', 'docdockerdocker                         dockerd                        dockerd-rootless-setuptool.sh  dockerd-rootless.sh            docker-proxyroot@hw-ops:~# docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/node-exporter:v1.8.2', 2681.910263449, 6, 1, 1, '包含敏感操作关键词', '2026-07-16 00:20:14.665', '2026-07-16 00:20:57.149');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1394, 525, '1784132830_0a93fd90ece4cd5a', 'free -h', 262.832103538, 1, 0, 0, '', '2026-07-16 00:31:33.752', '2026-07-16 01:07:45.659');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1395, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring set resources deployment/kube-state-metrics \\', 334.388696662, 2, 0, 0, '', '2026-07-16 00:32:45.309', '2026-07-16 01:07:45.659');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1396, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring set resources deployment/kube-state-metrics \\', 580.326129109, 3, 0, 0, '', '2026-07-16 00:36:51.246', '2026-07-16 01:07:45.659');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1397, 525, '1784132830_0a93fd90ece4cd5a', 'free -h', 607.42466936, 4, 0, 0, '', '2026-07-16 00:37:18.345', '2026-07-16 01:07:45.659');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1398, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl top pods -A', 666.651158845, 5, 0, 0, '', '2026-07-16 00:38:17.571', '2026-07-16 01:07:45.659');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1399, 525, '1784132830_0a93fd90ece4cd5a', 'curl -sS -G http://127.0.0.1:8428/api/v1/query \\', 687.818396973, 6, 1, 1, '包含敏感操作关键词', '2026-07-16 00:38:38.738', '2026-07-16 01:07:45.659');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1400, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring logs deployment/vmagent --tail=100 | grep -iE \'error|failed\'', 701.398446033, 7, 0, 0, '', '2026-07-16 00:38:52.318', '2026-07-16 01:07:45.660');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1401, 525, '1784132830_0a93fd90ece4cd5a', '[Acurl -sS -G http://112.74.57.93:8428/api/v1/query \\', 794.237102463, 8, 1, 1, '包含敏感操作关键词', '2026-07-16 00:40:25.157', '2026-07-16 01:07:45.660');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1402, 525, '1784132830_0a93fd90ece4cd5a', '[A', 873.869625986, 9, 0, 0, '', '2026-07-16 00:41:44.790', '2026-07-16 01:07:45.660');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1403, 525, '1784132830_0a93fd90ece4cd5a', 'ls', 887.556872615, 10, 0, 0, '', '2026-07-16 00:41:58.477', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1404, 525, '1784132830_0a93fd90ece4cd5a', 'vim test.yaml', 890.614068842, 11, 0, 0, '', '2026-07-16 00:42:01.534', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1405, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl apply -f test.yaml', 907.857387547, 12, 0, 0, '', '2026-07-16 00:42:18.777', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1406, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring rollout restart deployment/vmagent', 919.687987688, 13, 0, 0, '', '2026-07-16 00:42:30.608', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1407, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring logs deployment/vmagent --since=2m \\', 950.016499238, 14, 1, 1, '包含敏感操作关键词', '2026-07-16 00:43:00.936', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1408, 525, '1784132830_0a93fd90ece4cd5a', 'curl -sS -G http://127.0.0.1:8428/api/v1/query \\', 962.818122239, 15, 1, 1, '包含敏感操作关键词', '2026-07-16 00:43:13.738', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1409, 525, '1784132830_0a93fd90ece4cd5a', '[A[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[D[192.168.3.7', 982.443515889, 16, 0, 0, '', '2026-07-16 00:43:33.364', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1410, 525, '1784132830_0a93fd90ece4cd5a', '[A[D[D[D[D[D[H[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[C[112.74.57.93', 1010.468126196, 17, 0, 0, '', '2026-07-16 00:44:01.388', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1411, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring logs deployment/vmagent --since=2m \\', 1038.061576816, 18, 1, 1, '包含敏感操作关键词', '2026-07-16 00:44:28.982', '2026-07-16 01:07:45.661');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1412, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring get configmap vmagent-config \\', 1101.344306426, 19, 0, 0, '', '2026-07-16 00:45:32.264', '2026-07-16 01:07:45.662');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1413, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring rollout restart deployment/vmagent', 1346.10068562, 20, 0, 0, '', '2026-07-16 00:49:37.021', '2026-07-16 01:07:45.662');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1414, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring patch deployment vmagent \\', 1511.760886971, 21, 0, 0, '', '2026-07-16 00:52:22.681', '2026-07-16 01:07:45.662');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1415, 525, '1784132830_0a93fd90ece4cd5a', 'kubectl -n monitoring rollout restart deployment/vmagent', 1520.981736457, 22, 0, 0, '', '2026-07-16 00:52:31.902', '2026-07-16 01:07:45.662');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1416, 526, '1784437387_af2414ea8f1e2a5b', 'df -h', 11.316920567, 1, 0, 0, '', '2026-07-19 13:03:18.597', '2026-07-19 13:03:26.236');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1417, 527, '1784438766_121fffc6b16f97e6', 'baidu-ops[D[D[D[D[D[D[D[D[D[D[D[D[Dhost   [D[D[Dnamec[2@tl set-hostname', 24.212106127, 1, 0, 0, '', '2026-07-19 13:26:31.165', '2026-07-19 13:26:39.810');
+INSERT INTO `sys_command_audit` (`id`, `recording_id`, `session_id`, `command`, `timestamp`, `sequence`, `is_sensitive`, `risk_level`, `risk_reason`, `execute_time`, `create_time`) VALUES (1418, 527, '1784438766_121fffc6b16f97e6', 'hostname', 29.450596585, 2, 0, 0, '', '2026-07-19 13:26:36.404', '2026-07-19 13:26:39.810');
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_command_blocking
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_command_blocking`;
+CREATE TABLE `sys_command_blocking` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `session_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `recording_id` bigint unsigned DEFAULT NULL,
+  `original_cmd` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `resolved_cmd` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `blocked` tinyint(1) DEFAULT NULL,
+  `block_reason` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `risk_level` bigint DEFAULT NULL,
+  `is_alias` tinyint(1) DEFAULT '0',
+  `is_script` tinyint(1) DEFAULT '0',
+  `detected_issues` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `policy_id` bigint unsigned DEFAULT NULL,
+  `policy_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `host_id` bigint unsigned DEFAULT NULL,
+  `host_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_sys_command_blocking_session_id` (`session_id`) USING BTREE,
+  KEY `idx_sys_command_blocking_recording_id` (`recording_id`) USING BTREE,
+  KEY `idx_sys_command_blocking_blocked` (`blocked`) USING BTREE,
+  KEY `idx_sys_command_blocking_risk_level` (`risk_level`) USING BTREE,
+  KEY `idx_sys_command_blocking_user_id` (`user_id`) USING BTREE,
+  KEY `idx_sys_command_blocking_host_id` (`host_id`) USING BTREE,
+  KEY `idx_sys_command_blocking_created_at` (`created_at`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_command_blocking
+-- ----------------------------
+BEGIN;
 COMMIT;
 
 -- ----------------------------
@@ -1533,22 +3355,23 @@ COMMIT;
 DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE `sys_config` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `config_key` varchar(100) NOT NULL COMMENT '''配置键''',
-  `config_type` varchar(50) NOT NULL COMMENT '''配置类型(ldap,email,sms等)''',
-  `config_data` text NOT NULL COMMENT '''配置数据(JSON格式)''',
+  `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''配置键''',
+  `config_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''配置类型(ldap,email,sms等)''',
+  `config_data` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''配置数据(JSON格式)''',
   `status` bigint NOT NULL DEFAULT '1' COMMENT '''状态:1->启用,2->禁用''',
-  `remark` varchar(500) DEFAULT NULL COMMENT '''备注''',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''备注''',
   `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
   `update_time` datetime(3) NOT NULL COMMENT '''更新时间''',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_sys_config_config_key` (`config_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_sys_config_config_key` (`config_key`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_config
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_config` (`id`, `config_key`, `config_type`, `config_data`, `status`, `remark`, `create_time`, `update_time`) VALUES (1, 'ldap', 'ldap', '{\"enable\":true,\"host\":\"www.baidu.com\",\"port\":389,\"baseDn\":\"dc=dding,dc=cn\",\"bindUser\":\"cn=reader,dc=dding,dc=cn\",\"bindPass\":\"fsyunding2018\",\"authFilter\":\"(\\u0026(cn=%s))\",\"coverAttributes\":true,\"tls\":false,\"startTLS\":false,\"defaultRoles\":null,\"defaultRoleId\":13,\"attributes\":{\"nickname\":\"cn\",\"phone\":\"mobile\",\"email\":\"mail\"},\"remark\":\"\"}', 1, '', '2025-12-09 13:19:56.671', '2025-12-14 14:56:54.371');
+INSERT INTO `sys_config` (`id`, `config_key`, `config_type`, `config_data`, `status`, `remark`, `create_time`, `update_time`) VALUES (1, 'ldap', 'ldap', '{\"enable\":true,\"host\":\"ldap-out.dding.net\",\"port\":389,\"baseDn\":\"dc=dding,dc=cn\",\"bindUser\":\"cn=reader,dc=dding,dc=cn\",\"bindPass\":\"fsyunding2018\",\"authFilter\":\"(\\u0026(cn=%s))\",\"coverAttributes\":true,\"tls\":false,\"startTLS\":false,\"defaultRoles\":null,\"defaultRoleId\":13,\"attributes\":{\"nickname\":\"cn\",\"phone\":\"mobile\",\"email\":\"mail\"},\"remark\":\"\"}', 1, '', '2025-12-09 13:19:56.671', '2025-12-09 14:35:37.377');
+INSERT INTO `sys_config` (`id`, `config_key`, `config_type`, `config_data`, `status`, `remark`, `create_time`, `update_time`) VALUES (2, 'license', 'license', '{\"activated\":true,\"licenseKey\":\"eyJjdXN0b21lck5hbWUiOiJvcHMiLCJtYWNoaW5lQ29kZSI6IjBjZjlkZTBkZmMwMmIxZTQ1OTlkNGU3MGExMzQ3MjEwYWFhMzY5Y2I2MDhiMTNhODFlZWUyNmZjMTcyZWFiNTciLCJsaWNlbnNlVHlwZSI6ImFubnVhbCIsImlzc3VlZEF0IjoiMjAyNi0wMy0yMyAxNzoxMjowMCIsImV4cGlyZUF0IjoiMjA5OS0wMy0yMyAxNzoyMDowMCJ9.nmfhYO2APkza54nAVHUKoBMR7APotObX+5SgsYN+cBniSNbY5mdV/wW4k9FxPY3qm5qxHc4OviZzhS2rwWu24fRjhUGL+g7yIl+5WyZ2HcHHcEn+JN+fJflytmgdf0lGuxGEgI46ADQUuzc/+m7xixxfxH6YibVnKBwyQsruE+IVjyUpRbbp/xYkEYvCa09ej6UmDdJiaHWSre4lLPi9MMWrgvApXluD+7W8GfUuyxfx3ceAw1+ahabVRauRJqUhIMkhSZ6LolSKi0ADi1Gh6mlMLtL35YtI2bYXgsocLOpVSkd4CCGQ4ZyyGCg+rNaP2ASvXTOnxddUOIbJfrt1Ug==\",\"customerName\":\"ops\",\"machineCode\":\"0cf9de0dfc02b1e4599d4e70a1347210aaa369cb608b13a81eee26fc172eab57\",\"licenseType\":\"annual\",\"issuedAt\":\"2026-03-23 17:12:00\",\"activatedAt\":\"2026-03-23 17:22:56\",\"expireAt\":\"2099-03-23 17:20:00\"}', 1, '系统激活信息', '2026-03-23 16:51:47.717', '2026-03-23 17:22:56.703');
 COMMIT;
 
 -- ----------------------------
@@ -1564,22 +3387,16 @@ CREATE TABLE `sys_dept` (
   `create_time` datetime NOT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `dept_name` (`dept_name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin ROW_FORMAT=DYNAMIC COMMENT='部门表';
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin ROW_FORMAT=DYNAMIC COMMENT='部门表';
 
 -- ----------------------------
 -- Records of sys_dept
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (1, 0, 1, '神舟科技有限公司', 1, '2023-06-14 17:53:23');
+INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (1, 0, 1, '神州科技有限公司', 1, '2023-06-14 17:53:23');
 INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (2, 1, 2, '深圳研发中心', 1, '2023-06-14 17:53:55');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (3, 2, 3, '架构设计部门', 1, '2023-06-14 17:54:15');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (5, 2, 3, '后端研发部门', 1, '2023-06-14 17:55:25');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (6, 2, 3, '系统测试部门', 1, '2023-06-14 17:55:31');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (12, 1, 2, '北京研发中心', 1, '2025-06-28 23:42:46');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (13, 1, 2, '重庆研发中心', 1, '2025-06-28 23:43:15');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (14, 12, 3, '运维1部', 1, '2025-06-28 23:43:34');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (15, 13, 3, '运维2部', 1, '2025-06-28 23:44:15');
-INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (16, 13, 3, '重庆研发部-001', 1, '2025-07-04 13:10:58');
+INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (3, 2, 3, '运维部', 1, '2023-06-14 17:54:15');
+INSERT INTO `sys_dept` (`id`, `parent_id`, `dept_type`, `dept_name`, `dept_status`, `create_time`) VALUES (5, 2, 3, '研发部', 1, '2023-06-14 17:55:25');
 COMMIT;
 
 -- ----------------------------
@@ -1597,7 +3414,7 @@ CREATE TABLE `sys_login_info` (
   `message` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT '' COMMENT '提示消息',
   `login_time` datetime DEFAULT NULL COMMENT '访问时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=450 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='登录日志记录';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin ROW_FORMAT=DYNAMIC COMMENT='登录日志记录';
 
 -- ----------------------------
 -- Records of sys_login_info
@@ -1621,18 +3438,17 @@ CREATE TABLE `sys_menu` (
   `sort` int DEFAULT NULL COMMENT '排序',
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=242 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='菜单表';
+) ENGINE=InnoDB AUTO_INCREMENT=413 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='菜单表';
 
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (4, 0, '系统管理', 'StarFilled', '', 1, '', 2, 7, '2022-09-04 13:57:39');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (4, 0, '系统管理', 'StarFilled', '', 1, '', 2, 12, '2022-09-04 13:57:39');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (6, 4, '用户信息', 'Avatar', 'base:admin:list', 2, 'system/admin', 2, 1, '2022-09-04 13:59:39');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (7, 4, '角色信息', 'InfoFilled', 'base:role:list', 2, 'system/role', 2, 2, '2022-09-04 14:00:12');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (8, 4, '菜单信息', 'Histogram', 'base:menu:list', 2, 'system/menu', 2, 3, '2022-09-04 14:00:17');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (9, 4, '部门信息', 'Menu', 'base:dept:list', 2, 'system/dept', 2, 4, '2022-09-04 14:01:58');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (10, 4, '岗位信息', 'Promotion', 'base:post:list', 2, 'system/post', 2, 5, '2022-09-04 14:02:06');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (10, 4, '资产授权', 'Promotion', 'base:post:list', 2, 'system/post', 2, 5, '2022-09-04 14:02:06');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (16, 6, '新增用户', '', 'base:admin:add', 3, '', 2, 1, '2022-09-04 18:32:55');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (17, 6, '修改用户', '', 'base:admin:edit', 3, '', 2, 2, '2022-09-04 18:33:29');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (18, 6, '删除用户', '', 'base:admin:delete', 3, '', 2, 3, '2022-09-04 18:33:51');
@@ -1643,53 +3459,28 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_t
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (26, 8, '新增菜单', '', 'base:menu:add', 3, '', 2, 1, '2022-09-04 18:49:51');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (27, 8, '修改菜单', '', 'base:menu:edit', 3, '', 2, 2, '2022-09-04 18:50:24');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (28, 8, '删除菜单', '', 'base:menu:delete', 3, '', 2, 3, '2022-09-04 18:50:53');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (29, 9, '新增部门', '', 'base:dept:add', 3, '', 2, 1, '2022-09-04 18:52:16');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (30, 9, '修改部门', '', 'base:dept:edit', 3, '', 2, 2, '2022-09-04 18:52:37');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (31, 9, '删除部门', '', 'base:dept:delete', 3, '', 2, 3, '2022-09-04 18:52:50');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (32, 10, '新增岗位', '', 'base:post:add', 3, '', 2, 1, '2022-09-04 18:53:28');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (33, 10, '修改岗位', '', 'base:post:edit', 3, '', 2, 2, '2022-09-04 18:53:48');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (34, 10, '删除岗位', '', 'base:post:delete', 3, '', 2, 3, '2022-09-04 18:54:00');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (44, 0, '操作审计', 'BellFilled', '', 1, '', 2, 9, '2022-09-05 11:06:57');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (45, 44, '操作日志', 'User', 'monitor:operator:list', 2, 'monitor/operator', 2, 1, '2022-09-05 11:10:54');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (46, 44, '登录日志', 'DocumentRemove', 'monitor:loginLog:list', 2, 'monitor/loginlog', 2, 2, '2022-09-05 11:11:31');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (44, 0, '审计中心', 'BellFilled', '', 1, '', 2, 11, '2022-09-05 11:06:57');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (45, 44, '操作日志', 'User', 'audit:operator:list', 2, 'audit/operator', 2, 2, '2022-09-05 11:10:54');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (46, 44, '登录日志', 'DocumentRemove', 'audit:loginLog:list', 2, 'audit/loginlog', 2, 1, '2022-09-05 11:11:31');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (47, 45, '清空操作日志', '', 'monitor:operator:clean', 3, '', 2, 1, '2022-09-05 11:12:36');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (49, 46, '清空登录日志', '', 'monitor:loginLog:clean', 3, '', 2, 1, '2022-09-05 11:16:01');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (60, 6, '重置密码', NULL, 'base:admin:reset', 3, NULL, 2, 6, '2022-12-01 16:33:34');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (62, 46, '删除登录日志', '', 'monitor:loginLog:delete', 3, '', 2, 2, '2022-12-02 15:41:56');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (72, 0, '仪表盘', 'HomeFilled', '', 1, 'dashboard', 2, 1, '2023-05-24 22:11:13');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (73, 45, '删除操作日志', '', 'monitor:operator:delete', 3, '', 2, 3, '2023-06-02 10:09:38');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (78, 80, '主机管理', 'Platform', 'cmdb:ecs:list', 2, 'cmdb/ecs', 2, 1, '2025-06-29 00:30:35');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (80, 0, '资产管理', 'TrendCharts', '', 1, '', 2, 2, '2025-07-03 11:47:07');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (81, 0, '容器管理', 'UploadFilled', '', 1, '', 2, 3, '2025-07-03 11:50:47');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (82, 81, '集群管理', 'Menu', 'cloud:k8s:list', 2, 'k8s/list', 2, 1, '2025-07-03 11:56:44');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (83, 81, '节点管理', 'Help', 'cloud:k8s:node', 2, 'k8s/node', 2, 2, '2025-07-03 12:04:59');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (84, 0, '配置中心', 'Tools', '', 1, '', 2, 8, '2025-07-04 17:00:01');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (78, 80, '主机管理', 'Platform', 'cmdb:ecs:list', 2, 'cmdb/ecs', 2, 2, '2025-06-29 00:30:35');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (80, 0, '资产管理', 'TrendCharts', '', 1, '', 2, 1, '2025-07-03 11:47:07');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (84, 0, '配置中心', 'Tools', '', 1, '', 2, 5, '2025-07-04 17:00:01');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (85, 84, '主机凭据', 'Setting', 'config:ecs:key', 2, 'config/ecskey', 2, 1, '2025-07-04 17:03:10');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (86, 84, '通用凭据', 'User', 'config:accountauth:key', 2, 'config/accountauth', 2, 2, '2025-07-04 17:08:20');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (88, 80, '业务分组', 'Shop', 'cmdb:group', 2, 'cmdb/group', 2, 2, '2025-07-16 15:17:14');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (89, 88, '创建分组', '', 'cmdb:group:add', 3, '', 2, 1, '2025-07-18 15:24:31');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (90, 88, '修改分组', '', 'cmdb:group:update', 3, '', 2, 2, '2025-07-18 15:25:49');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (91, 88, '删除分组', '', 'cmdb:group:delete', 3, '', 2, 3, '2025-07-18 15:26:21');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (93, 81, '工作负载', 'Star', 'cloud:k8s:workload', 2, 'k8s/workload', 2, 4, '2025-07-24 14:38:31');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (95, 80, '数据管理', 'Coin', 'cmdb:db', 2, 'cmdb/db', 2, 3, '2025-07-29 15:27:50');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (96, 44, '数据日志', 'Coin', 'monitor:dblog:list', 2, 'monitor/dblog', 2, 3, '2025-07-31 12:44:07');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (97, 0, '任务中心', 'User', '', 1, '', 2, 5, '2025-08-06 13:33:47');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (98, 97, '任务模版', 'connection', 'task:template', 2, 'task/template', 2, 2, '2025-08-06 13:35:19');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (99, 97, '任务作业', 'key', 'task:job', 2, 'task/job', 2, 1, '2025-08-06 13:36:06');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (100, 97, 'Ansible任务', 'Eleme', 'task:ansible', 2, 'task/ansible', 2, 3, '2025-08-23 18:35:24');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (101, 0, '运维工具', 'Search', '', 1, '', 2, 6, '2025-08-29 10:59:35');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (102, 101, 'agent列表', 'price-tag', 'ops:agent', 2, 'ops/agent', 2, 2, '2025-08-29 11:22:20');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (103, 101, '工具列表', 'present', 'ops:tools', 2, 'ops/tools', 2, 1, '2025-08-29 11:29:02');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (88, 80, '网络设备', 'Shop', 'cmdb:switch', 2, 'cmdb/switch', 2, 3, '2025-07-16 15:17:14');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (89, 88, '创建资产', '', 'cmdb:snmp:add', 3, '', 2, 1, '2025-07-18 15:24:31');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (90, 88, '修改资产', '', 'cmdb:snmp:update', 3, '', 2, 2, '2025-07-18 15:25:49');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (91, 88, '删除资产', '', 'cmdb:snmp:delete', 3, '', 2, 3, '2025-07-18 15:26:21');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (104, 84, '密钥管理', 'Phone', 'config:keymanage:key', 2, 'config/keymanage', 2, 3, '2025-09-08 13:24:40');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (105, 81, '命名空间', 'discount', 'k8s:namespace', 2, 'k8s/namespace', 2, 3, '2025-09-11 15:02:14');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (106, 81, '网络管理', 'guide', 'k8s:network', 2, 'k8s/network', 2, 5, '2025-09-11 15:04:14');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (107, 81, '配置管理', 'connection', 'k8s:config', 2, 'k8s/config', 2, 7, '2025-09-11 15:04:52');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (108, 81, '存储管理', 'Coin', 'k8s:storage', 2, 'k8s/storage', 2, 6, '2025-09-11 15:05:40');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (109, 0, '服务管理', 'ElemeFilled', '', 1, '', 2, 4, '2025-09-16 09:49:55');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (110, 109, '应用列表', 'Menu', 'app:application', 2, 'app/application', 2, 1, '2025-09-16 09:52:58');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (111, 109, '快速发布', 'TrendCharts', 'app:quick-release', 2, 'app/quick-release', 2, 2, '2025-09-16 17:12:11');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (113, 45, '批量删除', '', 'monitor:operator:delete', 3, '', 2, 2, '2025-09-17 20:55:13');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (114, 104, '修改密钥', '', 'config:keymanage:edit', 3, '', 2, 1, '2025-09-18 10:45:57');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (115, 104, '删除密钥', '', 'config:keymanage:delete', 3, '', 2, 2, '2025-09-18 10:53:44');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (117, 104, '同步主机', '', 'config:keymanage:rsync', 3, '', 2, 3, '2025-09-18 10:57:25');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (118, 104, '创建密钥', '', 'config:keymanage:create', 3, '', 2, 4, '2025-09-18 11:01:12');
@@ -1700,29 +3491,6 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_t
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (123, 85, '修改凭据', '', 'config:ecs:edit', 3, '', 2, 1, '2025-09-18 11:54:16');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (124, 85, '删除凭据', '', 'config:ecs:delete', 3, '', 2, 2, '2025-09-18 11:54:51');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (125, 85, '创建凭据', '', 'config:ecs:create', 3, '', 2, 3, '2025-09-18 11:55:21');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (126, 102, '卸载agent', '', 'ops:agent:delete', 3, '', 2, 1, '2025-09-18 12:47:48');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (127, 102, '查看agent', '', 'ops:agent:get', 3, '', 2, 2, '2025-09-18 12:49:02');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (128, 102, '部署agent', '', 'ops:agent:create', 3, '', 2, 3, '2025-09-18 12:49:56');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (129, 102, '批量卸载agent', '', 'ops:agent:deleteall', 3, '', 2, 4, '2025-09-18 12:50:52');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (130, 100, '启动ansible任务流程', '', 'task:ansible:start', 3, '', 2, 1, '2025-09-18 12:59:30');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (131, 100, '删除ansible任务', '', 'task:ansible:delete', 3, '', 2, 2, '2025-09-18 13:00:03');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (132, 100, '新增ansible任务', '', 'task:ansible:create', 3, '', 2, 3, '2025-09-18 13:00:45');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (133, 98, '新增模版', '', 'task:template:add', 3, '', 2, 1, '2025-09-18 13:16:38');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (134, 98, '修改模版', '', 'task:template:edit', 3, '', 2, 2, '2025-09-18 13:17:04');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (135, 98, '删除模版', '', 'task:template:delete', 3, '', 2, 3, '2025-09-18 13:18:25');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (136, 99, '新增任务', '', 'task:job:add', 3, '', 2, 1, '2025-09-18 13:24:19');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (137, 99, '启动任务', '', 'task:job:start', 3, '', 2, 2, '2025-09-18 13:24:59');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (138, 99, '删除任务', '', 'task:job:delete', 3, '', 2, 3, '2025-09-18 13:25:41');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (139, 111, '新建发布', '', 'app:quick-release:add', 3, '', 2, 1, '2025-09-18 13:30:53');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (140, 111, '启动发布', '', 'app:quick-release:start', 3, '', 2, 2, '2025-09-18 13:32:11');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (141, 111, '删除发布', '', 'app:quick-release:delete', 3, '', 2, 3, '2025-09-18 13:32:32');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (142, 110, '创建应用', '', 'app:application:add', 3, '', 2, 1, '2025-09-18 14:28:07');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (143, 110, '修改应用', '', 'app:application:edit', 3, '', 2, 2, '2025-09-18 14:28:59');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (144, 110, '配置应用环境', '', 'app:application:env', 3, '', 2, 3, '2025-09-18 14:29:34');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (145, 110, '删除应用', '', 'app:application:delete', 3, '', 2, 4, '2025-09-18 14:30:11');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (146, 95, '创建数据库账号', '', 'cmdb:db:add', 3, '', 2, 1, '2025-09-18 14:41:32');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (147, 95, '修改数据库配置', '', 'cmdb:db:edit', 3, '', 2, 2, '2025-09-18 14:42:47');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (148, 95, '删除数据库账号', '', 'cmdb:db:delete', 3, '', 2, 3, '2025-09-18 14:43:57');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (149, 78, '创建主机', '', 'cmdb:ecs:add', 3, '', 2, 1, '2025-09-18 14:47:42');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (150, 78, '主机终端', '', 'cmdb:ecs:terminal', 3, '', 2, 2, '2025-09-18 14:48:36');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (151, 78, '修改主机信息', '', 'cmdb:ecs:edit', 3, '', 2, 3, '2025-09-18 14:49:43');
@@ -1730,80 +3498,163 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_t
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (153, 78, '执行主机命令', '', 'cmdb:ecs:shell', 3, '', 2, 5, '2025-09-18 14:51:10');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (154, 78, '监控主机', '', 'cmdb:ecs:monitor', 3, '', 2, 6, '2025-09-18 14:51:52');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (155, 78, '删除主机', '', 'cmdb:ecs:delete', 3, '', 2, 7, '2025-09-18 14:52:20');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (156, 99, '启动脚本', '', 'task:job:jobstart', 3, '', 2, 4, '2025-09-18 18:36:38');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (157, 99, '停止脚本', '', 'task:job:jobstop', 3, '', 2, 5, '2025-09-18 18:39:23');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (159, 100, '开始ansible任务作业', '', 'task:ansible:jobstart', 3, '', 2, 4, '2025-09-18 18:43:40');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (160, 111, '启动jenkins任务', '', 'app:quick-release:jobstart', 3, '', 2, 4, '2025-09-18 18:47:39');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (161, 111, '停止jenkins任务', '', 'app:quick-release:jobstop', 3, '', 2, 5, '2025-09-18 18:48:16');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (162, 110, '新增环境', '', 'app:application:envadd', 3, '', 2, 5, '2025-09-18 21:02:28');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (163, 110, '修改环境', '', 'app:application:envedit', 3, '', 2, 6, '2025-09-18 21:03:08');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (164, 110, '删除环境', '', 'app:application:envdelete', 3, '', 2, 7, '2025-09-18 21:04:43');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (165, 78, '连接主机终端', '', 'cmdb:ecs:connecthost', 3, '', 2, 8, '2025-09-18 21:11:43');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (166, 78, '同步主机信息', '', 'cmdb:ecs:rsync', 3, '', 2, 9, '2025-09-19 21:35:06');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (167, 82, '注册集群', '', 'cloud:k8s:register', 3, '', 2, 1, '2025-09-19 21:57:54');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (168, 82, '创建集群', '', 'cloud:k8s:add', 3, '', 2, 2, '2025-09-19 21:58:19');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (169, 82, '修改集群', '', 'cloud:k8s:edit', 3, '', 2, 3, '2025-09-19 21:59:06');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (170, 82, '同步集群', '', 'cloud:k8s:rsync', 3, '', 2, 4, '2025-09-19 21:59:31');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (171, 82, '删除集群', '', 'cloud:k8s:delete', 3, '', 2, 5, '2025-09-19 21:59:56');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (172, 83, '查看监控仪表盘', '', 'k8s:node:monitor', 3, '', 2, 1, '2025-09-20 00:19:49');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (173, 83, '查看节点资源详情', '', 'k8s:node:details', 3, '', 2, 2, '2025-09-20 00:21:20');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (174, 83, '配置节点污点', '', 'k8s:node:stain', 3, '', 2, 3, '2025-09-20 00:22:17');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (175, 83, '增加标签', '', 'k8s:node:label', 3, '', 2, 4, '2025-09-20 00:23:15');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (176, 83, '封锁节点', '', 'k8s:node:close', 3, '', 2, 5, '2025-09-20 00:24:13');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (177, 83, '驱逐节点', '', 'k8s:node:expel', 3, '', 2, 6, '2025-09-20 00:25:04');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (178, 105, '创建命名空间', '', 'k8s:namespace:add', 3, '', 2, 1, '2025-09-20 00:36:14');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (179, 105, '查看命名空间详情', '', 'k8s:namespace:details', 3, '', 2, 2, '2025-09-20 00:37:22');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (180, 105, '查看命名空间资源配置', '', 'k8s:namespace:setup', 3, '', 2, 3, '2025-09-20 00:39:05');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (181, 105, '添加命名空间资源配置', '', 'k8s:namespace:setupadd', 3, '', 2, 4, '2025-09-20 00:40:06');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (182, 105, '查看限制命名空间资源', '', 'k8s:namespace:restriction', 3, '', 2, 5, '2025-09-20 00:41:25');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (183, 105, '添加限制命名空间资源', '', 'k8s:namespace:restrictionadd', 3, '', 2, 6, '2025-09-20 00:42:23');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (184, 105, '删除命名空间', '', 'k8s:namespace:delete', 3, '', 2, 7, '2025-09-20 00:43:03');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (185, 93, '新增工作负载', '', 'k8s:workload:add', 3, '', 2, 1, '2025-09-20 01:05:08');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (186, 93, '伸缩pod', '', 'k8s:workload:expandable', 3, '', 2, 2, '2025-09-20 01:06:18');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (187, 93, '重启pod', '', 'k8s:workload:restart', 3, '', 2, 3, '2025-09-20 01:07:13');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (188, 93, '更新pod资源限制', '', 'k8s:workload:resource', 3, '', 2, 4, '2025-09-20 01:08:39');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (189, 93, '更新pod资调度', '', 'k8s:workload:dispatch', 3, '', 2, 5, '2025-09-20 01:09:36');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (190, 93, '更新yaml文件', '', 'k8s:workload:edityaml', 3, '', 2, 6, '2025-09-20 01:10:57');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (191, 93, '删除工作负载', '', 'k8s:workload:delete', 3, '', 2, 7, '2025-09-20 01:11:52');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (192, 93, '回滚工作负载版本', '', 'k8s:workload:rollback_version', 3, '', 2, 8, '2025-09-20 01:39:38');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (193, 93, '查看pod日志', '', 'k8s:workload:podlog', 3, '', 2, 9, '2025-09-20 01:44:37');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (194, 93, '删除pod', '', 'k8s:workload:poddelete', 3, '', 2, 10, '2025-09-20 01:45:16');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (195, 93, '登陆pod终端', '', 'k8s:workload:terminal', 3, '', 2, 11, '2025-09-20 01:46:07');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (196, 93, '编辑pod yaml文件', '', 'k8s:workload:edityaml', 3, '', 2, 12, '2025-09-20 01:47:22');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (197, 106, '新增service', '', 'k8s:network:addservice', 3, '', 2, 1, '2025-09-20 02:14:21');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (198, 106, '编辑 Service', '', 'k8s:network:editservice', 3, '', 2, 2, '2025-09-20 02:15:19');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (199, 106, '编辑service YAML', '', 'k8s:network:edit_service_yaml', 3, '', 2, 3, '2025-09-20 02:16:15');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (200, 106, '查看Service 事件', '', 'k8s:network:service_event', 3, '', 2, 4, '2025-09-20 02:18:11');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (201, 106, '删除Service', '', 'k8s:network:deleteservice', 3, '', 2, 5, '2025-09-20 02:18:59');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (202, 106, '编辑ingress', '', 'k8s:network:editingress', 3, '', 2, 6, '2025-09-20 02:26:59');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (203, 106, '新增ingress', '', 'k8s:network:addingress', 3, '', 2, 7, '2025-09-20 02:27:29');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (204, 106, '编辑ingress_yaml', '', 'k8s:network:edit_ingress_yaml', 3, '', 2, 8, '2025-09-20 02:28:23');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (205, 106, '查看ingress 事件', '', 'k8s:network:ingress_event', 3, '', 2, 9, '2025-09-20 02:29:24');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (206, 106, '删除ingress', '', 'k8s:network:delete_ingress', 3, '', 2, 10, '2025-09-20 02:30:04');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (212, 0, '监控中心', 'Shop', '', 1, '', 2, 4, '2025-12-03 21:21:04');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (213, 212, '域名监控', 'UploadFilled', 'monitor:domain', 2, 'monitor/domain', 2, 1, '2025-12-03 21:22:11');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (215, 4, '系统配置', 'List', 'system:config', 2, 'system/config', 2, 6, '2025-12-09 11:03:54');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (216, 212, '故障管理', 'Help', 'monitor:incident', 2, 'monitor/incident', 2, 2, '2025-12-10 15:10:29');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (217, 95, '查看密码', '', 'cmdb:db:passwd', 3, '', 2, 4, '2025-12-13 14:27:22');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (218, 95, '测试链接', '', 'cmdb:db:test', 3, '', 2, 5, '2025-12-13 14:28:38');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (219, 95, 'DBMS终端', '', 'cmdb:db:dbms', 3, '', 2, 6, '2025-12-13 14:32:59');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (220, 95, 'Redis终端', '', 'cmdb:db:redis', 3, '', 2, 7, '2025-12-13 14:33:27');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (221, 95, 'ES终端', '', 'cmdb:db:es', 3, '', 2, 8, '2025-12-13 14:33:53');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (222, 95, 'Mongo终端', '', 'cmdb:db:mongo', 3, '', 2, 9, '2025-12-13 14:34:14');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (229, 213, '新增域名', '', 'monitor:domain:add', 3, '', 2, 1, '2025-12-13 15:22:47');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (230, 213, '批量新增域名', '', 'monitor:domain:add_all', 3, '', 2, 2, '2025-12-13 15:23:44');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (231, 213, '域名自动巡检', '', 'monitor:domain:auto_inspection', 3, '', 2, 3, '2025-12-13 15:25:35');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (232, 213, '域名手动巡检', '', 'monitor:domain:manual_inspection', 3, '', 2, 4, '2025-12-13 15:26:55');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (233, 213, '单域名手动巡检', '', 'monitor:domain:ops_inspection', 3, '', 2, 5, '2025-12-13 15:36:47');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (234, 213, '编辑域名', '', 'monitor:domain:edit', 3, '', 2, 6, '2025-12-13 15:38:30');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (235, 213, '删除域名', '', 'monitor:domain:delete', 3, '', 2, 7, '2025-12-13 15:38:54');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (236, 216, '新增故障记录', '', 'monitor:incident:add', 3, '', 2, 1, '2025-12-13 15:55:41');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (237, 216, '编辑故障记录', '', 'monitor:incident:edit', 3, '', 2, 2, '2025-12-13 15:57:20');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (238, 216, '编辑故障状态', '', 'monitor:incident:status', 3, '', 2, 3, '2025-12-13 15:57:39');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (239, 216, '删除故障记录', '', 'monitor:incident:delete', 3, '', 2, 4, '2025-12-13 15:58:12');
-INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (240, 216, '访问故障链接', '', 'monitor:incident:url', 3, '', 2, 5, '2025-12-13 16:02:46');
 INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (241, 78, '下载文件', '', 'cmdb:ecs:download', 3, '', 2, 10, '2025-12-13 16:13:17');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (243, 78, '批量操作', '', 'cmdb:ecs:batch', 3, '', 2, 10, '2025-12-26 19:04:56');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (244, 104, '查看密钥', '', 'config:keymanage:decrypt', 3, '', 2, 5, '2025-12-27 00:20:50');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (245, 88, '监控大盘', '', 'cmdb:snmp:collect', 3, '', 2, 4, '2026-01-01 15:48:05');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (246, 88, '终端按钮', '', 'cmdb:snmp:ssh', 3, '', 2, 5, '2026-01-01 22:18:54');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (247, 44, '会话录制', 'Coin', 'audit:video', 2, 'audit/video', 2, 3, '2026-01-08 19:57:24');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (250, 86, '测试连接', '', 'config:common:test', 3, '', 2, 5, '2026-01-18 23:27:29');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (279, 78, '查看主机详情', '', 'cmdb:ecs:details', 3, '', 2, 11, '2026-03-23 15:04:04');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (293, 80, '凭据管理', 'Key', 'cmdb:credentials', 2, 'cmdb/credentials', 2, 3, '2026-04-03 18:01:20');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (294, 80, '机房管理', 'User', 'cmdb:idc', 2, 'cmdb/idc', 2, 1, '2026-04-03 18:12:31');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (295, 80, '探针管理', 'CameraFilled', 'cmdb:agent', 2, 'cmdb/agent', 2, 5, '2026-04-07 14:08:09');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (296, 80, '仪表盘', 'CameraFilled', 'cmdb:dashboard', 2, 'cmdb/dashboard', 2, 0, '2026-04-07 14:14:22');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (297, 4, '仪表盘', 'Promotion', 'system:dashboard', 2, 'system/dashboard', 2, 0, '2026-04-07 14:17:30');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (298, 295, '部署探针', '', 'ops:agent:create', 3, '', 2, 1, '2026-04-08 14:57:39');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (299, 295, '卸载探针', '', 'ops:agent:delete', 3, '', 2, 2, '2026-04-08 15:00:42');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (300, 295, '查看探针', '', 'ops:agent:get', 3, '', 2, 3, '2026-04-08 15:01:08');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (301, 295, '批量卸载探针', '', 'ops:agent:deleteall', 3, '', 2, 4, '2026-04-08 15:02:26');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (303, 0, '容器管理', 'Shop', '', 1, '', 2, 2, '2026-04-15 10:33:16');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (306, 303, '集群管理', 'Platform', 'k8s/cluster', 2, 'k8s/cluster', 2, 1, '2026-04-20 14:24:53');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (313, 0, 'AIOps运维', 'Share', '', 1, '', 2, 8, '2026-04-27 11:55:55');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (314, 313, '智能助手', 'MagicStick', 'ai:aiasset', 2, 'ai/aiasset', 2, 1, '2026-04-27 11:57:41');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (315, 313, '运维智库', 'Printer', 'ai:thinktank', 2, 'ai/thinktank', 2, 2, '2026-04-30 17:05:15');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (316, 313, '运维模型', 'Help', 'ai:model', 2, 'ai/model', 2, 10, '2026-04-30 17:05:44');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (317, 313, '日志分析', 'Help', 'ai:logs_analysis', 2, 'ai/logs_analysis', 2, 4, '2026-05-06 15:48:56');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (322, 303, '节点管理', 'Monitor', 'k8s/node', 2, 'k8s/node', 2, 2, '2026-05-13 09:22:17');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (323, 303, '命名空间', 'Collection', 'k8s/namespace', 2, 'k8s/namespace', 2, 3, '2026-05-13 09:22:42');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (324, 303, '工作负载', 'Operation', 'k8s/workload', 2, 'k8s/workload', 2, 4, '2026-05-13 09:23:08');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (325, 303, '网络管理', 'Connection', 'k8s/network', 2, 'k8s/network', 2, 5, '2026-05-13 09:23:52');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (326, 303, '存储管理', 'FolderOpened', 'k8s/storage', 2, 'k8s/storage', 2, 6, '2026-05-13 09:24:11');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (327, 303, '配置管理', 'Setting', 'k8s/config', 2, 'k8s/config', 2, 7, '2026-05-13 09:24:39');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (328, 303, '应用诊断', 'FirstAidKit', 'k8s/arthas', 2, 'k8s/arthas', 2, 8, '2026-05-13 09:25:09');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (329, 306, '注册集群', '', 'cloud:k8s:register', 3, '', 2, 1, '2026-05-13 09:26:22');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (330, 306, '修改集群', '', 'cloud:k8s:edit', 3, '', 2, 2, '2026-05-13 09:26:39');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (331, 306, '同步集群', '', 'cloud:k8s:rsync', 3, '', 2, 3, '2026-05-13 09:26:56');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (332, 306, '删除集群', '', 'cloud:k8s:delete', 3, '', 2, 4, '2026-05-13 09:27:11');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (333, 306, '查看凭据', '', 'cloud:k8s:get', 3, '', 2, 5, '2026-05-13 09:27:32');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (334, 322, '查看监控仪表盘', '', 'k8s:node:monitor', 3, '', 2, 1, '2026-05-13 09:28:51');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (335, 322, '查看节点资源详情', '', 'k8s:node:details', 3, '', 2, 2, '2026-05-13 09:29:10');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (336, 322, '节点更多操作', '', 'k8s:node:actions', 3, '', 2, 3, '2026-05-13 09:29:28');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (337, 323, '创建命名空间', '', 'k8s:namespace:add', 3, '', 2, 1, '2026-05-13 09:30:06');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (338, 323, '查看命名空间详情', '', 'k8s:namespace:details', 3, '', 2, 2, '2026-05-13 09:30:24');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (339, 323, '查看命名空间配置', '', 'k8s:namespace:setup', 3, '', 2, 3, '2026-05-13 09:30:46');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (340, 323, '查看限制命名空间', '', 'k8s:namespace:restriction', 3, '', 2, 4, '2026-05-13 09:31:45');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (341, 323, '命名空间更多操作', '', 'k8s:namespace:actions', 3, '', 2, 5, '2026-05-13 09:32:14');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (342, 324, '新增工作负载', '', 'k8s:workload:add', 3, '', 2, 1, '2026-05-13 09:33:08');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (343, 324, '工作负载更多操作', '', 'k8s:workload:actions', 3, '', 2, 2, '2026-05-13 09:33:38');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (344, 324, '回滚工作负载', '', 'k8s:workload:rollback_version', 3, '', 2, 3, '2026-05-13 09:34:09');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (345, 324, '查看pod日志', '', 'k8s:workload:podlog', 3, '', 2, 4, '2026-05-13 09:34:44');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (346, 324, '删除pod', '', 'k8s:workload:poddelete', 3, '', 2, 5, '2026-05-13 09:35:04');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (347, 324, '登陆pod终端', '', 'k8s:workload:terminal', 3, '', 2, 6, '2026-05-13 09:35:22');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (348, 324, '编辑pod-yaml', '', 'k8s:workload:edityaml', 3, '', 2, 7, '2026-05-13 09:35:49');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (349, 325, '新增service', '', 'k8s:network:addservice', 3, '', 2, 1, '2026-05-13 09:36:45');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (350, 325, '新增ingress', '', 'k8s:network:addingress', 3, '', 2, 2, '2026-05-13 09:37:07');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (351, 325, '更多操作', '', 'k8s:network:actions', 3, '', 2, 3, '2026-05-13 09:37:22');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (352, 326, 'k8s存储操作', '', 'k8s:storage:actions', 3, '', 2, 1, '2026-05-13 09:38:07');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (353, 326, '查看k8s存储配置', '', 'k8s:storage:get', 3, '', 2, 2, '2026-05-13 09:38:31');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (354, 327, 'k8s配置更多操作', '', 'k8s:config:actions', 3, '', 2, 1, '2026-05-13 09:39:04');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (355, 327, '查看配置详情', '', 'k8s:config:get', 3, '', 2, 2, '2026-05-13 09:39:22');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (357, 303, '集群巡检', 'Finished', 'k8s:inspection', 2, 'k8s/inspection', 2, 9, '2026-05-18 17:08:57');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (358, 80, '数据库管理', 'Eleme', 'cmdb:db-management', 2, 'cmdb/db-management', 2, 8, '2026-05-19 11:43:47');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (359, 0, 'DB数据库', '', '', 1, '', 2, 3, '2026-05-19 15:02:29');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (360, 359, '数据资产', 'Coin', 'db:management', 2, 'db/management', 2, 1, '2026-05-19 15:09:36');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (361, 359, 'SQL查询', 'Coin', 'db:crud', 2, 'db/crud', 2, 2, '2026-05-19 15:14:05');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (362, 359, 'SQL审核', 'Coin', 'db:review', 2, 'db/review', 2, 3, '2026-05-19 15:15:59');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (363, 359, '性能分析', 'Coin', 'db:backup', 2, 'db/backup', 2, 5, '2026-05-19 15:17:16');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (364, 359, '监控概览', 'Coin', 'db:monitoring', 2, 'db/monitoring', 2, 4, '2026-05-19 15:18:41');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (365, 359, '慢日志分析', 'Coin', 'db:slowlog', 2, 'db/slowlog', 2, 6, '2026-05-19 15:20:13');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (366, 359, '数据库AI助手', 'Coin', 'db:operation_log', 2, 'db/operation_log', 2, 7, '2026-05-19 15:27:25');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (367, 303, '事件管理', 'Bell', 'k8s:events:list', 2, 'k8s/events', 2, 10, '2026-05-20 11:31:29');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (369, 4, '菜单导航', 'Promotion', 'base:nav', 2, 'system/nav', 2, 6, '2026-05-29 18:43:53');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (370, 80, '业务模型', 'Wallet', 'cmdb:service_model', 2, 'cmdb/service_model', 2, 7, '2026-06-08 17:27:05');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (374, 80, 'AIops助手', 'Eleme', 'cmdb:assistant', 2, 'cmdb/assistant', 2, 9, '2026-07-11 00:10:18');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (383, 0, '日志中心', 'Shop', '', 1, '', 2, 4, '2026-07-11 00:21:23');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (384, 383, '日志管理', 'Menu', 'logs:project', 2, 'logs/project', 2, 1, '2026-07-11 00:22:00');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (385, 383, '日志查询', 'Menu', 'logs:query', 2, 'logs/query', 2, 2, '2026-07-11 00:22:37');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (386, 383, '日志采集', 'Menu', 'logs:collect', 2, 'logs/collect', 2, 3, '2026-07-11 00:23:33');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (387, 383, '日志告警', 'Menu', 'logs:alert', 2, 'logs/alert', 2, 4, '2026-07-11 00:24:18');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (388, 0, '费用中心', 'Share', '', 1, '', 2, 10, '2026-07-11 00:25:31');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (389, 388, '账单总览', 'House', 'cost:bill_dashboard', 2, 'cost/bill_dashboard', 2, 1, '2026-07-11 00:26:25');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (390, 388, '账单明细', 'House', 'cost:cloud_bill', 2, 'cost/cloud_bill', 2, 2, '2026-07-11 00:27:13');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (391, 388, '账单分析', 'House', 'cost:cloud_view', 2, 'cost/cloud_view', 2, 3, '2026-07-11 00:28:08');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (393, 0, '告警中心', '', '', 1, '', 2, 6, '2026-07-11 00:30:09');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (394, 393, '告警总览', 'List', 'alert:view', 2, 'alert/view', 2, 1, '2026-07-11 00:31:32');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (395, 393, '告警事件', 'List', 'alert:event', 2, 'alert/event', 2, 2, '2026-07-11 00:33:00');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (396, 393, '告警管理', 'List', 'alert:rule', 2, 'alert/rule', 2, 3, '2026-07-11 00:34:05');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (397, 393, '告警模板', 'List', 'alert:template', 2, 'alert/template', 2, 4, '2026-07-11 00:34:38');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (398, 393, '告警通知', 'List', 'alert:notice', 2, 'alert/notice', 2, 5, '2026-07-11 00:35:26');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (399, 393, '告警数据源', 'List', 'alert:source', 2, 'alert/source', 2, 6, '2026-07-11 00:36:27');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (400, 0, '工单中心', '', '', 1, '', 2, 9, '2026-07-14 01:23:02');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (401, 400, '我的工单', 'StarFilled', 'ticket:management', 2, 'ticket/management', 2, 1, '2026-07-14 01:23:32');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (402, 0, '服务作业', 'StarFilled', '', 1, '', 2, 7, '2026-07-14 01:23:55');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (403, 402, '作业调度', 'DocumentCopy', 'task:schedule', 2, 'task/schedule', 2, 1, '2026-07-14 01:24:24');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (404, 393, '域名告警', 'Link', 'alert:domain:list', 2, 'alert/domain', 2, 7, '2026-07-30 23:13:51');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (405, 400, '事务工单', 'StarFilled', 'ticket:daily', 2, 'ticket/daily', 2, 2, '2026-07-30 23:26:02');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (406, 400, '发布工单', 'StarFilled', 'ticket:release', 2, 'ticket/release', 2, 3, '2026-07-30 23:26:27');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (407, 400, '审批流配置', 'StarFilled', 'ticket:workflow', 2, 'ticket/workflow', 2, 4, '2026-07-30 23:27:30');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (408, 383, '日志链路', 'Menu', 'logs:link', 2, 'logs/link', 2, 5, '2026-07-30 23:28:34');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (409, 402, 'Ansible作业', 'Document', 'task:ansible', 2, 'task/ansible', 2, 2, '2026-07-31 22:10:29');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (410, 402, '作业模板', 'DocumentDelete', 'task:templates', 2, 'task/templates', 2, 3, '2026-07-31 22:11:07');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (411, 402, '作业中心', 'Files', 'task:monitor', 2, 'task/monitor', 2, 4, '2026-07-31 22:12:28');
+INSERT INTO `sys_menu` (`id`, `parent_id`, `menu_name`, `icon`, `value`, `menu_type`, `url`, `menu_status`, `sort`, `create_time`) VALUES (412, 4, '授权管理', 'Key', 'system:license:view', 2, 'system/license', 2, 7, '2026-08-02 16:20:24');
 COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_nav_category
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_nav_category`;
+CREATE TABLE `sys_nav_category` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
+  `name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''分类名称''',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''分类编码''',
+  `icon` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''分类图标''',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''分类描述''',
+  `sort` bigint unsigned DEFAULT NULL COMMENT '''排序''',
+  `status` bigint NOT NULL DEFAULT '1' COMMENT '''状态：1->启用,2->禁用''',
+  `create_by` bigint unsigned DEFAULT NULL COMMENT '''创建人ID''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_sys_nav_category_code` (`code`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+
+-- ----------------------------
+-- Table structure for sys_nav_item
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_nav_item`;
+CREATE TABLE `sys_nav_item` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
+  `category_id` bigint unsigned NOT NULL COMMENT '''分类ID''',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''导航名称''',
+  `url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''导航地址''',
+  `icon` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''图标地址或图标名''',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''说明''',
+  `environment` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''环境：dev/test/pre/prod/none''',
+  `tags` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''标签，逗号分隔''',
+  `scope` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''可见范围：public/private/acl''',
+  `owner_id` bigint unsigned DEFAULT NULL COMMENT '''所属用户ID''',
+  `owner_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''所属用户名''',
+  `visible_user_ids` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''可见用户ID，逗号分隔''',
+  `visible_role_ids` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''可见角色ID，逗号分隔''',
+  `visible_dept_ids` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci COMMENT '''可见部门ID，逗号分隔''',
+  `sso_enabled` tinyint(1) DEFAULT NULL COMMENT '''是否支持单点登录''',
+  `sso_mode` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''SSO模式：oidc/cas/saml/ticket/proxy/none''',
+  `open_mode` varchar(16) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT 'blank' COMMENT '''打开方式：blank/self''',
+  `sort` bigint unsigned DEFAULT NULL COMMENT '''排序''',
+  `status` bigint NOT NULL DEFAULT '1' COMMENT '''状态：1->启用,2->禁用''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `idx_sys_nav_item_category_id` (`category_id`) USING BTREE,
+  KEY `idx_sys_nav_item_scope` (`scope`) USING BTREE,
+  KEY `idx_sys_nav_item_owner_id` (`owner_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
 
 -- ----------------------------
 -- Table structure for sys_operation_log
@@ -1812,22 +3663,31 @@ DROP TABLE IF EXISTS `sys_operation_log`;
 CREATE TABLE `sys_operation_log` (
   `id` int NOT NULL AUTO_INCREMENT COMMENT '主键',
   `admin_id` bigint unsigned NOT NULL COMMENT '''管理员id''',
-  `username` varchar(64) NOT NULL COMMENT '''管理员账号''',
-  `method` varchar(64) NOT NULL COMMENT '''请求方式''',
-  `ip` varchar(64) DEFAULT NULL COMMENT '''IP''',
-  `url` varchar(500) DEFAULT NULL COMMENT '''URL''',
+  `username` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '''管理员账号''',
+  `method` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL COMMENT '''请求方式''',
+  `ip` varchar(64) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '''IP''',
+  `url` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '''URL''',
   `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `description` varchar(255) DEFAULT NULL COMMENT '''操作描述''',
+  `description` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL COMMENT '''操作描述''',
   PRIMARY KEY (`id`) USING BTREE,
   KEY `username` (`username`) USING BTREE,
   KEY `create_time` (`create_time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='操作日志记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='操作日志记录表';
 
 -- ----------------------------
 -- Records of sys_operation_log
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (1, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/sysOperationLog/clean', '2025-12-14 14:57:14.270', '清空操作日志');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (1, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/sysOperationLog/clean', '2026-08-03 01:09:18.309', '清空操作日志接口');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (2, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/recordings/batch', '2026-08-03 01:09:24.603', 'swagger未定义: DELETE /api/v1/recordings/batch');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (3, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/recordings/batch', '2026-08-03 01:09:29.413', 'swagger未定义: DELETE /api/v1/recordings/batch');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (4, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/recordings/batch', '2026-08-03 01:09:33.114', 'swagger未定义: DELETE /api/v1/recordings/batch');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (5, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/recordings/batch', '2026-08-03 01:09:37.166', 'swagger未定义: DELETE /api/v1/recordings/batch');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (6, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/aiops/llm/providers', '2026-08-03 01:09:57.092', '删除 LLM 供应商');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (7, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/config/ecsauthdelete', '2026-08-03 01:10:31.889', '删除凭据');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (8, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/config/ecsauthdelete', '2026-08-03 01:10:33.644', '删除凭据');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (9, 89, 'admin', 'delete', '192.168.3.7', '/api/v1/config/ecsauthdelete', '2026-08-03 01:10:38.966', '删除凭据');
+INSERT INTO `sys_operation_log` (`id`, `admin_id`, `username`, `method`, `ip`, `url`, `create_time`, `description`) VALUES (10, 89, 'admin', 'put', '192.168.3.7', '/api/v1/role/assignPermissions', '2026-08-03 01:11:46.102', '分配权限接口');
 COMMIT;
 
 -- ----------------------------
@@ -1842,7 +3702,7 @@ CREATE TABLE `sys_post` (
   `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `remark` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_bin DEFAULT NULL COMMENT '备注',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin ROW_FORMAT=DYNAMIC COMMENT='岗位信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin ROW_FORMAT=DYNAMIC COMMENT='岗位信息表';
 
 -- ----------------------------
 -- Records of sys_post
@@ -1851,7 +3711,10 @@ BEGIN;
 INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (1, 'AAA', '研发总监', 1, '2023-06-14 20:08:22', '主管各个部门');
 INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (10, 'ops', '运维工程师', 1, '2025-06-28 22:46:33', '运维工程师');
 INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (11, 'dev', '研发工程师', 1, '2025-06-28 22:50:29', '研发工程师');
-INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (12, 'test', '测试工程师', 2, '2025-06-28 22:52:57', '测试工程师');
+INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (12, 'test', '测试工程师', 1, '2025-06-28 22:52:57', '测试工程师');
+INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (14, 'cccc', '运维总监', 1, '2026-01-14 11:12:04', '');
+INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (15, 'bbb', '测试经理', 1, '2026-01-14 11:12:44', '');
+INSERT INTO `sys_post` (`id`, `post_code`, `post_name`, `post_status`, `create_time`, `remark`) VALUES (16, 'technical_manager', '技术经理', 1, '2026-07-23 00:40:50', '技术管理岗位');
 COMMIT;
 
 -- ----------------------------
@@ -1868,14 +3731,15 @@ CREATE TABLE `sys_role` (
   PRIMARY KEY (`id`) USING BTREE,
   KEY `name` (`role_name`) USING BTREE,
   KEY `create_time` (`create_time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='后台角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='后台角色表';
 
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
 BEGIN;
 INSERT INTO `sys_role` (`id`, `role_name`, `role_key`, `status`, `description`, `create_time`) VALUES (1, '超级管理员', 'admin', 1, '最大权限', '2023-06-12 20:04:53');
-INSERT INTO `sys_role` (`id`, `role_name`, `role_key`, `status`, `description`, `create_time`) VALUES (13, '游客', 'test', 1, 'test1', '2025-07-03 18:47:25');
+INSERT INTO `sys_role` (`id`, `role_name`, `role_key`, `status`, `description`, `create_time`) VALUES (14, 'test', 'test', 1, '123', '2026-04-22 14:44:53');
+INSERT INTO `sys_role` (`id`, `role_name`, `role_key`, `status`, `description`, `create_time`) VALUES (17, '测试组', 'test_group', 1, '测试组角色', '2026-07-23 00:40:50');
 COMMIT;
 
 -- ----------------------------
@@ -1883,16 +3747,73 @@ COMMIT;
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu` (
-  `role_id` int DEFAULT NULL COMMENT '角色ID',
-  `menu_id` int DEFAULT NULL COMMENT '菜单ID'
+  `role_id` bigint unsigned NOT NULL COMMENT '''角色id''',
+  `menu_id` bigint unsigned NOT NULL COMMENT '''菜单id'''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='角色和菜单关系表';
 
 -- ----------------------------
 -- Records of sys_role_menu
 -- ----------------------------
 BEGIN;
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 72);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 78);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 149);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 150);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 151);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 152);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 153);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 154);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 155);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 165);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 166);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 241);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 243);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 279);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 303);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 306);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 329);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 330);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 331);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 332);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 333);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 322);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 334);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 335);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 336);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 323);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 337);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 338);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 339);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 340);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 341);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 324);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 342);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 343);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 344);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 345);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 346);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 347);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 348);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 325);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 349);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 350);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 351);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 326);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 352);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 353);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 327);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 354);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 355);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 328);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 357);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 367);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 383);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 384);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 385);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 386);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 387);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (14, 80);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 80);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 294);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 78);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 149);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 150);
@@ -1904,121 +3825,126 @@ INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 155);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 165);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 166);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 241);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 243);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 279);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 88);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 89);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 90);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 91);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 95);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 146);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 147);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 148);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 217);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 218);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 219);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 220);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 221);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 222);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 81);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 82);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 167);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 168);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 169);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 170);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 171);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 83);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 172);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 173);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 174);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 175);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 176);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 177);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 105);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 178);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 179);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 180);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 181);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 182);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 183);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 184);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 93);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 185);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 186);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 187);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 188);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 189);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 190);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 191);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 192);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 193);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 194);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 195);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 196);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 106);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 197);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 198);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 199);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 200);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 201);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 202);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 203);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 204);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 205);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 206);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 108);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 107);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 110);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 142);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 143);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 144);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 145);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 162);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 163);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 164);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 111);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 139);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 140);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 141);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 160);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 161);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 212);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 213);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 229);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 230);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 231);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 232);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 233);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 234);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 235);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 216);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 236);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 237);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 238);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 239);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 240);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 97);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 99);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 136);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 137);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 138);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 156);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 157);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 98);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 133);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 134);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 135);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 100);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 130);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 131);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 132);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 159);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 101);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 103);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 102);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 126);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 127);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 128);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 129);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 4);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 245);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 246);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 293);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 295);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 298);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 299);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 300);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 301);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 370);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 358);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 374);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 296);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 303);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 306);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 329);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 330);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 331);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 332);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 333);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 322);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 334);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 335);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 336);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 323);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 337);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 338);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 339);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 340);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 341);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 324);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 342);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 343);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 344);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 345);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 346);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 347);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 348);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 325);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 349);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 350);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 351);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 326);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 352);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 353);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 327);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 354);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 355);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 328);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 357);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 367);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 360);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 361);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 362);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 364);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 365);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 366);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 383);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 384);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 385);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 386);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 387);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 408);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 84);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 85);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 123);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 124);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 125);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 86);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 122);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 119);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 120);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 121);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 250);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 104);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 115);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 117);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 118);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 244);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 393);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 394);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 395);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 396);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 397);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 398);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 399);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 404);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 402);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 403);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 409);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 410);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 411);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 313);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 314);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 315);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 317);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 316);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 400);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 401);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 405);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 406);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 407);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 388);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 389);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 390);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 391);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 44);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 46);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 49);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 62);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 45);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 47);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 113);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 73);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 247);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 6);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 16);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 17);
@@ -2033,129 +3959,84 @@ INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 8);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 26);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 27);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 28);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 9);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 29);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 30);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 31);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 10);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 32);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 33);
 INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 34);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 215);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 84);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 85);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 123);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 124);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 125);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 86);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 122);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 119);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 120);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 121);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 104);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 114);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 115);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 117);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 118);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 44);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 45);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 47);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 113);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 73);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 46);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 49);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 62);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 96);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 109);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 72);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 149);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 150);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 154);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 165);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 89);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 146);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 218);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 219);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 167);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 168);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 170);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 172);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 173);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 174);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 175);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 178);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 179);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 180);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 181);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 182);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 185);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 186);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 190);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 193);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 195);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 197);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 200);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 203);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 205);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 108);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 107);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 142);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 144);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 162);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 139);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 140);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 160);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 229);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 233);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 236);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 240);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 136);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 137);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 156);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 133);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 130);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 132);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 159);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 103);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 127);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 16);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 125);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 122);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 118);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 73);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 62);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 96);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 80);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 78);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 88);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 95);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 81);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 82);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 83);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 105);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 93);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 106);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 109);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 110);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 111);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 212);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 213);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 216);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 97);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 99);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 98);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 100);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 101);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 102);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 4);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 6);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 84);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 85);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 86);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 104);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 44);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 45);
-INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (13, 46);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 369);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 412);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 359);
+INSERT INTO `sys_role_menu` (`role_id`, `menu_id`) VALUES (1, 4);
+COMMIT;
+
+-- ----------------------------
+-- Table structure for sys_session_recording
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_session_recording`;
+CREATE TABLE `sys_session_recording` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键ID''',
+  `session_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''会话唯一标识''',
+  `admin_id` bigint unsigned NOT NULL COMMENT '''操作用户ID''',
+  `username` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''用户名''',
+  `host_id` bigint unsigned NOT NULL COMMENT '''目标主机ID''',
+  `host_name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''主机名称''',
+  `host_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''主机IP''',
+  `ssh_user` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''SSH登录用户''',
+  `start_time` datetime(3) NOT NULL COMMENT '''会话开始时间''',
+  `end_time` datetime(3) DEFAULT NULL COMMENT '''会话结束时间''',
+  `duration` bigint DEFAULT NULL COMMENT '''会话时长(秒)''',
+  `terminal_width` bigint DEFAULT '80' COMMENT '''终端宽度''',
+  `terminal_height` bigint DEFAULT '24' COMMENT '''终端高度''',
+  `file_path` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '''录制文件路径''',
+  `file_size` bigint DEFAULT NULL COMMENT '''文件大小(字节)''',
+  `storage_type` bigint DEFAULT '1' COMMENT '''存储类型:1-本地 2-OSS''',
+  `oss_key` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''OSS对象key''',
+  `input_count` bigint DEFAULT '0' COMMENT '''输入事件数量''',
+  `output_count` bigint DEFAULT '0' COMMENT '''输出事件数量''',
+  `resize_count` bigint DEFAULT '0' COMMENT '''窗口调整次数''',
+  `command_count` bigint DEFAULT '0' COMMENT '''命令执行次数(估算)''',
+  `client_ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''客户端IP''',
+  `user_agent` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''用户代理''',
+  `risk_level` bigint DEFAULT '0' COMMENT '''风险等级:0-正常 1-可疑 2-高危''',
+  `has_sensitive_cmd` tinyint(1) DEFAULT '0' COMMENT '''是否包含敏感命令''',
+  `status` bigint DEFAULT '1' COMMENT '''状态:1-录制中 2-已完成 3-异常终止''',
+  `error_msg` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '''错误信息''',
+  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
+  `delete_time` datetime(3) DEFAULT NULL COMMENT '''删除时间''',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `idx_sys_session_recording_session_id` (`session_id`) USING BTREE,
+  KEY `idx_sys_session_recording_host_id` (`host_id`) USING BTREE,
+  KEY `idx_sys_session_recording_host_ip` (`host_ip`) USING BTREE,
+  KEY `idx_sys_session_recording_start_time` (`start_time`) USING BTREE,
+  KEY `idx_sys_session_recording_risk_level` (`risk_level`) USING BTREE,
+  KEY `idx_sys_session_recording_status` (`status`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=528 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_session_recording
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for system_migration_meta
+-- ----------------------------
+DROP TABLE IF EXISTS `system_migration_meta`;
+CREATE TABLE `system_migration_meta` (
+  `meta_key` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `meta_value` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`meta_key`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci ROW_FORMAT=DYNAMIC;
+
+-- ----------------------------
+-- Records of system_migration_meta
+-- ----------------------------
+BEGIN;
+INSERT INTO `system_migration_meta` (`meta_key`, `meta_value`, `updated_at`) VALUES ('alert_history_latest_in_source_backfilled_v1', 'done', '2026-05-20 09:20:17');
+INSERT INTO `system_migration_meta` (`meta_key`, `meta_value`, `updated_at`) VALUES ('auto_migrate_models_v1', '1b5630ef89e0b7acb79708489d91e933a4e2aead8c6035c227e1b40daee4d28f', '2026-08-02 02:27:26');
+INSERT INTO `system_migration_meta` (`meta_key`, `meta_value`, `updated_at`) VALUES ('default_knowledge_groups_v1', 'completed', '2026-08-03 01:20:03');
 COMMIT;
 
 -- ----------------------------
@@ -2172,15 +4053,15 @@ CREATE TABLE `task_ansible` (
   `all_host_ids` text NOT NULL COMMENT '''所有主机ID JSON数组''',
   `global_vars` text COMMENT '''全局变量JSON''',
   `status` bigint NOT NULL DEFAULT '1' COMMENT '''任务状态:1-等待中,2-运行中,3-成功,4-异常''',
-  `created_at` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `updated_at` datetime(3) NOT NULL COMMENT '''更新时间''',
   `error_msg` text COMMENT '''错误信息''',
   `task_count` bigint NOT NULL DEFAULT '0' COMMENT '''任务数量(Type=1时为上传文件数,Type=2时为解析的playbook数,Type=3时固定为1)''',
   `total_duration` bigint NOT NULL DEFAULT '0' COMMENT '''任务执行总耗时(秒,所有子任务耗时总和)''',
+  `created_at` datetime(3) NOT NULL COMMENT '''创建时间''',
+  `updated_at` datetime(3) NOT NULL COMMENT '''更新时间''',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_task_ansible_name` (`name`),
   KEY `idx_task_status` (`status`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Records of task_ansible
@@ -2204,13 +4085,10 @@ CREATE TABLE `task_ansiblework` (
   `duration` bigint DEFAULT NULL COMMENT '''执行耗时(秒)''',
   `exit_code` bigint DEFAULT NULL COMMENT '''退出代码''',
   `error_msg` text COMMENT '''错误信息''',
-  `log` text COMMENT '''日志内容''',
   PRIMARY KEY (`id`),
-  KEY `idx_task_ansiblework_task_id` (`task_id`),
   KEY `idx_task_id` (`task_id`),
-  KEY `idx_task_work_composite` (`task_id`,`status`),
-  CONSTRAINT `fk_task_ansible_works` FOREIGN KEY (`task_id`) REFERENCES `task_ansible` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  KEY `idx_task_work_composite` (`task_id`,`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Records of task_ansiblework
@@ -2232,18 +4110,16 @@ CREATE TABLE `task_job` (
   `tasklog` text COMMENT '任务执行日志',
   `status` bigint DEFAULT NULL COMMENT '任务状态 1=等待中,2=运行中,3=成功,4=异常,5=已暂停',
   `duration` bigint DEFAULT NULL COMMENT '执行耗时(秒)',
+  `task_count` bigint DEFAULT NULL COMMENT '任务数量',
+  `execute_count` bigint DEFAULT '0' COMMENT '执行次数',
+  `next_run_time` datetime(3) DEFAULT NULL COMMENT '下次执行时间',
   `remark` text COMMENT '任务备注',
   `start_time` datetime(3) DEFAULT NULL COMMENT '任务开始时间',
   `end_time` datetime(3) DEFAULT NULL COMMENT '任务结束时间',
   `created_at` datetime(3) DEFAULT NULL COMMENT '任务创建时间',
-  `task_count` bigint DEFAULT NULL COMMENT '任务数量',
-  `is_recurring` tinyint(1) DEFAULT NULL COMMENT '是否周期性任务',
-  `scheduled_time` datetime(3) DEFAULT NULL COMMENT '计划执行时间',
-  `log_path` varchar(500) DEFAULT NULL COMMENT '日志文件路径',
-  `execute_count` bigint DEFAULT '0' COMMENT '执行次数',
-  `next_run_time` datetime(3) DEFAULT NULL COMMENT '下次执行时间',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_task_job_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Records of task_job
@@ -2260,19 +4136,19 @@ CREATE TABLE `task_template` (
   `name` varchar(100) NOT NULL,
   `type` bigint NOT NULL,
   `content` text NOT NULL,
-  `created_at` datetime(3) DEFAULT NULL,
-  `updated_at` datetime(3) DEFAULT NULL,
+  `remark` varchar(500) DEFAULT NULL,
   `created_by` varchar(50) DEFAULT NULL,
   `updated_by` varchar(50) DEFAULT NULL,
-  `remark` varchar(500) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_task_template_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Records of task_template
 -- ----------------------------
 BEGIN;
-INSERT INTO `task_template` (`id`, `name`, `type`, `content`, `created_at`, `updated_at`, `created_by`, `updated_by`, `remark`) VALUES (2, '1-数字 1-100', 1, '#!/bin/bash\n\n# 从 1 到 100，每秒打印一个数字\nfor ((i = 1; i <= 100; i++)); do\n    echo \"[$(date +%H:%M:%S)] $i\"\n    sleep 1\ndone\n\necho \"完成：所有数字 1-100 已打印完毕。\"\n', '2025-08-06 12:47:57.073', '2025-08-12 16:14:49.394', 'admin', 'admin', '测试脚本');
 COMMIT;
 
 -- ----------------------------
@@ -2284,6 +4160,7 @@ CREATE TABLE `task_work` (
   `task_id` bigint unsigned DEFAULT NULL COMMENT '关联的任务ID',
   `template_id` bigint unsigned DEFAULT NULL COMMENT '任务模板ID',
   `host_id` bigint unsigned DEFAULT NULL COMMENT '执行主机ID',
+  `type` bigint DEFAULT NULL COMMENT '任务类型 1=普通任务,2=定时任务',
   `status` bigint DEFAULT NULL COMMENT '任务状态 1=等待中,2=运行中,3=成功,4=异常',
   `log` text COMMENT '任务日志',
   `log_path` text COMMENT '日志文件路径',
@@ -2291,85 +4168,279 @@ CREATE TABLE `task_work` (
   `end_time` datetime(3) DEFAULT NULL COMMENT '任务结束时间',
   `duration` bigint DEFAULT NULL COMMENT '执行耗时(秒)',
   `created_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
-  `type` bigint DEFAULT NULL COMMENT '任务类型 1=普通任务,2=定时任务',
   `scheduled_time` datetime(3) DEFAULT NULL COMMENT '定时任务执行时间',
-  `cron_expr` longtext COMMENT 'cron表达式',
-  `is_recurring` tinyint(1) DEFAULT NULL COMMENT '是否周期性任务',
   PRIMARY KEY (`id`),
   KEY `idx_task_work_task_id` (`task_id`),
   KEY `idx_task_work_template_id` (`template_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=110 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
 -- Records of task_work
 -- ----------------------------
 BEGIN;
-INSERT INTO `task_work` (`id`, `task_id`, `template_id`, `host_id`, `status`, `log`, `log_path`, `start_time`, `end_time`, `duration`, `created_at`, `type`, `scheduled_time`, `cron_expr`, `is_recurring`) VALUES (90, 48, 11, 1, 2, '[2025-09-29-21:42:02] 任务开始\n进程统计信息如下\n总进程数量为:79\nRunning 进程数为:1\nStoped 进程数为:0\nSleeping 进程数为:55\nZombie 进程数为:0\n[2025-09-29-21:42:02] 任务完成\n', 'logs/task_48/task_48_template_11.log', '2025-09-29 21:42:00.299', '2025-09-29 21:42:06.276', 5, '2025-09-29 20:58:17.259', 0, '2025-09-29 21:45:00.000', NULL, NULL);
-INSERT INTO `task_work` (`id`, `task_id`, `template_id`, `host_id`, `status`, `log`, `log_path`, `start_time`, `end_time`, `duration`, `created_at`, `type`, `scheduled_time`, `cron_expr`, `is_recurring`) VALUES (91, 48, 0, 0, 4, '', '', NULL, NULL, 0, '2025-09-29 20:58:17.515', 2, '2025-09-29 21:00:00.000', NULL, NULL);
 COMMIT;
 
 -- ----------------------------
--- Table structure for tool_link
+-- Table structure for ticket_actions
 -- ----------------------------
-DROP TABLE IF EXISTS `tool_link`;
-CREATE TABLE `tool_link` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `title` longtext NOT NULL COMMENT '''导航标题''',
-  `icon` longtext COMMENT '''导航图标''',
-  `link` longtext NOT NULL COMMENT '''链接地址''',
-  `sort` bigint DEFAULT '0' COMMENT '''排序''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `ticket_actions`;
+CREATE TABLE `ticket_actions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_id` bigint unsigned NOT NULL,
+  `operator_id` bigint unsigned NOT NULL,
+  `operator_name` varchar(128) NOT NULL,
+  `action` varchar(32) NOT NULL,
+  `from_status` varchar(32) DEFAULT NULL,
+  `to_status` varchar(32) DEFAULT NULL,
+  `comment` varchar(2000) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ticket_actions_ticket_id` (`ticket_id`),
+  KEY `idx_ticket_actions_operator_id` (`operator_id`),
+  KEY `idx_ticket_actions_action` (`action`),
+  KEY `idx_ticket_actions_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of tool_link
+-- Records of ticket_actions
 -- ----------------------------
 BEGIN;
-INSERT INTO `tool_link` (`id`, `title`, `icon`, `link`, `sort`, `create_time`, `update_time`) VALUES (2, '百度', 'http://10.7.16.22:8080/api/v1/upload/20251023/625775000.svg', 'https://www.baidu.com/', 0, '2025-10-23 15:54:08.512', '2025-10-23 15:54:08.512');
-INSERT INTO `tool_link` (`id`, `title`, `icon`, `link`, `sort`, `create_time`, `update_time`) VALUES (3, 'aws', 'http://10.7.16.22:8080/api/v1/upload/20251023/985806000.svg', 'https://us-west-2.console.aws.amazon.com/eks/clusters?region=us-west-2#', 0, '2025-10-23 15:55:59.543', '2025-10-23 15:55:59.543');
-INSERT INTO `tool_link` (`id`, `title`, `icon`, `link`, `sort`, `create_time`, `update_time`) VALUES (4, '美女一号', 'http://10.7.16.22:8080/api/v1/upload/20251023/646700000.png', 'https://gitee.com/zhang_fan1024', 0, '2025-10-23 15:56:22.231', '2025-10-23 15:56:22.231');
-INSERT INTO `tool_link` (`id`, `title`, `icon`, `link`, `sort`, `create_time`, `update_time`) VALUES (5, '美女二号', 'http://10.7.16.22:8080/api/v1/upload/20251023/733520000.png', 'https://demo.spug.cc/', 0, '2025-10-23 15:56:48.601', '2025-10-23 15:56:48.601');
-INSERT INTO `tool_link` (`id`, `title`, `icon`, `link`, `sort`, `create_time`, `update_time`) VALUES (6, '凡人修仙传', 'http://10.7.16.22:8080/api/v1/upload/20251023/771236000.png', 'http://115.190.10.126/#/dashboard', 0, '2025-10-23 15:57:21.676', '2025-10-23 15:57:21.676');
-INSERT INTO `tool_link` (`id`, `title`, `icon`, `link`, `sort`, `create_time`, `update_time`) VALUES (7, '腾讯', 'http://10.7.16.22:8080/api/v1/upload/20251205/92506000.png', 'https://cloud.tencent.com/login?s_url=https%3A%2F%2Fconsole.cloud.tencent.com%2Ftke2%2Fcluster%2Fsub%2Flist%2Fbasic%2Finfo%3Frid%3D1%26clusterId%3Dcls-301g0fi0', 0, '2025-10-23 15:57:55.559', '2025-12-05 20:12:08.966');
 COMMIT;
 
 -- ----------------------------
--- Table structure for tool_service_deploy
+-- Table structure for ticket_approval_tasks
 -- ----------------------------
-DROP TABLE IF EXISTS `tool_service_deploy`;
-CREATE TABLE `tool_service_deploy` (
-  `id` bigint unsigned NOT NULL AUTO_INCREMENT COMMENT '''主键''',
-  `service_name` longtext NOT NULL COMMENT '''服务名称''',
-  `service_id` longtext NOT NULL COMMENT '''服务ID''',
-  `version` longtext NOT NULL COMMENT '''服务版本''',
-  `host_id` bigint unsigned NOT NULL COMMENT '''主机ID''',
-  `host_ip` longtext NOT NULL COMMENT '''主机IP''',
-  `install_dir` longtext NOT NULL COMMENT '''安装目录''',
-  `container_name` longtext COMMENT '''容器名称''',
-  `ports` longtext COMMENT '''端口映射(JSON)''',
-  `env_vars` longtext COMMENT '''环境变量(JSON)''',
-  `status` bigint DEFAULT '0' COMMENT '''状态:0->部署中,1->运行中,2->已停止,3->部署失败''',
-  `deploy_log` longtext COMMENT '''部署日志''',
-  `create_time` datetime(3) NOT NULL COMMENT '''创建时间''',
-  `update_time` datetime(3) DEFAULT NULL COMMENT '''更新时间''',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+DROP TABLE IF EXISTS `ticket_approval_tasks`;
+CREATE TABLE `ticket_approval_tasks` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `instance_id` bigint unsigned NOT NULL,
+  `node_id` bigint unsigned NOT NULL,
+  `node_order` bigint NOT NULL,
+  `node_name` varchar(128) NOT NULL,
+  `assignee_id` bigint unsigned NOT NULL,
+  `assignee_name` varchar(128) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `comment` varchar(1000) DEFAULT NULL,
+  `operator_id` bigint unsigned DEFAULT NULL,
+  `operator_name` varchar(128) DEFAULT NULL,
+  `acted_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ticket_task_instance_status` (`instance_id`,`status`),
+  KEY `idx_ticket_approval_tasks_node_id` (`node_id`),
+  KEY `idx_ticket_task_assignee_status` (`assignee_id`,`status`),
+  KEY `idx_ticket_approval_tasks_operator_id` (`operator_id`),
+  KEY `idx_ticket_approval_tasks_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- ----------------------------
--- Records of tool_service_deploy
+-- Records of ticket_approval_tasks
 -- ----------------------------
 BEGIN;
-INSERT INTO `tool_service_deploy` (`id`, `service_name`, `service_id`, `version`, `host_id`, `host_ip`, `install_dir`, `container_name`, `ports`, `env_vars`, `status`, `deploy_log`, `create_time`, `update_time`) VALUES (7, 'Redis', 'redis', 'redis-7.2', 501, '8.130.14.34', '/opt/data/redis', '', '', '{\"REDIS_MAXMEMORY\":\"2gb\",\"REDIS_PASSWORD\":\"redis123456\",\"REDIS_PORT\":\"6370\"}', 1, '[2025-10-30 17:20:01] 开始部署 Redis Redis 7.2\n[2025-10-30 17:20:01] 连接主机 8.130.14.34...\n[2025-10-30 17:20:02] SSH连接成功\n[2025-10-30 17:20:03] 创建安装目录 /opt/data/redis...\n[2025-10-30 17:20:03] 读取模板文件 common/templates/05-redis/versions/redis-7.2-docker-compose.yml...\n[2025-10-30 17:20:03] 生成环境变量配置...\n[2025-10-30 17:20:03] 上传 docker-compose.yml...\n[2025-10-30 17:20:04] 上传 .env...\n[2025-10-30 17:20:04] 检查Docker环境...\n[2025-10-30 17:20:04] 启动服务容器...\n[2025-10-30 17:20:05] 容器启动输出:\n\n[2025-10-30 17:20:05] 验证容器状态...\n[2025-10-30 17:20:08] 容器状态:\nNAME      IMAGE                                                                                      COMMAND                  SERVICE   CREATED         STATUS                            PORTS\nredis72   crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/redis:7.2-alpine   \"docker-entrypoint.s…\"   redis     4 seconds ago   Up 3 seconds (health: starting)   0.0.0.0:6370->6379/tcp, [::]:6370->6379/tcp\n\n[2025-10-30 17:20:08] 部署完成！\n', '2025-10-30 17:20:01.477', '2025-10-30 17:20:01.477');
-INSERT INTO `tool_service_deploy` (`id`, `service_name`, `service_id`, `version`, `host_id`, `host_ip`, `install_dir`, `container_name`, `ports`, `env_vars`, `status`, `deploy_log`, `create_time`, `update_time`) VALUES (11, 'Java', 'java', 'java-17', 501, '8.130.14.34', '/opt/data/java', '', '', '{\"APP_PORT\":\"8080\",\"JAVA_OPTS\":\"-Xmx512m -Xms256m\"}', 1, '[2025-10-31 12:53:21] 开始部署 Java Java 17 LTS\n[2025-10-31 12:53:21] 连接主机 8.130.14.34...\n[2025-10-31 12:53:22] SSH连接成功\n[2025-10-31 12:53:22] 检查Docker环境...\n[2025-10-31 12:53:22] 使用镜像: crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/openjdk:17-jdk\n[2025-10-31 12:53:22] 拉取镜像...\n[2025-10-31 12:53:23] 镜像拉取成功\n[2025-10-31 12:53:23] 创建临时容器...\n[2025-10-31 12:53:23] 提取文件 /usr/local/openjdk-17 -> /usr/local/java17...\n[2025-10-31 12:53:29] 清理临时容器...\n[2025-10-31 12:53:29] 读取安装脚本 common/templates/02-java/versions/java-17-install.sh...\n[2025-10-31 12:53:29] 上传安装脚本...\n[2025-10-31 12:53:29] 执行安装脚本...\n[2025-10-31 12:53:30] 安装脚本输出:\n===== Java 17 LTS 安装配置 =====\n安装路径: /usr/local/java17\n环境变量文件: /etc/profile.d/java17.sh\n环境变量已配置: /etc/profile.d/java17.sh\n===== 安装成功 =====\n\n[2025-10-31 12:53:30] 验证安装...\n[2025-10-31 12:53:30] 验证结果:\nopenjdk version \"17.0.0.1\" 2024-07-02\nOpenJDK Runtime Environment (build 17.0.0.1+2-3)\nOpenJDK 64-Bit Server VM (build 17.0.0.1+2-3, mixed mode, sharing)\n\n[2025-10-31 12:53:30] 部署完成！\n', '2025-10-31 12:53:21.350', '2025-10-31 12:53:21.350');
-INSERT INTO `tool_service_deploy` (`id`, `service_name`, `service_id`, `version`, `host_id`, `host_ip`, `install_dir`, `container_name`, `ports`, `env_vars`, `status`, `deploy_log`, `create_time`, `update_time`) VALUES (12, 'Elasticsearch', 'elasticsearch', 'elasticsearch-8.x', 506, '139.9.205.38', '/opt/data/elasticsearch', '', '', '{\"ES_HEAP_SIZE\":\"1g\",\"ES_HTTP_PORT\":\"9200\"}', 3, '[2025-11-30 22:33:06] 开始部署 Elasticsearch Elasticsearch 8.x\n[2025-11-30 22:33:06] 连接主机 139.9.205.38...\n[2025-11-30 22:33:07] SSH连接成功\n[2025-11-30 22:33:07] 创建安装目录 /opt/data/elasticsearch...\n[2025-11-30 22:33:07] 读取模板文件 common/templates/06-elasticsearch/versions/elasticsearch-8.x-docker-compose.yml...\n[2025-11-30 22:33:07] 生成环境变量配置...\n[2025-11-30 22:33:07] 上传 docker-compose.yml...\n[2025-11-30 22:33:07] 上传 .env...\n[2025-11-30 22:33:07] 检查Docker环境...\n[2025-11-30 22:33:08] 启动服务容器...\n[2025-11-30 22:33:08] 启动失败: Process exited with status 127\n输出: \nSTDERR:\nbash: line 1: docker-compose: command not found\n\n', '2025-11-30 22:33:06.149', '2025-11-30 22:33:06.149');
 COMMIT;
 
 -- ----------------------------
--- View structure for db_instance_all
+-- Table structure for ticket_orders
 -- ----------------------------
-DROP VIEW IF EXISTS `db_instance_all`;
-CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `db_instance_all` AS select `db_instance`.`id` AS `id`,`db_instance`.`code` AS `code`,`db_instance`.`name` AS `name`,(case when (`db_instance`.`type` = 'postgres') then 'postgres' else 'mysql' end) AS `db_type`,`db_instance`.`type` AS `sub_type`,`db_instance`.`host` AS `host`,`db_instance`.`port` AS `port`,`db_instance`.`username` AS `username`,`db_instance`.`password` AS `password`,`db_instance`.`remark` AS `remark`,`db_instance`.`ssh_tunnel_machine_id` AS `ssh_tunnel_machine_id`,`db_instance`.`status` AS `status`,`db_instance`.`create_time` AS `create_time`,`db_instance`.`update_time` AS `update_time`,`db_instance`.`creator` AS `creator`,`db_instance`.`creator_id` AS `creator_id`,`db_instance`.`modifier` AS `modifier`,`db_instance`.`modifier_id` AS `modifier_id`,json_object('network',`db_instance`.`network`,'params',`db_instance`.`params`) AS `connection_config` from `db_instance` union all select `db_redis_instance`.`id` AS `id`,`db_redis_instance`.`code` AS `code`,`db_redis_instance`.`name` AS `name`,'redis' AS `db_type`,`db_redis_instance`.`mode` AS `sub_type`,`db_redis_instance`.`host` AS `host`,`db_redis_instance`.`port` AS `port`,`db_redis_instance`.`username` AS `username`,`db_redis_instance`.`password` AS `password`,`db_redis_instance`.`remark` AS `remark`,`db_redis_instance`.`ssh_tunnel_machine_id` AS `ssh_tunnel_machine_id`,`db_redis_instance`.`status` AS `status`,`db_redis_instance`.`create_time` AS `create_time`,`db_redis_instance`.`update_time` AS `update_time`,`db_redis_instance`.`creator` AS `creator`,`db_redis_instance`.`creator_id` AS `creator_id`,`db_redis_instance`.`modifier` AS `modifier`,`db_redis_instance`.`modifier_id` AS `modifier_id`,json_object('mode',`db_redis_instance`.`mode`,'db',`db_redis_instance`.`db`) AS `connection_config` from `db_redis_instance` union all select `db_mongo_instance`.`id` AS `id`,`db_mongo_instance`.`code` AS `code`,`db_mongo_instance`.`name` AS `name`,'mongodb' AS `db_type`,`db_mongo_instance`.`type` AS `sub_type`,NULL AS `host`,NULL AS `port`,NULL AS `username`,NULL AS `password`,`db_mongo_instance`.`remark` AS `remark`,`db_mongo_instance`.`ssh_tunnel_machine_id` AS `ssh_tunnel_machine_id`,`db_mongo_instance`.`status` AS `status`,`db_mongo_instance`.`create_time` AS `create_time`,`db_mongo_instance`.`update_time` AS `update_time`,`db_mongo_instance`.`creator` AS `creator`,`db_mongo_instance`.`creator_id` AS `creator_id`,`db_mongo_instance`.`modifier` AS `modifier`,`db_mongo_instance`.`modifier_id` AS `modifier_id`,json_object('uri',`db_mongo_instance`.`uri`) AS `connection_config` from `db_mongo_instance` union all select `db_es_instance`.`id` AS `id`,`db_es_instance`.`code` AS `code`,`db_es_instance`.`name` AS `name`,'elasticsearch' AS `db_type`,`db_es_instance`.`protocol` AS `sub_type`,`db_es_instance`.`host` AS `host`,`db_es_instance`.`port` AS `port`,`db_es_instance`.`username` AS `username`,`db_es_instance`.`password` AS `password`,`db_es_instance`.`remark` AS `remark`,`db_es_instance`.`ssh_tunnel_machine_id` AS `ssh_tunnel_machine_id`,`db_es_instance`.`status` AS `status`,`db_es_instance`.`create_time` AS `create_time`,`db_es_instance`.`update_time` AS `update_time`,`db_es_instance`.`creator` AS `creator`,`db_es_instance`.`creator_id` AS `creator_id`,`db_es_instance`.`modifier` AS `modifier`,`db_es_instance`.`modifier_id` AS `modifier_id`,json_object('protocol',`db_es_instance`.`protocol`) AS `connection_config` from `db_es_instance`;
+DROP TABLE IF EXISTS `ticket_orders`;
+CREATE TABLE `ticket_orders` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `ticket_no` varchar(64) NOT NULL,
+  `title` varchar(256) NOT NULL,
+  `business_type` varchar(32) NOT NULL,
+  `category` varchar(32) NOT NULL,
+  `environment` varchar(32) NOT NULL,
+  `priority` varchar(16) NOT NULL,
+  `impact_scope` varchar(1000) DEFAULT NULL,
+  `description` text,
+  `form_data` json DEFAULT NULL,
+  `attachments` json DEFAULT NULL,
+  `status` varchar(32) NOT NULL,
+  `workflow_instance_id` bigint unsigned DEFAULT NULL,
+  `applicant_id` bigint unsigned NOT NULL,
+  `applicant_name` varchar(128) NOT NULL,
+  `handler_id` bigint unsigned DEFAULT NULL,
+  `handler_name` varchar(128) DEFAULT NULL,
+  `strategy` varchar(16) DEFAULT NULL,
+  `rollback_plan` text,
+  `executor_id` bigint unsigned DEFAULT NULL,
+  `executor_name` varchar(128) DEFAULT NULL,
+  `expected_at` datetime(3) DEFAULT NULL,
+  `resolved_at` datetime(3) DEFAULT NULL,
+  `started_at` datetime(3) DEFAULT NULL,
+  `finished_at` datetime(3) DEFAULT NULL,
+  `closed_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_ticket_orders_ticket_no` (`ticket_no`),
+  KEY `idx_ticket_orders_title` (`title`),
+  KEY `idx_ticket_type_status` (`business_type`),
+  KEY `idx_ticket_orders_category` (`category`),
+  KEY `idx_ticket_orders_environment` (`environment`),
+  KEY `idx_ticket_orders_priority` (`priority`),
+  KEY `idx_ticket_orders_status` (`status`),
+  KEY `idx_ticket_orders_workflow_instance_id` (`workflow_instance_id`),
+  KEY `idx_ticket_orders_applicant_id` (`applicant_id`),
+  KEY `idx_ticket_orders_applicant_name` (`applicant_name`),
+  KEY `idx_ticket_orders_handler_id` (`handler_id`),
+  KEY `idx_ticket_orders_handler_name` (`handler_name`),
+  KEY `idx_ticket_orders_executor_id` (`executor_id`),
+  KEY `idx_ticket_orders_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of ticket_orders
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for ticket_release_applications
+-- ----------------------------
+DROP TABLE IF EXISTS `ticket_release_applications`;
+CREATE TABLE `ticket_release_applications` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `code` varchar(64) NOT NULL,
+  `system_name` varchar(128) DEFAULT NULL,
+  `environment` varchar(32) NOT NULL,
+  `jenkins_account_id` bigint unsigned NOT NULL,
+  `jenkins_job_name` varchar(256) NOT NULL,
+  `default_parameters` json DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_ticket_release_applications_code` (`code`),
+  KEY `idx_ticket_release_applications_name` (`name`),
+  KEY `idx_ticket_release_applications_system_name` (`system_name`),
+  KEY `idx_ticket_release_applications_environment` (`environment`),
+  KEY `idx_ticket_release_applications_jenkins_account_id` (`jenkins_account_id`),
+  KEY `idx_ticket_release_applications_enabled` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of ticket_release_applications
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for ticket_release_items
+-- ----------------------------
+DROP TABLE IF EXISTS `ticket_release_items`;
+CREATE TABLE `ticket_release_items` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `release_id` bigint unsigned NOT NULL,
+  `application_id` bigint unsigned NOT NULL,
+  `application_name` varchar(128) NOT NULL,
+  `version` varchar(128) NOT NULL,
+  `target` varchar(256) DEFAULT NULL,
+  `jenkins_account_id` bigint unsigned NOT NULL,
+  `jenkins_job_name` varchar(256) NOT NULL,
+  `parameters` json DEFAULT NULL,
+  `execute_order` bigint NOT NULL DEFAULT '0',
+  `status` varchar(32) NOT NULL,
+  `queue_id` bigint DEFAULT NULL,
+  `build_number` bigint DEFAULT NULL,
+  `build_url` varchar(500) DEFAULT NULL,
+  `error_message` text,
+  `started_at` datetime(3) DEFAULT NULL,
+  `finished_at` datetime(3) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_ticket_release_items_release_id` (`release_id`),
+  KEY `idx_ticket_release_items_application_id` (`application_id`),
+  KEY `idx_ticket_release_items_jenkins_account_id` (`jenkins_account_id`),
+  KEY `idx_ticket_release_items_status` (`status`),
+  KEY `idx_ticket_release_items_queue_id` (`queue_id`),
+  KEY `idx_ticket_release_items_build_number` (`build_number`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of ticket_release_items
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for ticket_workflow_definitions
+-- ----------------------------
+DROP TABLE IF EXISTS `ticket_workflow_definitions`;
+CREATE TABLE `ticket_workflow_definitions` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(128) NOT NULL,
+  `code` varchar(64) NOT NULL,
+  `business_types` json DEFAULT NULL,
+  `environments` json DEFAULT NULL,
+  `description` varchar(500) DEFAULT NULL,
+  `enabled` tinyint NOT NULL DEFAULT '1',
+  `version` bigint NOT NULL DEFAULT '1',
+  `prevent_self_approval` tinyint NOT NULL DEFAULT '1',
+  `maintainer_id` bigint unsigned DEFAULT NULL,
+  `maintainer_name` varchar(128) DEFAULT NULL,
+  `created_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  `nodes` json DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_ticket_workflow_definitions_code` (`code`),
+  KEY `idx_ticket_workflow_definitions_name` (`name`),
+  KEY `idx_ticket_workflow_definitions_enabled` (`enabled`),
+  KEY `idx_ticket_workflow_definitions_maintainer_id` (`maintainer_id`),
+  KEY `idx_ticket_workflow_definitions_created_at` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of ticket_workflow_definitions
+-- ----------------------------
+BEGIN;
+COMMIT;
+
+-- ----------------------------
+-- Table structure for ticket_workflow_instances
+-- ----------------------------
+DROP TABLE IF EXISTS `ticket_workflow_instances`;
+CREATE TABLE `ticket_workflow_instances` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `definition_id` bigint unsigned NOT NULL,
+  `definition_name` varchar(128) NOT NULL,
+  `definition_version` bigint NOT NULL,
+  `business_type` varchar(32) NOT NULL,
+  `business_id` bigint unsigned NOT NULL,
+  `business_no` varchar(64) DEFAULT NULL,
+  `applicant_id` bigint unsigned NOT NULL,
+  `applicant_name` varchar(128) NOT NULL,
+  `status` varchar(32) NOT NULL,
+  `current_node_order` bigint NOT NULL DEFAULT '0',
+  `current_node_name` varchar(128) DEFAULT NULL,
+  `node_snapshot` longtext,
+  `started_at` datetime(3) DEFAULT NULL,
+  `finished_at` datetime(3) DEFAULT NULL,
+  `updated_at` datetime(3) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `idx_ticket_flow_business` (`business_type`,`business_id`),
+  KEY `idx_ticket_workflow_instances_definition_id` (`definition_id`),
+  KEY `idx_ticket_workflow_instances_business_no` (`business_no`),
+  KEY `idx_ticket_workflow_instances_applicant_id` (`applicant_id`),
+  KEY `idx_ticket_workflow_instances_status` (`status`),
+  KEY `idx_ticket_workflow_instances_started_at` (`started_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- ----------------------------
+-- Records of ticket_workflow_instances
+-- ----------------------------
+BEGIN;
+COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Must remain the final statement: the MySQL healthcheck uses this row to
+-- distinguish a completed bootstrap from a partially imported database.
+INSERT INTO `system_migration_meta` (`meta_key`, `meta_value`, `updated_at`)
+VALUES ('autoops_docker_bootstrap_v1', 'complete', CURRENT_TIMESTAMP)
+ON DUPLICATE KEY UPDATE
+  `meta_value` = VALUES(`meta_value`),
+  `updated_at` = VALUES(`updated_at`);

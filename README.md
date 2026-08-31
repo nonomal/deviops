@@ -2,8 +2,8 @@
 
 ## 项目简介
 
-天枢AutoOps运维管理系统是一个基于 Go + vue3 框架开发的企业级运维自动化平台，提供以下核心能力主机管理、配置中心、任务调度、K8s集群管理、监控告警等功能模块。统一平台，全栈治：打破 CI/CD、监控、CMDB、K8s、工单等系统孤岛，数据互通、策略统
-
+天枢AutoOps运维管理系统(枢=枢纽+中心)是一个基于 Go + vue3 框架开发的企业级运维自动化平台，提供以下核心能力主机管理、配置中心、任务调度、K8s集群管理、监控告警等功能模块。统一平台，全栈治：打破 CI/CD、监控、CMDB、K8s、工单等系统孤岛，数据互通、策略统. 最终实现把常用的运维工具全部集成在一起，比如夜莺，jenkins，jumpserver，kuboard，cmdb，Archery，等等，实现运维自动化。
+![alt text](assets/jg.png)
 
 ## 功能清单
 
@@ -11,12 +11,13 @@
 | 功能模块 | 功能项 | 状态 |
 |---------|--------|------|
 | **CMDB资产管理** | 主机管理 | ✅ |
-| | 云主机管理-阿里-腾讯-百度-华为 | ✅ |
+| | 主机管理-阿里-腾讯-百度-华为-跳板机 | ✅ |
 | | 云密钥管理 | ✅ |
 | | 主机终端管理 | ✅ |
 | | 五类数据库管理(MySQL/PgSQL/Redis/ES/MongoDB) | ✅ |
-| | windos 主机管理 | 🚧规划中 |
-| | 路由器配置管理  | 🚧规划中 |
+| | windows 主机管理 | 🚧规划中 |
+| | windows 远程桌面-guacamole | 🚧规划中 |
+| | 交换机配置管理  | 🚧规划中 |
 | **Kubernetes集群管理** | 多集群管理 | ✅ |
 | | 节点管理 | ✅ |
 | | Pod容器管理 | ✅ |
@@ -57,7 +58,8 @@
 | **后续开发功能** | SQL工单系统 | 📋 规划中 |
 | | 运维工单系统 | 📋 规划中 |
 | | 运维全局巡检报告 | 📋 规划中 |
-| | 优化运维仪表盘 | 📋 规划中 |
+| | 优化运维仪表盘 | ✅ 完成 |
+| | 运维知识库开发-Markdown写入-展示 | 📋 规划中 |
 | | AI大模型分析功能 | 📋 规划中 |
 
 
@@ -144,7 +146,7 @@ DevOps运维管理系统优势：
 </details>
 
 ### 测试环境
-http://139.9.205.38/login
+http://autoops.com.cn/   
 账号：test
 密码：123456
 ### 视频安装使用介绍
@@ -154,36 +156,25 @@ https://www.bilibili.com/video/BV179Wxz1Ez6/?vd_source=37f81c1b36b3818cbad621bcb
 
 ## 安装步骤
 docker一键安装
-[docker部署文档](docker/README.md)
+
 #### 拉取镜像(可选,首次部署会自动拉取)
 ```bash
-docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/deviops-api:v1.0
-docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/deviops-web:v1.0
-docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/pushgateway:v1.9.0
-docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/redis:7.0-alpine
-docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/prometheus:v2.47.0
-docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/mysql:8.0.33
+docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/deviops-web:v5.0 
+docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/deviops-api:v5.0 
+docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/mysql:8.0.33 
+docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/redis:6.2 
+docker pull  crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/victoria-metrics:latest
+docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/victoria-logs:latest 
+docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/kafka:4.0.0    
+docker pull crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/vector:latest-debian 
 ```
 
-
-### 修改配置文件
 ```bash
-* git clone https://github.com/zhang1024fan/deviops.git
-* cd  deviops/docker
-
-vim  api/config.yaml
-
-  # 本地ip地址(替换为实际的外网IP或域名)
-  imageHost: "http://192.168.2.123:8088"
-# 监控配置
-monitor:
-  prometheus:
-    url: "http://192.168.2.123:9090"
-  pushgateway:
-    url: "http://192.168.2.123:9091"
-  agent:
-    heartbeat_server_url: "http://192.168.2.123:8000/api/v1/monitor/agent/heartbeat"
+# 脚本+镜像版本+ip+前端端口
+cd /root/deviops/docker
+./devops-start.sh  v5.0   ip     8080
 ```
+
 
 ```bash
 docker-compose up -d
@@ -192,28 +183,47 @@ docker-compose ps
 ### 3. 查看服务日志
 docker-compose logs -f
 ### 4.访问服务
-Web 前端: http://localhost:8088
+Web 前端: http://localhost:8080
 默认账号: admin / 123456
 ```
+
+```bash
+# arm64 安装镜像，-arm64 标识的镜像下载到本地后把镜像-arm64  去掉重新运行一键部署脚本即可。
+# docker tag   xxxx:镜像版本-arm64    xxxx:镜像版本
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/vector:latest-debian-arm64
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/redis:6.2-arm64 
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/victoria-metrics:latest-arm64
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/victoria-logs:latest-arm64  
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/mysql:8.0.33-arm64 
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/kafka:4.0.0-arm64     
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/deviops-api:v5.0-arm64
+docker  push    crpi-aj3vgoxp9kzh2jx4.cn-hangzhou.personal.cr.aliyuncs.com/zhangfan_k8s/devops-web:v5.0-arm64
+```
+
+
 
 ## 感谢以下同学对本项目提供的打赏
 
 <p align="center">
-  <img src="assets/image.png" width="120" />
-  <img src="assets/image-1.png" width="120" />
-  <img src="assets/image-2.png" width="120" />
-  <img src="assets/image-3.png" width="120" />
-  <img src="assets/image-4.png" width="120" />
-  <img src="assets/image-5.png" width="120" />
-  <img src="assets/image-6.png" width="120" />
-  <img src="assets/image-7.png" width="120" />
-  <img src="assets/image-8.png" width="120" />
+  <img src="assets/zanzhu/1.png" width="120" />
+  <img src="assets/zanzhu/4.png" width="120" />
+  <img src="assets/zanzhu/5.png" width="120" />
+  <img src="assets/zanzhu/6.png" width="120" />
+  <img src="assets/zanzhu/7.png" width="120" />
+  <img src="assets/zanzhu/8.png" width="120" />
+  <img src="assets/zanzhu/9.png" width="120" />
+  <img src="assets/zanzhu/10.png" width="120" />
+  <img src="assets/zanzhu/11.png" width="120" />
+  <img src="assets/zanzhu/12.png" width="120" />
+  <img src="assets/zanzhu/13.png" width="120" />
+  <img src="assets/zanzhu/14.png" width="120" />
 </p>
 
 ## 联系作者
 
 ## 技术交流+社区
-
+- 微信技术交流: zf5391621
+- 建议邮箱: zfwh1024@163.com
 <img src="assets/zf.jpg" width="300" />
 
 #### 加群技术交流
